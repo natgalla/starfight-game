@@ -2,6 +2,17 @@ var difficulty = 3;
 var enemyDeckTotalCards;
 var tacticalDeckTotalCards;
 var enemyBaseDeckTotalCards;
+var gameID;
+var roundNumber;
+var turn;
+
+var logRound = function() {
+  console.log(gameID + "." + roundNumber);
+  for (var i = 0; i < players.length; i++) {
+    var player = players[i];
+    console.log(Player.summary);
+  }
+}
 
 var randomIndex = function(number) {
     var randomNumber = Math.floor(Math.random() * number);
@@ -28,7 +39,7 @@ var checkDeck = function(deck, discard) {
   }
 }
 
-var sortByMerit = function(friendlies) {
+var sortByMerit = function() {
   // procedure to sort player order based on merit
   var friendlySort = [];
   var highestMerit = 0;
@@ -61,7 +72,7 @@ var sortByMerit = function(friendlies) {
     }
     friendlies = friendlySort;
   }
-  return friendlies;
+  // return friendlies;
 }
 
 var addToDeck = function(deck, type, amount) {
@@ -71,6 +82,101 @@ var addToDeck = function(deck, type, amount) {
     amount--;
   }
   return deck;
+}
+
+var replace = function(amount, deck, discard, active) {
+  // prodecure for replacing active cards
+  discarding = amount
+  for (var i = discarding; i > 0; i--) {
+    if (active.length > 0) {
+      discard.push(active.pop());
+    }
+    discarding--;
+  }
+  for (var i = discarding; i < amount; i++) {
+    checkDeck(deck, discard);
+    active.push(deck.pop());
+    discarding++;
+  }
+}
+
+var turn = function() {
+  while (true) {
+    // calculate amount of tactical cards left
+    var tacticalCards = 0;
+    for (var i = 0; i < players.length; i++) {
+      var player = players[i];
+      if (player === friendlyBase) {
+        continue;
+      } else {
+        tacticalCards += player.hand.length;
+      }
+    }
+    // break loop if there are no tactical cards left
+    if (tacticalCards === 0) {
+      break;
+    }
+    for (var i = 0; i < players.length; i++) {
+      var player = players[i];
+      if (player === friendlyBase) {
+        continue;
+      } else {
+        var cardChoiceIndex; // get index of .selected card;
+        var cardChoice = player.hand.splice(cardChoiceIndex);
+        // run the chosen card's function
+        tacticalDiscard.push(cardChoice[0]);
+      }
+    }
+  }
+}
+
+var round = function() {
+  gameRound++;
+  logRound();
+  var turnNumber = 0;
+  if (roundNumber === 1) {
+    replace(enemyBase.startingEnemies, enemyBase.enemyDeck, enemyBase.enemyDiscard, enemyBase.enemiesActive);
+  }
+
+  // sort player order by merit
+  sortByMerit();
+
+  // distribute new enemies
+  if (roundNumber === 1) {
+    for (var i = 0; i > friendlies.length; i++) {
+      var friendly = friendlies[i];
+      for (var p = 0; p > friendly.pursuers.length; p++) {
+        friendly.pursuerDamage.push(0);
+      }
+    }
+  }
+
+  // replace tactical cards from last turn
+  for (var i = 0; i > friendlies.length; i++) {
+    var player = friendlies[i];
+    if (player === friendlyBase) {
+      continue;
+    } else {
+      replace(player.tacticalCardsPerTurn, tacticalDeck, tacticalDiscard, player.hand);
+    }
+  }
+
+  // ensure pursuer list and pursuer damage lists are the same length
+  for (var i = 0; i > friendlies.length; i++) {
+    var friendly = friendlies[i];
+    while (friendly.pursuerDamage.length != friendly.pursuers.length) {
+      if (friendly.pursuerDamage.length > friendly.pursuers.length) {
+        friendly.pursuerDamage.pop();
+      } else if (friendly.pursuerDamage.length) < friendly.pursuers.length) {
+        friendly.pursuerDamage.push(0);
+      }
+    }
+  }
+
+  // refresh play area
+
+  turn();
+
 }
 
 //build enemy deck

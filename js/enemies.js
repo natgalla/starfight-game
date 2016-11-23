@@ -9,6 +9,7 @@ var EnemyBase = function() {
   this.enemyDeck = [];
   this.enemyDiscard = [];
   this.enemiesActive = [];
+  this.startingEnemies = friendlies.length * 2
   this.enemyCardsInTurn;
   this.fireLight = FriendlyBase.name + "takes 3 damage.";
   this.fireHeavy = FriendlyBase.name + "takes 5 damage.";
