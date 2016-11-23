@@ -14,6 +14,7 @@ var Friendly = function(name, maxArmor) {
 var Player = function(name) {
   this.name = name;
   this.maxArmor = 10;
+  this.tacticalCardsPerTurn = 3;
   this.currentArmor = this.maxArmor;
   this.hand = [];
   this.pursuers = [];
@@ -36,9 +37,17 @@ Player.prototype.setAmtImproved = function() {
   this.amtImproved = Math.floor(this.merit/5);
 }
 
+Player.prototype.insertPlaceholder = function(location) {
+  //removes an enemy card from the fray and inserts a "destroyed" place holder
+  var removed = this.pursuers.splice(location);
+  enemyBase.enemyDiscard.push(removed[0]);
+  this.pursuers.splice(location, 0, placeHolder);
+  this.pursuers.join();
+}
+
 Player.prototype.damageRoll = function(list) {
-  var randomIndex = Math.floor(Math.random() * list.length);
-  return list[randomIndex];
+  var index = Math.floor(Math.random() * 6);
+  return list[index];
 }
 
 // calculate damage // only returning 0

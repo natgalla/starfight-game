@@ -1,10 +1,6 @@
-randomIndex = function() {
-    var randomNumber = Math.floor(Math.random() * 6);
-    return randomNumber;
-}
-
 var gameName = "Starfire";
 var sessionName;
+var players;
 var validSession = "test1";
 var $setup = $("#setup");
 var $newSessionNameInput = $("#newSessionName");

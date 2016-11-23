@@ -19,3 +19,6 @@ var barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer fro
 var scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 1 damage to 2 adjacent enemies")
 var immelman = new Tactical("Immelmann", "immelman", "Missile on your own pursuer")
 var jammer = new Tactical("Jammer", "jammer", "Nullify damage to the friendly base from an enemy base card")
+
+var tacticalDeck = [];
+var tacticalDiscard = [];
