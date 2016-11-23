@@ -1,0 +1,96 @@
+html {
+  background-color: #000;
+}
+
+.jumbotron {
+  background-image: linear-gradient(to top, steelblue -15%, transparent 30%),
+                    linear-gradient(#000 20%, transparent),
+                    url(../img/space.jpg);
+  background-color: black;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: magenta;
+  min-height: 60vh;
+}
+
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 100%;
+  text-shadow: 1px 1px 5px steelblue,
+              -1px -1px 4px dodgerblue;
+}
+
+.jumbotron a, .jumbotron a:visited {
+  color: inherit;
+  transition: text-shadow 1.2s ease-out;
+}
+
+.jumbotron a:hover {
+  text-decoration: none;
+  text-shadow: 2px 2px 5px steelblue,
+               1px 2px 3px steelblue,
+              -2px -2px 5px lime,
+              -1px -1px 3px steelblue;
+}
+
+.jumbotron p {
+  font-family: 'VT323', monospace;
+  font-size: 1.5em;
+  margin: auto;
+  padding-top: 8px;
+  border-top: 2px dashed steelblue;
+  max-width: 300px;
+  color: magenta;
+}
+
+h2 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.6em;
+  text-align: center;
+  color: steelblue;
+  margin-top: 1.5em;
+}
+
+#content p:last-child {
+    padding-bottom: 2em;
+    border-bottom: 2px dashed black;
+}
+
+
+a, a:visited {
+  transition-duration: 0.5s;
+  color: steelblue;
+  text-decoration: none;
+}
+
+a:hover {
+  color: magenta;
+}
+
+#footer {
+  background-color: black;
+  font-size: 0.8em;
+}
+
+
+/************* MEDIA QUERIES ***************/
+
+@media (max-width: 576px) {
+  .jumbotron h1 {
+    font-size: 5em;
+  }
+}
+@media (min-width: 768px) {
+  #content p:last-child {
+    border-bottom: none;
+  }
+}
+
+@media (min-width: 992px) {
+  .jumbotron h1 {
+    font-size: 6em;
+  }
+  #kickstarter p:last-child {
+    border-bottom: 2px dashed black;
+  }
+}
