@@ -82,8 +82,11 @@ POSITIONING
 #player {
   /*border: 2px solid magenta;*/
   position: absolute;
-  width: 100%;
+  width: 50%;
+  text-align: center;
   bottom: 0;
+  left: 25%;
+  margin: 0 auto;
 }
 
 #playerHand {
@@ -122,7 +125,7 @@ POSITIONING
   border-radius: 33% 0 0 33%;
 }
 
-#wingman-pursuers {
+#wingmen-pursuers {
   z-index: 1;
   text-align: center;
   height: 100px;
@@ -188,7 +191,7 @@ li p {
 }
 
 #wingmen ul,
-#wingman-pursuers ul {
+#wingmen-pursuers ul {
   display: inline-block;
 }
 
@@ -196,7 +199,7 @@ li p {
   margin: 0 10px;
 }
 
-#wingman-pursuers ul {
+#wingmen-pursuers ul {
   margin: 0 20px;
 }
 
@@ -229,9 +232,18 @@ li p {
   background: rgba(0, 0, 0, 0.0);
   margin: 0, -3em;
 }
-#wingman-pursuers .emptySpace {
+
+#wingmen-pursuers .emptySpace {
   border: none;
   background: rgba(0, 0, 0, 0.0);
+  margin-right: -50px;
+}
+
+#basePursuers {
+  position: absolute;
+  transform: rotate(90deg);
+  left: 0%;
+  top: 70%;
 }
 
 /******************
@@ -245,7 +257,8 @@ PLAYER SUMMARIES
 #player .playerSummary {
   position: absolute;
   bottom: 70px;
-  left: 20%;
+  right: -15%;
+  z-index: -1;
 }
 
 #wingmen .playerSummary {

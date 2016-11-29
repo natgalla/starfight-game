@@ -1,21 +1,20 @@
-var gameName = "Starfire";
-var sessionName;
-var players;
-var validSession = "test1";
-var $setup = $("#setup");
-var $newSessionNameInput = $("#newSessionName");
-var $joinSessionNameInput = $("#joinSessionName");
-var $createGameName = $("#createGameName");
-var $enterGameName = $("#enterGameName");
-var $newGame = $("#newGame");
-var $joinGame = $("#joinGame");
+const gameName = "Starfire";
+let sessionName;
+const validSession = "test1";
+const $setup = $("#setup");
+const $newSessionNameInput = $("#newSessionName");
+const $joinSessionNameInput = $("#joinSessionName");
+const $createGameName = $("#createGameName");
+const $enterGameName = $("#enterGameName");
+const $newGame = $("#newGame");
+const $joinGame = $("#joinGame");
 
-var $greet = $("#greet");
-var $transition1 = $("#transition1");
-var $startGame = $("#startGame");
-var $newSession = $("#newSession");
-var $joinSession = $("#joinSession");
-var $playArea = $("#playArea");
+const $greet = $("#greet");
+const $transition1 = $("#transition1");
+const $startGame = $("#startGame");
+const $newSession = $("#newSession");
+const $joinSession = $("#joinSession");
+const $playArea = $("#playArea");
 
 $playArea.hide();
 $transition1.hide();
@@ -23,7 +22,7 @@ $startGame.hide();
 $newSession.hide();
 $joinSession.hide();
 $greet.prepend("<h3>Welcome to the " + gameName + " playtest module</h3>");
-var $play = $("#play");
+const $play = $("#play");
 
 $play.click(function() {
   $greet.hide();

@@ -1,15 +1,13 @@
 //the controlling player's hand
-var hand = document.getElementById("playerHand");
+const hand = document.getElementById("playerHand");
 
 //establish buttons for card use
-var buttons = document.getElementById("buttons");
-var useButton = document.createElement("button");
-var discardButton = document.createElement("button");
-var cancelButton = document.createElement("button");
-var fireButton = document.createElement("button");
-var evadeButton = document.createElement("button");
-
-var choosing = true;
+const buttons = document.getElementById("buttons");
+const useButton = document.createElement("button");
+const discardButton = document.createElement("button");
+const cancelButton = document.createElement("button");
+const fireButton = document.createElement("button");
+const evadeButton = document.createElement("button");
 
 //add text to the buttons
 useButton.innerText = "Use";
@@ -31,25 +29,28 @@ Player3.hand = [assist, missile, bomb];
 Player4.name = "Alan";
 Player4.pursuers = [medium, medium];
 Player4.hand = [bomb, missile, missile];
-var players = [Player1, Player2, Player3, Player4];
+FriendlyBase.pursuers = [light, light];
 // end demonstration settings
 
-var refreshBases = function() {
+const refreshBases = function() {
   $("#friendlyBase").html(FriendlyBase.summary());
   $("#enemyBase").html(enemyBase.summary());
 }
 
-var distrTacticalCards = function() {
-  var wingman = 1;
-  for (var i = 0; i < players.length; i++) {
-    var $wingmanHand = $("#wingman" + wingman + "-hand");
-    var player = players[i];
-    if (player === Player1) {
+const distrTacticalCards = function() {
+  let wingman = 1;
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let $wingmanHand = $("#wingman" + wingman + "-hand");
+    let player = game.friendlies[i];
+    if (player === FriendlyBase) {
+      continue;
+    }
+    else if (player === Player1) {
       checkCards();
     } else {
       $wingmanHand.after(player.summary());
-      for (var x = 0; x < 3; x++) {
-        var tCard = player.hand[x];
+      for (let i = 0; i < 3; i++) {
+        let tCard = player.hand[i];
         $wingmanHand.append(tCard.card);
       }
       wingman += 1
@@ -57,23 +58,26 @@ var distrTacticalCards = function() {
   }
 }
 
-var distrEnemyCards = function() {
-  var wingman = 1;
-  var $playerPursuers = $("#playerPursuers");
-  for (var i = 0; i < players.length; i++) {
-    var $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
-    var player = players[i];
-    if (player === Player1) {
-      for (var x = 0; x < player.pursuers.length; x++) {
-        var eCard = player.pursuers[x];
-        $playerPursuers.append(eCard.card);
-      }
+const distrEnemyCards = function() {
+  const dealEnemies = function(location, friendly) {
+    for (let i = 0; i < friendly.pursuers.length; i++) {
+      let eCard = friendly.pursuers[i];
+      location.append(eCard.card);
+    }
+  }
+  let wingman = 1;
+  const $playerPursuers = $("#playerPursuers");
+  const $basePursuers = $("#basePursuers");
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly === FriendlyBase) {
+      dealEnemies($basePursuers, friendly);
+    } else if (friendly === Player1) {
+      dealEnemies($playerPursuers, friendly);
     } else {
-      for (var x = 0; x < player.pursuers.length; x++) {
-        var eCard = player.pursuers[x];
-        $wingmanPursuers.append(eCard.card);
-      }
-      wingman += 1
+      let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
+      dealEnemies($wingmanPursuers, friendly);
+      wingman++
     }
   }
 }
@@ -83,22 +87,27 @@ UTILITY FUNCTIONS
 ********************/
 
 //clear all action buttons
-var clearButtons = function() {
+const clearButtons = function() {
   buttons.innerHTML = "";
 }
 
 //remove the selected card from play
-var removeCard = function() {
+const removeCard = function() {
   clearButtons();
   $(".selected").remove();
 }
 
 //if no cards are left, deal new cards
-checkCards = function() {
+const checkCards = function() {
+  const $summary = $("#player .playerSummary");
+  if ($summary.length == 0) {
+    $("#playerHand").after(Player1.summary());
+  } else {
+    $summary.replaceWith(Player1.summary());
+  }
   if (hand.children.length === 0 ) {
-    $("#playerHand").before(Player1.summary());
-    for (var i = 0; i < 3; i++) {
-      var tCard = Player1.hand[i];
+    for (let i = 0; i < 3; i++) {
+      let tCard = Player1.hand[i];
       $("#playerHand").append(tCard.card);
     }
   }
@@ -110,12 +119,12 @@ CARD SELECTION
 ********************/
 
 // remove "selected" class from all cards when a card is clicked
-var deselect = function() {
+const deselect = function() {
   $(".selected").removeClass("selected");
 }
 
 // assign "selected" class only to the clicked card
-var selectCard = function() {
+const selectCard = function() {
   deselect();
   console.log("Card selected");
   this.classList.toggle("selected");
@@ -129,18 +138,18 @@ CARD BINDING
 ********************/
 
 //bind click event handler to each card
-var enableSelect = function() {
+const enableSelect = function() {
   for (i=0; i<hand.children.length; i++) {
-    var card = hand.children[i];
+    let card = hand.children[i];
     card.onclick = selectCard;
   }
   $(".disabled").removeClass("disabled");
 }
 
 //disable clicking other cards while an action is being taken
-var disableSelect = function() {
+const disableSelect = function() {
   for (i=0; i<hand.children.length; i++) {
-    var card = hand.children[i];
+    let card = hand.children[i];
     card.onclick = false;
   }
 }
@@ -151,7 +160,7 @@ var disableSelect = function() {
 BUTTON FUNCTIONS
 ********************/
 
-var use = function() {
+const use = function() {
   clearButtons();
   disableSelect();
   //run card function
@@ -160,14 +169,14 @@ var use = function() {
   enableSelect();
 }
 
-var discard = function() {
+const discard = function() {
   clearButtons();
   buttons.append(fireButton);
   buttons.append(evadeButton);
   buttons.append(cancelButton);
   for (i=0; i<hand.children.length; i++) {
-    var card = hand.children[i];
-    var cardSelected = card.classList.contains("selected");
+    let card = hand.children[i];
+    let cardSelected = card.classList.contains("selected");
     if(!cardSelected) {
       card.className = "tactical disabled";
     }
@@ -175,7 +184,7 @@ var discard = function() {
   disableSelect();
 }
 
-var fire = function() {
+const fire = function() {
   clearButtons();
   disableSelect();
   //run fire function
@@ -184,7 +193,7 @@ var fire = function() {
   enableSelect();
 }
 
-var evade = function() {
+const evade = function() {
   clearButtons();
   disableSelect();
   //run evade function
@@ -193,7 +202,7 @@ var evade = function() {
   enableSelect();
 }
 
-var cancel = function() {
+const cancel = function() {
   clearButtons();
   deselect();
   enableSelect();

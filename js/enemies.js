@@ -1,4 +1,4 @@
-var EnemyBase = function() {
+const EnemyBase = function() {
   this.name = "Enemy Base";
   this.maxArmor = 30;
   this.currentArmor = 30;
@@ -9,7 +9,7 @@ var EnemyBase = function() {
   this.enemyDeck = [];
   this.enemyDiscard = [];
   this.enemiesActive = [];
-  this.startingEnemies = friendlies.length * 2
+  // this.startingEnemies = friendlies.length * 2
   this.enemyCardsInTurn;
   this.fireLight = FriendlyBase.name + "takes 3 damage.";
   this.fireHeavy = FriendlyBase.name + "takes 5 damage.";
@@ -17,7 +17,7 @@ var EnemyBase = function() {
   this.deploy = "Draw an extra enemy card into play in the next round";
   this.reinforce = "Increase the amount enemies that enter the fray each turn by 1";
   this.summary = function() {
-          var summary = "<h3>" + this.name + "</h3>"
+          let summary = "<h3>" + this.name + "</h3>"
           + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
           return summary;
           }
@@ -28,9 +28,9 @@ EnemyBase.prototype.addEnemy = function() {
   this.enemiesActive.push(this.enemyDeck.pop());
 }
 
-var Enemy = function(name, cssClass, armor, power, targeting, merit) {
+const Enemy = function(name, cssClass, armor, power, targeting, merit) {
   this.name = name;
-  this.cssClass = cssClass
+  this.cssClass = cssClass;
   this.armor = armor;
   this.power = power;
   this.targeting = targeting;
@@ -48,10 +48,10 @@ var Enemy = function(name, cssClass, armor, power, targeting, merit) {
   }
 }
 
-var ace = new Enemy("Ace","ace",6,4,5,4);
-var heavy = new Enemy("Heavy","heavy",5,3,3,3);
-var medium = new Enemy("Medium","medium",4,2,4,2);
-var light = new Enemy("Light","light",3,2,4,1);
-var empty = new Enemy("Empty space","emptySpace",0,0,0,0);
-var placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
-var enemyBase = new EnemyBase();
+const ace = new Enemy("Ace","ace",6,4,5,4);
+const heavy = new Enemy("Heavy","heavy",5,3,3,3);
+const medium = new Enemy("Medium","medium",4,2,4,2);
+const light = new Enemy("Light","light",3,2,4,1);
+const empty = new Enemy("Empty space","emptySpace",0,0,0,0);
+const placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
+const enemyBase = new EnemyBase();

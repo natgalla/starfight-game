@@ -1,26 +1,26 @@
-var difficulty = 3;
-var enemyDeckTotalCards;
-var tacticalDeckTotalCards;
-var enemyBaseDeckTotalCards;
-var gameID;
-var roundNumber;
-var turn;
+const Game = function() {
+  this.difficulty = 3;
+  this.roundNumber = 0;
+  this.friendlies = [FriendlyBase, Player1, Player2, Player3, Player4];
+  this.tacticalDeck = [];
+  this.tacticalDiscard = [];
+}
 
-var logRound = function() {
-  console.log(gameID + "." + roundNumber);
-  for (var i = 0; i < players.length; i++) {
-    var player = players[i];
-    console.log(Player.summary);
+Game.prototype.logRound = function() {
+  console.log(gameID + "." + this.roundNumber);
+  for (let i = 0; i < players.length; i++) {
+    let player = players[i];
+    console.log(player.summary);
   }
 }
 
-var randomIndex = function(number) {
-    var randomNumber = Math.floor(Math.random() * number);
-    return randomNumber;
-}
+Game.prototype.randomIndex = function(number) {
+   let random = Math.floor(Math.random() * number);
+   return random;
+ }
 
-var shuffle = function(deck) {
-    var randIndex, x, i;
+Game.prototype.shuffle = function(deck) {
+    let randIndex, x, i;
     for (i = deck.length; i; i--) {
         randIndex = Math.floor(Math.random() * i);
         x = deck[i - 1];
@@ -29,28 +29,28 @@ var shuffle = function(deck) {
     }
 }
 
-var checkDeck = function(deck, discard) {
+Game.prototype.checkDeck = function(deck, discard) {
   // if deck is empty, replace with discard and shuffle
   if (deck.length === 0) {
     while (discard.length > 0) {
       deck.push(discard.pop());
-      shuffle(deck);
     }
+    this.shuffle(deck);
   }
 }
 
-var sortByMerit = function() {
+Game.prototype.sortByMerit = function() {
   // procedure to sort player order based on merit
-  var friendlySort = [];
-  var highestMerit = 0;
-  var firstFriendlyIndex;
-  var baseIndex;
-  var friendly;
-  var friendyIndex;
+  let friendlySort = [];
+  let highestMerit = 0;
+  let firstFriendlyIndex;
+  let baseIndex;
+  let friendly;
+  let friendyIndex;
   // find the friendly base and set baseIndex to its location
   // determine who has the highest merit. If highest merit is tied, return to default order
-  for (var i = 0; i < friendlies.length; i++) {
-    friendly = friendlies[i];
+  for (let i = 0; i < this.friendlies.length; i++) {
+    friendly = this.friendlies[i];
     if (friendly === FriendlyBase) {
       baseIndex = i;
     } else if (friendly.merit > highestMerit) {
@@ -62,20 +62,20 @@ var sortByMerit = function() {
   }
   // reorder the friendly list so that the player with highest merit is first, but turn order is maintained
   if (firstFriendlyIndex > 0) {
-    friendlySort.push(friendlies.pop(firstFriendlyIndex));
-    while (friendlies.length > 0) {
-      if (firstFriendlyIndex < friendlies.length) {
-        friendlySort.push(friendlies.pop(firstFriendlyIndex));
+    friendlySort.push(this.friendlies.pop(firstFriendlyIndex));
+    while (this.friendlies.length > 0) {
+      if (firstFriendlyIndex < this.friendlies.length) {
+        friendlySort.push(this.friendlies.pop(firstFriendlyIndex));
       } else {
-        friendlySort.push(friendlies.shift());
+        friendlySort.push(this.friendlies.shift());
       }
     }
-    friendlies = friendlySort;
+    this.friendlies = friendlySort;
   }
   // return friendlies;
 }
 
-var addToDeck = function(deck, type, amount) {
+Game.prototype.addToDeck = function(deck, type, amount) {
   // procedure that adds cards to a given deck
   while (amount > 0) {
     deck.push(type);
@@ -84,28 +84,29 @@ var addToDeck = function(deck, type, amount) {
   return deck;
 }
 
-var replace = function(amount, deck, discard, active) {
+Game.prototype.replace = function(amount, deck, discard, active) {
   // prodecure for replacing active cards
-  discarding = amount
-  for (var i = discarding; i > 0; i--) {
+  let discarding = amount;
+  for (let i = discarding; i > 0; i--) {
     if (active.length > 0) {
       discard.push(active.pop());
     }
     discarding--;
   }
-  for (var i = discarding; i < amount; i++) {
-    checkDeck(deck, discard);
+  for (let i = discarding; i < amount; i++) {
+    this.checkDeck(deck, discard);
     active.push(deck.pop());
     discarding++;
   }
 }
 
-var turn = function() {
+Game.prototype.turns = function() {
+  this.turnNumber = 1;
   while (true) {
     // calculate amount of tactical cards left
-    var tacticalCards = 0;
-    for (var i = 0; i < players.length; i++) {
-      var player = players[i];
+    let tacticalCards = 0;
+    for (let i = 0; i < this.friendlies.length; i++) {
+      let player = this.friendlies[i];
       if (player === friendlyBase) {
         continue;
       } else {
@@ -116,58 +117,59 @@ var turn = function() {
     if (tacticalCards === 0) {
       break;
     }
-    for (var i = 0; i < players.length; i++) {
-      var player = players[i];
-      if (player === friendlyBase) {
+    for (let i = 0; i < this.friendlies.length; i++) {
+      let player = this.friendlies[i];
+      if (player === FriendlyBase) {
         continue;
       } else {
-        var cardChoiceIndex; // get index of .selected card;
-        var cardChoice = player.hand.splice(cardChoiceIndex);
-        // run the chosen card's function
-        tacticalDiscard.push(cardChoice[0]);
+        let cardChoiceIndex; // get index of .selected card;
+        let cardChoice = player.hand.splice(cardChoiceIndex);
+        let tCard = cardChoice[0];
+        // run the chosen card's function player.tCard();
+        tacticalDiscard.push(tCard);
       }
     }
+    this.turnNumber ++;
   }
 }
 
-var round = function() {
-  gameRound++;
-  logRound();
-  var turnNumber = 0;
-  if (roundNumber === 1) {
+Game.prototype.round = function() {
+  this.roundNumber++;
+  this.logRound();
+  if (this.roundNumber === 1) {
     replace(enemyBase.startingEnemies, enemyBase.enemyDeck, enemyBase.enemyDiscard, enemyBase.enemiesActive);
   }
 
   // sort player order by merit
-  sortByMerit();
+  this.sortByMerit();
 
   // distribute new enemies
-  if (roundNumber === 1) {
-    for (var i = 0; i > friendlies.length; i++) {
-      var friendly = friendlies[i];
-      for (var p = 0; p > friendly.pursuers.length; p++) {
+  if (this.roundNumber === 1) {
+    for (let i = 0; i > this.friendlies.length; i++) {
+      let friendly = this.friendlies[i];
+      for (let p = 0; p > friendly.pursuers.length; p++) {
         friendly.pursuerDamage.push(0);
       }
     }
   }
 
   // replace tactical cards from last turn
-  for (var i = 0; i > friendlies.length; i++) {
-    var player = friendlies[i];
-    if (player === friendlyBase) {
+  for (let i = 0; i > this.friendlies.length; i++) {
+    let player = this.friendlies[i];
+    if (player === FriendlyBase) {
       continue;
     } else {
-      replace(player.tacticalCardsPerTurn, tacticalDeck, tacticalDiscard, player.hand);
+      this.replace(player.tacticalCardsPerTurn, this.tacticalDeck, this.tacticalDiscard, player.hand);
     }
   }
 
   // ensure pursuer list and pursuer damage lists are the same length
-  for (var i = 0; i > friendlies.length; i++) {
-    var friendly = friendlies[i];
+  for (let i = 0; i > friendlies.length; i++) {
+    let friendly = this.friendlies[i];
     while (friendly.pursuerDamage.length != friendly.pursuers.length) {
       if (friendly.pursuerDamage.length > friendly.pursuers.length) {
         friendly.pursuerDamage.pop();
-      } else if (friendly.pursuerDamage.length) < friendly.pursuers.length) {
+      } else if (friendly.pursuerDamage.length < friendly.pursuers.length) {
         friendly.pursuerDamage.push(0);
       }
     }
@@ -175,45 +177,55 @@ var round = function() {
 
   // refresh play area
 
-  turn();
+  this.turns();
 
+  // deal pursuer damage to friendlies
+  // check if any friendlies died
+
+  // replace the active enemy base card
+  // show the new enemy base
+  // run the enemy base card's function
+  // check if the friendly base was destroyed
+
+  // discard empty space cards and remove destroyed place holders
 }
 
+const game = new Game();
 //build enemy deck
-addToDeck(enemyBase.enemyDeck, ace, 4);
-addToDeck(enemyBase.enemyDeck, heavy, 9);
-addToDeck(enemyBase.enemyDeck, medium, 12);
-addToDeck(enemyBase.enemyDeck, light, 15);
-addToDeck(enemyBase.enemyDeck, empty, 12);
+game.addToDeck(enemyBase.enemyDeck, ace, 4);
+game.addToDeck(enemyBase.enemyDeck, heavy, 9);
+game.addToDeck(enemyBase.enemyDeck, medium, 12);
+game.addToDeck(enemyBase.enemyDeck, light, 15);
+game.addToDeck(enemyBase.enemyDeck, empty, 12);
 
-enemyDeckTotalCards = enemyBase.enemyDeck.length;
+game.enemyDeckTotalCards = enemyBase.enemyDeck.length;
 
-shuffle(enemyBase.enemyDeck);
+game.shuffle(enemyBase.enemyDeck);
 
 //build tactical deck
-addToDeck(tacticalDeck, missile, 8);
-addToDeck(tacticalDeck, repairDrone, 3);
-addToDeck(tacticalDeck, assist, 3);
-addToDeck(tacticalDeck, drawFire, 4);
-addToDeck(tacticalDeck, heatSeeker, 2);
-addToDeck(tacticalDeck, bomb, 3);
-addToDeck(tacticalDeck, feint, 2);
-addToDeck(tacticalDeck, barrelRoll, 3);
-addToDeck(tacticalDeck, scatterShot, 3);
-addToDeck(tacticalDeck, immelman, 3);
-addToDeck(tacticalDeck, jammer, 2);
+game.addToDeck(game.tacticalDeck, missile, 8);
+game.addToDeck(game.tacticalDeck, repairDrone, 3);
+game.addToDeck(game.tacticalDeck, assist, 3);
+game.addToDeck(game.tacticalDeck, drawFire, 4);
+game.addToDeck(game.tacticalDeck, heatSeeker, 2);
+game.addToDeck(game.tacticalDeck, bomb, 3);
+game.addToDeck(game.tacticalDeck, feint, 2);
+game.addToDeck(game.tacticalDeck, barrelRoll, 3);
+game.addToDeck(game.tacticalDeck, scatterShot, 3);
+game.addToDeck(game.tacticalDeck, immelman, 3);
+game.addToDeck(game.tacticalDeck, jammer, 2);
 
-tacticalDeckTotalCards = tacticalDeck.length;
+game.tacticalDeckTotalCards = tacticalDeck.length;
 
-shuffle(tacticalDeck);
+game.shuffle(game.tacticalDeck);
 
 //build enemy base deck
-addToDeck(enemyBase.enemyBaseDeck, enemyBase.fireLight, 3);
-addToDeck(enemyBase.enemyBaseDeck, enemyBase.fireHeavy, 2);
-addToDeck(enemyBase.enemyBaseDeck, enemyBase.deploy, 2);
-addToDeck(enemyBase.enemyBaseDeck, enemyBase.repair, 3);
-addToDeck(enemyBase.enemyBaseDeck, enemyBase.reinforce, difficulty);
+game.addToDeck(enemyBase.enemyBaseDeck, enemyBase.fireLight, 3);
+game.addToDeck(enemyBase.enemyBaseDeck, enemyBase.fireHeavy, 2);
+game.addToDeck(enemyBase.enemyBaseDeck, enemyBase.deploy, 2);
+game.addToDeck(enemyBase.enemyBaseDeck, enemyBase.repair, 3);
+game.addToDeck(enemyBase.enemyBaseDeck, enemyBase.reinforce, game.difficulty);
 
-enemyBaseDeckTotalCards = enemyBase.enemyBaseDeck.length;
+game.enemyBaseDeckTotalCards = enemyBase.enemyBaseDeck.length;
 
-shuffle(enemyBase.enemyBaseDeck);
+game.shuffle(enemyBase.enemyBaseDeck);
