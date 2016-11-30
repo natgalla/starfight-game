@@ -32,6 +32,17 @@ p {
   list-style: none;
   text-align: center;
   color: limegreen;
+  margin-left: -2.5em;
+}
+
+#copyright {
+  font-family: sans-serif;
+  color: steelblue;
+  font-size: 0.8em;
+  position: fixed;
+  bottom: 10px;
+  text-align: center;
+  width: 100%;
 }
 
 /******************

@@ -32,6 +32,7 @@ const Enemy = function(name, cssClass, armor, power, targeting, merit) {
   this.name = name;
   this.cssClass = cssClass;
   this.armor = armor;
+  this.currentArmor = this.armor;
   this.power = power;
   this.targeting = targeting;
   this.merit = merit;
@@ -46,6 +47,17 @@ const Enemy = function(name, cssClass, armor, power, targeting, merit) {
             + "<p>MRT: " + this.merit + "</p>"
             + "</li>";
   }
+}
+
+Enemy.prototype.takeDamage = function(damage) {
+  this.currentArmor -= damage;
+  console.log(
+    this.name + " takes " + damage + " damage. Current armor: "
+    + this.currentArmor + "/" + this.armor)
+}
+
+Enemy.prototype.resetArmor = function() {
+  this.currentArmor = this.armor;
 }
 
 const ace = new Enemy("Ace","ace",6,4,5,4);

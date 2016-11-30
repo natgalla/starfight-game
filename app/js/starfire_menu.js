@@ -52,6 +52,7 @@ $createGameName.click(function() {
   if (sessionName) {
     $newSession.hide();
     $("#title").hide();
+    $("#info").hide();
     $playArea.fadeIn();
   }
 })
@@ -60,6 +61,7 @@ $enterGameName.click(function() {
   if (sessionName === validSession) {
     $joinSession.hide();
     $("#title").hide();
+    $("#info").hide();
     $playArea.fadeIn();
   } else {
     $("#notActive").show();
