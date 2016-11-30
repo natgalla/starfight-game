@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Starfire Online</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link href="https://fonts.googleapis.com/css?family=Orbitron|VT323" rel="stylesheet">
+    <link rel="stylesheet" href="css/starfire_app.css">
+  </head>
+  <body>
+    <h1 id="title">Starfire</h1>
+    <div id="setup">
+      <div id="greet">
+        <button id="play">Play</button>
+      </div>
+      <div id="transition1">
+        <h3>Initializing...</h3>
+      </div>
+      <div id="startGame">
+        <h3>Create a new game or join an existing game?</h3>
+        <button id='newGame'>New Game</button>
+        <button id='joinGame'>Join Game</button>
+      </div>
+      <div id="newSession">
+        <h3>Enter a name for this session.</h3>
+        <input id="newSessionName" type="text">
+        <button id="createGameName">Create</button>
+      </div>
+      <div id="joinSession">
+        <h3>Enter the name of the session you want to join.</h3>
+        <input id="joinSessionName" type="text">
+        <button id="enterGameName">Join</button>
+        <p id="notActive">not an active session</p>
+      </div>
+      <div id="info">
+        <ul id="status">
+        </ul>
+        <p id="copyright"> Starfire &copy; 2016 Nathan Gallagher and Rudi Vanzin. Design by Nathan Gallagher. </p>
+      </div>
+    </div>
+
+
+    <div id="playArea">
+      <div id="wingmen">
+        <ul id="wingman1-hand">
+        </ul>
+        <ul id="wingman2-hand">
+        </ul>
+        <ul id="wingman3-hand">
+        </ul>
+      </div>
+      <div id="wingmen-pursuers">
+        <ul id="wingman1-pursuers">
+        </ul>
+        <ul id="wingman2-pursuers">
+        </ul>
+        <ul id="wingman3-pursuers">
+        </ul>
+      </div>
+      <div id="friendlyBase">
+      </div> <!-- end friendly base -->
+      <div id="friendlyBasePursuers">
+        <ul id="basePursuers">
+        </ul>
+      </div>
+      <div id="enemyBase">
+      </div> <!-- end friendly base -->
+      <div id="player">
+        <ul id="playerPursuers">
+        </ul>
+        <ul id="playerHand">
+        </ul>
+        <div id="buttons">
+        </div> <!-- end buttons -->
+      </div> <!-- end player hand -->
+    </div> <!-- end play area -->
+    <!-- <script src="js/jquery-3.1.1.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha384-3ceskX3iaEnIogmQchP8opvBy3Mi7Ce34nWjpBIwVTHfGYWQS9jwHDVRnpKKHJg7" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/client.js"></script>
+    <script src="js/tactical.js"></script>
+    <script src="js/friendlies.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/starfire_menu.js"></script>
+    <script src="js/starfire_ui.js"></script>
+  </body>
+</html>
