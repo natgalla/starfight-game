@@ -45,6 +45,19 @@ p {
   width: 100%;
 }
 
+#overlay {
+  width: 100%;
+  height: 350px;
+  position: fixed;
+  bottom: 5%;
+  left: 0;
+  background: rgba(0,0,0,0.8);
+  text-align: center;
+  vertical-align: middle;
+  border-top: 2px solid magenta;
+  border-bottom: 2px solid magenta;
+}
+
 /******************
 BUTTONS & INPUT
 ******************/
@@ -159,7 +172,8 @@ CARD STYLES
 ******************/
 
 .tactical,
-.enemy {
+.enemy,
+.advTactical {
   transform: rotateX(15deg);
   transition: transform 0.4s;
   font-size: .75em;
@@ -172,12 +186,25 @@ CARD STYLES
   vertical-align: middle;
 }
 
-.tactical {
+.tactical,
+.advTactical {
   border: 2px solid magenta;
   border-radius: 10px;
   height: 180px;
   width: 110px;
   z-index: 2;
+}
+
+.advTactical {
+  margin: 2em;
+  height: 200px;
+  width: 130px;
+}
+
+.cost {
+  position: absolute;
+  bottom: 2em;
+  left: 3em;
 }
 
 .enemy {
@@ -216,7 +243,7 @@ li p {
 }
 
 #wingmen-pursuers ul {
-  margin: 0 20px;
+  margin: 0 40px;
 }
 
 #wingmen .tactical {
@@ -228,37 +255,44 @@ li p {
   margin: 0 -2em;
   z-index: 1;
   vertical-align: middle;
-  transform: rotate(180deg);
+  /*transform: rotate(180deg);*/
   margin-top: -50px;
   z-index: 0;
 }
 
-#wingmen .tactical h3,
+#market {
+  color: steelblue;
+  border: 2px solid magenta;
+  background-color: #333;
+  height: 100px;
+  width: 60px;
+  border-radius: 5px;
+  text-align: center;
+  padding: 1em;
+  font-size: 0.8em;
+}
+/*#wingmen .tactical h3,
 #wingmen .tactical p {
   display: none;
-}
+}*/
 
 #playerPursuers h3,
 #playerPursuers p {
   display: none;
 }
 
-.destroyed {
+.destroyed,
+#wingmen-pursuers .emptySpace,
+#basePursuers .emptySpace {
   border: none;
   background: rgba(0, 0, 0, 0.0);
-  margin: 0, -3em;
-}
-
-#wingmen-pursuers .emptySpace {
-  border: none;
-  background: rgba(0, 0, 0, 0.0);
-  margin-right: -50px;
+  margin-left: -50px;
 }
 
 #basePursuers {
   position: absolute;
-  transform: rotate(90deg);
-  left: 0%;
+  transform: rotate(-90deg);
+  left: 10%;
   top: 70%;
 }
 
