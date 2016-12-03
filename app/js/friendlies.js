@@ -19,6 +19,12 @@ const Friendly = function(name, maxArmor) {
             + "<div id='market'><h3>Market</h3></div>";
 }
 
+Friendly.prototype.useAdvTactical = function(index) {
+  let choice = this.market.splice(index, 1);
+  this.advTactics.discard.push(choice[0]);
+  this.market.join();
+}
+
 Friendly.prototype.updateSummary = function() {
   this.summary = "<h3>" + this.name + "</h3>"
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
@@ -61,6 +67,15 @@ const Player = function(name) {
   this.combatDie = [0,0,0,1,1,2];
   this.improvedDie = [0,0,1,1,1,2];
   this.amtImproved = 0;
+  this.effects = {
+    medalOfHonor: false,
+    medic: false,
+    daredevil: false,
+    sharpShooter: false,
+    emp: false,
+    countermeasures: false,
+    divertShields: 0,
+  };
   this.summary = "<div class='playerSummary " + this.name + "'>"
                 + "<h3>" + this.name + "</h3>"
                 + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
@@ -97,6 +112,15 @@ Player.prototype.insertPlaceholder = function(index) {
 Player.prototype.damageRoll = function(list) {
   // return a random value from a list
   return list[Math.floor(Math.random() * list.length)];
+}
+
+Player.prototype.increaseMerit = function(amount) {
+  let merit = amount;
+  if (this.upgrades.medalOfHonor === true) {
+    merit += 1;
+  }
+  this.merit += merit;
+  console.log(this.name + " receives " + merit + " merit.");
 }
 
 // calculate damage // only returning 0
@@ -146,9 +170,8 @@ Player.prototype.checkKill = function(friendly, index) {
   // if kill: award merit, insert placeholder
   if (friendly.pursuers[index].currentArmor <= 0) {
     console.log(friendly.pursuers[index].name + " pursuing " + friendly.name
-                + " destroyed. " + this.name + " receives "
-                + friendly.pursuers[index].merit + " merit.")
-    this.merit += friendly.pursuers[index].merit;
+                + " destroyed.")
+    this.increaseMerit(friendly.pursuers[index].merit);
     friendly.insertPlaceholder(index);
   }
 }
@@ -164,6 +187,7 @@ Player.prototype.doDamage = function(friendly, index, damage) {
                     + enemyBase.name + ". Current armor: "
                     + enemyBase.currentArmor + "/"
                     + enemyBase.maxArmor);
+        this.increaseMerit(1);
     } else {
       // deal damage to a selected enemy, check for kill
       friendly.pursuers[index].takeDamage(damage);
@@ -241,10 +265,14 @@ Player.prototype.bomb = function(friendly, pursuerIndex) {
     }
 }
 
-Player.prototype.repairDrone = function(friendly) {
+Player.prototype.repairDrone = function(friendly, repairPoints, meritReward) {
   // repair a selected ally, can choose self, award merit if not self
-  let repairPoints = 3;
-  let meritReward = 2;
+  if (repairPoints === undefined) {
+    repairPoints = 3;
+  }
+  if (meritReward === undefined) {
+    meritReward = 2;
+  }
   if (friendly.currentArmor < friendly.maxArmor) {
     friendly.currentArmor += repairPoints;
     if (friendly.currentArmor > friendly.maxArmor) {
@@ -254,8 +282,7 @@ Player.prototype.repairDrone = function(friendly) {
                   + friendly.currentArmor + "/" + friendly.maxArmor)
     }
     if (this != friendly) {
-      this.merit += meritReward;
-      console.log(this.name + " receives " + meritReward + " merit.");
+      this.increaseMerit(meritReward);
     }
   } else {
     console.log(friendly.name + " is already at maximum armor.");
@@ -265,9 +292,8 @@ Player.prototype.repairDrone = function(friendly) {
 Player.prototype.drawFire = function(friendly, index) {
   // choose an ally's pursuer and bring it to you
   console.log(friendly.pursuers[index].name + " moves from " + friendly.name
-              + " to " + this.name + ". " + this.name + " receives "
-              + friendly.pursuers[index].merit + " merit.");
-  this.merit += friendly.pursuers[index].merit;
+              + " to " + this.name + ".");
+  this.increaseMerit(friendly.pursuers[index].merit);
   let selected = friendly.pursuers.splice(index, 1);
   this.pursuers.push(selected[0]);
   friendly.pursuers.join();
@@ -321,6 +347,66 @@ Player.prototype.immelmann = function(index) {
   // bind click events to the player's pursuers
   // have them choose a pursuer
   this.missile(this, index);
+}
+
+Player.prototype.medalOfHonor = function() {
+  this.effects.medalOfHonor = true;
+}
+
+Player.prototype.daredevil = function() {
+  // allow player to attack enemy base if they have one or no pursuers
+  this.effects.daredevil = true;
+}
+
+Player.prototype.medic = function() {
+  this.effects.medic = true;
+}
+
+Player.prototype.sharpShooter = function() {
+  this.effects.sharpShooter = true;
+}
+
+Player.prototype.healthPack = function(friendly) {
+  this.repairDrone(friendly, 5, 3);
+}
+
+Player.prototype.intercept = function() {
+  enemyBase.effects.intercepted = true;
+}
+
+Player.prototype.jammer = function() {
+  enemyBase.effects.jammed = true;
+}
+
+Player.prototype.emp = function(friendly) {
+  friendly.effects.emp = true;
+  console.log(this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
+              + friendly.name + " will not be damaged this round.");
+}
+
+Player.prototype.countermeasures = function() {
+  friendly.effects.countermeasures = true;
+  console.log(this.name + " prepares countermeasures...")
+}
+
+Player.prototype.divertShields = function() {
+  this.effects.divertShields = 5;
+  console.log(this.name + " powers up shields. Next 5 damage will be negated.")
+}
+
+Player.prototype.jump = function() {
+  // shake all pursuers
+  console.log(this.name + " shakes " + this.pursuers.length
+              + " pursuers to the friendly base.");
+  for (let i = 0; i = this.pursuers.length; i++) {
+    friendlyBase.pursuers.push(this.pursuers.pop());
+  }
+}
+
+Player.prototype.hardSix = function() {
+  console.log("Sometimes you gotta roll the hard six.");
+  this.missile(enemyBase, undefined);
+  this.takeDamage(this.calcDamage(4));
 }
 
 const FriendlyBase = new Friendly("Friendly Base", 30);

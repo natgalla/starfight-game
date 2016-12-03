@@ -176,7 +176,7 @@ const deselect = function() {
 const selectCard = function() {
   // assign "selected" class only to the clicked card
   deselect();
-  console.log(this.classList + " card selected");
+  // console.log(this.classList + " card selected");
   this.classList.toggle("selected");
   buttons.append(useButton);
   buttons.append(discardButton);

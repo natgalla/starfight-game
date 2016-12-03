@@ -16,6 +16,10 @@ const EnemyBase = function() {
   };
   this.enemiesActive = [];
   this.enemiesPerTurn = 3;
+  this.effects = {
+    jammed: false,
+    intercepted: false
+  }
   this.fireLight = FriendlyBase.name + "takes 3 damage.";
   this.fireHeavy = FriendlyBase.name + "takes 5 damage.";
   this.repair = this.name + "repairs 3 damage.";
@@ -26,9 +30,21 @@ const EnemyBase = function() {
 }
 
 EnemyBase.prototype.updateSummary = function() {
-  this.summary = "<h3>" + this.name + "</h3>"
-                  + "<p>Armor: " + this.currentArmor + "/"
-                  + this.maxArmor + "</p>";
+  if (game.roundNumber === 1) {
+    this.summary = "<h3>" + this.name + "</h3>"
+                    + "<p>Armor: " + this.currentArmor + "/"
+                    + this.maxArmor + "</p>";
+  } else if (this.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
+    this.summary = "<h3>" + this.name + "</h3>"
+                    + "<p>Armor: " + this.currentArmor + "/"
+                    + this.maxArmor + "</p>"
+                    + "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
+  } else {
+    this.summary = "<h3>" + this.name + "</h3>"
+                    + "<p>Armor: " + this.currentArmor + "/"
+                    + this.maxArmor + "</p>"
+                    + this.currentEnemyBaseCard[0].card;
+  }
 }
 
 EnemyBase.prototype.takeDamage = function(damage) {
@@ -99,6 +115,10 @@ Enemy.prototype.resetArmor = function() {
 const EnemyBaseCard = function(name, description) {
   this.name = name;
   this.description = description;
+  this.card = "<div id = 'enemyBaseCard'>"
+            + "<h3>" + this.name + "</h3>"
+            + "<p>" + this.description + "</p>"
+            + "</div>";
 }
 
 // define enemy types

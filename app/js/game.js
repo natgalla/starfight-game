@@ -149,7 +149,12 @@ Game.prototype.round = function() {
     this.replaceCards(enemyBase.startingEnemies, enemyBase.enemyDeck, enemyBase.enemiesActive);
     this.replaceCards(FriendlyBase.marketSize, FriendlyBase.advTactics, FriendlyBase.market);
   } else {
-    for (let i = 0; i < enemyBase.enemiesPerTurn; i++) {
+    let newEnemies = enemyBase.enemiesPerTurn;
+    if (enemyBase.effects.intercepted === true) {
+      newEnemies -= 1;
+      enemyBase.effects.intercepted = false;
+    }
+    for (let i = 0; i < newEnemies; i++) {
       enemyBase.addEnemy();
     }
     if (enemyBase.currentEnemyBaseCard === deploy) {
@@ -185,31 +190,66 @@ Game.prototype.round = function() {
 
 Game.prototype.postRound = function() {
   console.log("Round: " + this.gameID + "." + this.roundNumber + " end.");
-  // deal pursuer damage to friendlies
+  // deal pursuer damage to friendlies, handle cases for damage negation
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];
     let damage = 0;
-    for (let x = 0; x < friendly.pursuers.length; x++) {
-      let enemy = friendly.pursuers[x];
-      damage += enemy.power;
-      if (enemy = placeHolder) {
-        let removed = friendly.pursuers.splice(x, 1);
-        friendly.pursuers.join();
-      } else if (enemy = emptySpace) {
-        let removed = friendly.pursuers.splice(x, 1);
-        enemyBase.enemyDiscard.push(removed[0]);
-        friendly.pursuers.join();
+    if (friendly.effects.emp === true) {
+      console.log(friendly.name + " is protected by EMP.");
+      friendly.effects.emp === false;
+    } else {
+      for (let x = 0; x < friendly.pursuers.length; x++) {
+        let enemy = friendly.pursuers[x];
+        damage += enemy.power;
+        if (enemy = placeHolder) {
+          let removed = friendly.pursuers.splice(x, 1);
+          friendly.pursuers.join();
+        } else if (enemy = emptySpace) {
+          let removed = friendly.pursuers.splice(x, 1);
+          enemyBase.enemyDiscard.push(removed[0]);
+          friendly.pursuers.join();
+        }
       }
+      if (friendly.effects.divertShields > 0) {
+        console.log(friendly.name + "'s shields reduce damage by "
+                    + friendly.effects.divertShields);
+        let difference = friendly.effects.divertShields - damage;
+        if (difference > 0) {
+          friendly.effects.divertShields -= damage;
+          damage = difference;
+        } else if (difference < 0) {
+          damage -= friendly.effects.divertShields;
+          friendly.effects.divertShields = 0;
+        } else {
+          damage = 0;
+          friendly.effects.divertShields = 0;
+        }
+      }
+      if (friendly.effects.countermeasures === true) {
+        let counterDamage = friendly.calcDamage(4);
+        console.log(friendly.name + " deploys countermeasures to avoid "
+                    + counterDamage + " damage.");
+        damage -= counterDamage;
+        friendly.effects.countermeasures = false;
+      }
+      if (damage < 0) {
+        damage = 0;
+      }
+      friendly.takeDamage(damage);
     }
-    friendly.takeDamage(damage);
   }
   // replace the active enemy base card
-  this.replaceCards(enemyBase.enemyBaseCardsPerTurn, enemyBase.enemyBaseDeck, enemyBase.currentEnemyBaseCard);
+  if (enemyBase.effects.jammed === true) {
+    enemyBase.enemyBaseDeck.discard.push(enemyBase.currentEnemyBaseCard.pop());
+    enemyBase.jammed = false;
+  } else {
+    this.replaceCards(enemyBase.enemyBaseCardsPerTurn, enemyBase.enemyBaseDeck, enemyBase.currentEnemyBaseCard);
+    enemyBase.currentEnemyBaseCard[0].action();
+  }
 
   // show the new enemy base card
 
   // run the enemy base card's function
-  enemyBase.currentEnemyBaseCard[0].action();
 
   // discard empty space cards and remove place holders
   for (let i = 0; i < this.friendlies.length; i++) {
