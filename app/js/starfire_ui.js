@@ -304,6 +304,10 @@ const disableSelect = function() {
   for (i=0; i<hand.children.length; i++) {
     let card = hand.children[i];
     card.onclick = false;
+    let cardSelected = card.classList.contains("selected");
+    if(!cardSelected) {
+      card.className = "tactical disabled";
+    }
   }
 }
 
@@ -347,13 +351,6 @@ const discard = function() {
   buttons.append(cicButton);
   buttons.append(cancelButton);
   ["fire", "evade"].forEach(addTurnListener);
-  for (i=0; i<hand.children.length; i++) {
-    let card = hand.children[i];
-    let cardSelected = card.classList.contains("selected");
-    if(!cardSelected) {
-      card.className = "tactical disabled";
-    }
-  }
   disableSelect();
 }
 
