@@ -186,11 +186,9 @@ Game.prototype.round = function() {
     FriendlyBase.addAdvTactic();
   }
 
-  // sort player order by merit
   this.sortByMerit();
-  // distribute enemies
-  this.distributeEnemies(enemyBase.enemiesActive);
 
+  this.distributeEnemies(enemyBase.enemiesActive);
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];
     friendly.adjustPursuerDamage();
