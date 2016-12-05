@@ -28,7 +28,7 @@ const heatSeeker = new Tactical("Heat Seeker", "heatSeeker", "Deal 5 damage to a
 const bomb = new Tactical("Bomb", "bomb", "Deal 6 damage to a single target, and 2 damage to the target on either side of it.");
 const feint = new Tactical("Feint", "feint", "Reuse a tactical card you already used this round");
 const barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself and place it in the middle of the fray");
-const scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 1 damage to 2 adjacent enemies");
+const scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 1 damage to 3 adjacent targets");
 const immelman = new Tactical("Immelmann", "immelman", "Choose an enemy pursuing you and roll 5 combat dice");
 const demo = new Tactical("Demo", "demo", "Example");
 

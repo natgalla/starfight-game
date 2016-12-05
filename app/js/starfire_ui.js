@@ -1,3 +1,33 @@
+// var sock = io();
+// let user;
+//
+// sock.on("msg", onMessage);
+//
+// sock.on("assign", assignPlayer);
+//
+// function assignPlayer(text) {
+//   if (text === "Player1") {
+//     user = Player1;
+//   } else if (text === "Player2") {
+//     user = Player2;
+//   }
+// }
+//
+// function onMessage(text) {
+//   var list = document.getElementById("status");
+//   var el = document.createElement("li");
+//   el.innerHTML = text;
+//   list.appendChild(el);
+// }
+//
+// function addTurnListener(id) {
+//     let button = document.getElementById(id);
+//     button.addEventListener("click", () => {
+//         socket.emit("turn", id);
+//     });
+// }
+let user = Player1;
+
 //the controlling player's hand
 const hand = document.getElementById("playerHand");
 
@@ -8,6 +38,8 @@ let discardButton = document.createElement("button");
 let cancelButton = document.createElement("button");
 let fireButton = document.createElement("button");
 let evadeButton = document.createElement("button");
+let cicButton = document.createElement("button");
+let confirmButton = document.createElement("button");
 let $overlay;
 
 //add text to the buttons
@@ -16,12 +48,16 @@ discardButton.innerText = "Discard";
 cancelButton.innerText = "Cancel";
 fireButton.innerText = "Fire";
 evadeButton.innerText = "Evade";
+cicButton.innerText = "Contact CIC";
+confirmButton.innerText = "Confirm Target";
 
 useButton.id = "use";
 discardButton.id = "discard";
 cancelButton.id = "cancel";
 fireButton.id = "fire";
 evadeButton.id = "evade";
+cicButton.id = "cic";
+confirmButton.id = "confirm";
 
 // for demonstration purposes
 Player1.name = "Nathan";
@@ -49,10 +85,10 @@ const removeCard = function() {
 
 const checkCards = function() {
   //show current player hand
-  showSummary(Player1, "#playerHand");
+  showSummary(user, "#playerHand");
   $("#playerHand").html("");
-  for (let i = 0; i < 3; i++) {
-    let tCard = Player1.hand[i];
+  for (let i = 0; i < user.hand.length; i++) {
+    let tCard = user.hand[i];
     $("#playerHand").append(tCard.card);
   }
 }
@@ -69,7 +105,7 @@ const showSummary = function(player, hand) {
   // show player summary
   let $playerHand = $(hand);
   let summary;
-  if (player === Player1) {
+  if (player === user) {
     summary = "#player .playerSummary";
   } else {
     summary = "#wingmen ." + player.name;
@@ -93,7 +129,7 @@ const updateSummaries = function() {
     let friendly = game.friendlies[i];
     if (friendly === FriendlyBase) {
       refreshBases();
-    } else if (friendly === Player1) {
+    } else if (friendly === user) {
       showSummary(friendly, "#playerHand")
     } else {
       showSummary(friendly, "#wingman" + wingman + "-hand");
@@ -111,7 +147,7 @@ const updateTacticalCards = function() {
     if (player === FriendlyBase) {
       continue;
     }
-    else if (player === Player1) {
+    else if (player === user) {
       checkCards();
     } else {
       $wingmanHand.html("");
@@ -132,8 +168,26 @@ const updateEnemyCards = function() {
   const dealEnemies = function(location, friendly) {
     for (let i = 0; i < friendly.pursuers.length; i++) {
       let eCard = friendly.pursuers[i];
-      location.append(eCard.card);
+      if (eCard.cssClass === "emptySpace" || eCard.cssClass === "destroyed") {
+        location.append("<li class='enemy " + eCard.cssClass + "'>"
+                  + "<h3>" + eCard.name + "</h3>"
+                  + "</li>")
+      } else {
+        location.append("<li class='enemy " + eCard.cssClass + "'>"
+                + "<h3>" + eCard.name + "</h3>"
+                + "<p>ARM: " + (eCard.armor - friendly.pursuerDamage[i]) + "/" + eCard.armor + "</p>"
+                + "<p>PWR: " + eCard.power + "</p>"
+                + "<p>TGT: " + eCard.targeting + "</p>"
+                + "<p>MRT: " + eCard.merit + "</p>"
+                + "</li>")
+      }
     }
+  }
+  const refreshPursuerList = function(location, friendly) {
+    location.html("");
+    location.removeClass();
+    location.addClass(friendly.id);
+    dealEnemies(location, friendly);
   }
   let wingman = 1;
   const $playerPursuers = $("#playerPursuers");
@@ -141,16 +195,13 @@ const updateEnemyCards = function() {
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly === FriendlyBase) {
-      $basePursuers.html("");
-      dealEnemies($basePursuers, friendly);
-    } else if (friendly === Player1) {
-      $playerPursuers.html("");
-      dealEnemies($playerPursuers, friendly);
+      refreshPursuerList($basePursuers, friendly);
+    } else if (friendly === user) {
+      refreshPursuerList($playerPursuers, friendly);
     } else {
       let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
-      $wingmanPursuers.html("");
-      dealEnemies($wingmanPursuers, friendly);
-      wingman++
+      refreshPursuerList($wingmanPursuers, friendly);
+      wingman++;
     }
   }
 }
@@ -160,6 +211,7 @@ const update = function() {
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
+  enableSelect();
 }
 
 
@@ -173,6 +225,10 @@ const deselect = function() {
   $(".selected").removeClass("selected");
 }
 
+const detarget = function() {
+  $(".targeted").removeClass("targeted");
+}
+
 const selectCard = function() {
   // assign "selected" class only to the clicked card
   deselect();
@@ -180,9 +236,51 @@ const selectCard = function() {
   this.classList.toggle("selected");
   buttons.append(useButton);
   buttons.append(discardButton);
-  addTurnListener("use");
+  // addTurnListener("use");
 }
 
+const targetCard = function() {
+  // assign "selected" class only to the clicked card
+  detarget();
+  clearButtons();
+  // console.log(this.classList + " card selected");
+  this.classList.toggle("targeted");
+  buttons.append(confirmButton);
+  buttons.append(cancelButton);
+  // addTurnListener("use");
+}
+
+const getCardIndex = function(className) {
+  // get the index of the targetted card in its list
+  let card = document.querySelector(className);
+  let list = card.parentElement
+  let index = Array.from(list.children).indexOf(card);
+  return index;
+}
+
+const getCardFunction = function(className) {
+  let card = document.querySelector(className);
+  return card.classList()[1];
+}
+
+const getFriendly = function(className) {
+  // determine which Friendly holds the selected card
+  let card = document.querySelector(className);
+  let friendly = card.parentElement.className;
+  if (friendly === "Player1") {
+    return Player1;
+  } else if (friendly === "Player2") {
+    return Player2;
+  } else if (friendly === "Player3") {
+    return Player3;
+  } else if (friendly === "Player4") {
+    return Player4;
+  } else if (friendly === "FriendlyBase") {
+    return FriendlyBase;
+  } else {
+    return enemyBase;
+  }
+}
 
 /********************
 CARD BINDING
@@ -210,6 +308,22 @@ const disableSelect = function() {
   }
 }
 
+const selectAlly = function() {
+
+}
+
+const selectTargets = function(...ids) {
+  let $enemies = Array.from($(".enemy"));
+  $enemies.forEach((enemy) => {
+    let classes = Array.from(enemy.classList);
+    if (ids.includes(enemy.id) ||
+    (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
+        && !classes.includes("placeHolder"))) {
+      enemy.className += " target";
+      enemy.onclick = targetCard;
+    }
+  });
+}
 
 
 /********************
@@ -218,17 +332,20 @@ BUTTON FUNCTIONS
 
 const use = function() {
   clearButtons();
+  buttons.append(cancelButton);
   disableSelect();
-  //run card function
-  removeCard();
-  checkCards();
-  enableSelect();
+  selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
+  // 1. allow player to choose appropriate targets
+  // 2. get the cardIndex of the selected card
+  // 3. run the card function on the active player, passing in the cardIndex and friendly
+  //
 }
 
 const discard = function() {
   clearButtons();
   buttons.append(fireButton);
   buttons.append(evadeButton);
+  buttons.append(cicButton);
   buttons.append(cancelButton);
   ["fire", "evade"].forEach(addTurnListener);
   for (i=0; i<hand.children.length; i++) {
@@ -262,20 +379,12 @@ const evade = function() {
 const cancel = function() {
   clearButtons();
   deselect();
+  detarget();
+  $(".target").removeClass("target");
   enableSelect();
 }
 
-useButton.onclick = use;
-discardButton.onclick = discard;
-fireButton.onclick = fire;
-evadeButton.onclick = evade;
-cancelButton.onclick = cancel;
-// ["use", "fire", "evade"].forEach(addTurnListener);
-
-update();
-enableSelect();
-
-$("#market").on("click", function() {
+const market = function() {
   $overlay = $('<ul id="overlay"></ul>');
   $overlay.append("<p>Incoming transmition from " + game.name + " command...</p>");
   for (let i=0; i < FriendlyBase.market.length; i++) {
@@ -294,4 +403,26 @@ $("#market").on("click", function() {
   // $("#exit").on("click", function(){
   //   $overlay.hide();
   // });
-});
+}
+
+const confirmTarget = function() {
+  let cardIndex = getCardIndex(".selected");
+  let friendly = getFriendly(".targeted");
+  let pursuerIndex = getCardIndex(".targeted");
+  user.useTactic(cardIndex, friendly, pursuerIndex);
+  checkCards();
+  detarget();
+  $(".target").removeClass("target");
+  clearButtons();
+  update();
+}
+
+useButton.onclick = use;
+discardButton.onclick = discard;
+fireButton.onclick = fire;
+evadeButton.onclick = evade;
+cancelButton.onclick = cancel;
+cicButton.onclick = market;
+confirmButton.onclick = confirmTarget;
+
+update();

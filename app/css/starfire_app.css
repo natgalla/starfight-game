@@ -4,6 +4,7 @@ GENERAL STYLES
 
 body {
   background-color: black;
+  perspective: 1200;
 }
 
 h1 {
@@ -51,11 +52,13 @@ p {
   position: fixed;
   bottom: 5%;
   left: 0;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.9);
   text-align: center;
   vertical-align: middle;
   border-top: 2px solid magenta;
   border-bottom: 2px solid magenta;
+  transition: 0.5s;
+  z-index: 100;
 }
 
 /******************
@@ -103,13 +106,11 @@ POSITIONING
 
 #wingmen {
   height: 200px;
-  /*border: 2px solid limegreen;*/
   margin: 0;
   text-align: center;
 }
 
 #player {
-  /*border: 2px solid magenta;*/
   position: absolute;
   width: 50%;
   text-align: center;
@@ -154,6 +155,7 @@ POSITIONING
   border-radius: 33% 0 0 33%;
 }
 
+#basePursuers,
 #wingmen-pursuers {
   z-index: 1;
   text-align: center;
@@ -213,6 +215,7 @@ CARD STYLES
   height: 130px;
   width: 80px;
   margin-top: -110px;
+  z-index: 5;
 }
 
 li p {
@@ -221,10 +224,14 @@ li p {
   color: white;
 }
 
+#playerHand .tactical {
+  z-index: 8;
+}
+
 #playerHand .selected {
   transform: translate3d(0, -40px, 200px);
   border: 2px solid lime;
-  z-index: 3;
+  z-index: 10;
 }
 
 #playerHand .disabled {
@@ -247,46 +254,35 @@ li p {
 }
 
 #wingmen .tactical {
+  /* final version:
   font-size: .5em;
   border-radius: 5px;
+  margin: 0 -2em;
+  margin-top: -50px;
   height: 100px;
   width: 60px;
-  padding: 1em;
-  margin: 0 -2em;
-  z-index: 1;
+  padding: 1em; */
+  z-index: -1;
   vertical-align: middle;
   /*transform: rotate(180deg);*/
-  margin-top: -50px;
-  z-index: 0;
 }
 
-#market {
-  color: steelblue;
-  border: 2px solid magenta;
-  background-color: #333;
-  height: 100px;
-  width: 60px;
-  border-radius: 5px;
-  text-align: center;
-  padding: 1em;
-  font-size: 0.8em;
-}
 /*#wingmen .tactical h3,
 #wingmen .tactical p {
   display: none;
 }*/
 
+#playerPursuers .enemy {
+  z-index: 0;
+}
 #playerPursuers h3,
 #playerPursuers p {
-  display: none;
+  /*display: none;*/
 }
 
-.destroyed,
 #wingmen-pursuers .emptySpace,
 #basePursuers .emptySpace {
-  border: none;
-  background: rgba(0, 0, 0, 0.0);
-  margin-left: -50px;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 #basePursuers {
@@ -294,6 +290,52 @@ li p {
   transform: rotate(-90deg);
   left: 10%;
   top: 70%;
+}
+
+#playerPursuers,
+#wingman1-pursuers,
+#wingman2-pursuers,
+#wingman3-pursuers,
+#basePursuers {
+  perspective: 1200px;
+  z-index: 15;
+}
+
+.destroyed {
+  border: 1px dashed crimson;
+  background: rgba(0, 0, 0, 0.5);
+  margin-left: -50px;
+  z-index: 1;
+}
+
+.destroyed h3 {
+  display: none;
+}
+
+.enemyBaseCard {
+  font-size: .5em;
+  text-align: center;
+  border-radius: 5px;
+  height: 100px;
+  width: 60px;
+  padding: 1em;
+  border: 2px solid crimson;
+  background: #333;
+  margin: 5px auto;
+}
+
+.target {
+  box-shadow: 2px 2px 3px deeppink,
+              -2px -2px 5px deeppink;
+  z-index: 15;
+  transition: transform 0.4s;
+}
+
+.targeted {
+  z-index: 20;
+  transform: translate3d(0, 0, 200px);
+  box-shadow: 2px 2px 5px crimson,
+              -2px -2px 7px crimson;
 }
 
 /******************
@@ -307,7 +349,7 @@ PLAYER SUMMARIES
 #player .playerSummary {
   position: absolute;
   bottom: 70px;
-  right: -15%;
+  right: -12%;
   z-index: -1;
 }
 

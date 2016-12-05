@@ -18,13 +18,9 @@ const EnemyBase = function() {
   this.enemiesPerTurn = 3;
   this.effects = {
     jammed: false,
-    intercepted: false
+    intercepted: false,
+    deploy: false
   }
-  this.fireLight = FriendlyBase.name + "takes 3 damage.";
-  this.fireHeavy = FriendlyBase.name + "takes 5 damage.";
-  this.repair = this.name + "repairs 3 damage.";
-  this.deploy = "Draw an extra enemy card into play in the next round";
-  this.reinforce = "Increase the amount enemies that enter the fray each turn by 1";
   this.summary = "<h3>" + this.name + "</h3>"
           + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
 }
@@ -62,6 +58,41 @@ EnemyBase.prototype.addEnemy = function() {
   this.enemiesActive.push(this.enemyDeck.cards.pop());
 }
 
+
+
+/************************
+ENEMY BASE CARD FUNCTIONS
+*************************/
+
+EnemyBase.prototype.reinforce = function() {
+  console.log(this.name + " will launch one extra enemy card into play each round.");
+  this.enemiesPerTurn += 1;
+}
+
+EnemyBase.prototype.repair = function() {
+  this.currentArmor += 5;
+  if (this.currentArmor > this.maxArmor) {
+    this.currentArmor = this.maxArmor;
+  }
+  console.log(this.name + " Repairs 5 damage. Current armor: "
+              + this.currentArmor + "/" + this.maxArmor);
+}
+
+EnemyBase.prototype.fireHeavy = function() {
+  console.log(this.name + " fires heavy weapons.");
+  FriendlyBase.takeDamage(5);
+}
+
+EnemyBase.prototype.fireLight = function() {
+  console.log(this.name + " fires light weapons.");
+  FriendlyBase.takeDamage(3);
+}
+
+EnemyBase.prototype.deploy = function() {
+  console.log(this.name + " launches an extra fighter.");
+  this.effects.deploy = true;
+}
+
 const Enemy = function(name, cssClass, armor, power, targeting, merit) {
   this.name = name;
   this.cssClass = cssClass;
@@ -85,37 +116,39 @@ const Enemy = function(name, cssClass, armor, power, targeting, merit) {
   }
 }
 
-Enemy.prototype.updateCard = function() {
-  if (this.cssClass === "emptySpace" || this.cssClass === "destroyed") {
-    this.card = "<li class='enemy " + this.cssClass + "'>";
-              + "<h3>" + this.name + "</h3>"
-              + "</li>";
-  } else {
-    this.card = "<li class='enemy " + this.cssClass + "'>"
-            + "<h3>" + this.name + "</h3>"
-            + "<p>ARM: " + this.currentArmor + "/" + this.armor + "</p>"
-            + "<p>PWR: " + this.power + "</p>"
-            + "<p>TGT: " + this.targeting + "</p>"
-            + "<p>MRT: " + this.merit + "</p>"
-            + "</li>";
-  }
-}
+// Enemy.prototype.updateCard = function(currentArmor) {
+//   if (this.cssClass === "emptySpace" || this.cssClass === "destroyed") {
+//     this.card = "<li class='enemy " + this.cssClass + "'>";
+//               + "<h3>" + this.name + "</h3>"
+//               + "</li>";
+//   } else {
+//     this.card = "<li class='enemy " + this.cssClass + "'>"
+//             + "<h3>" + this.name + "</h3>"
+//             + "<p>ARM: " + currentArmor + "/" + this.armor + "</p>"
+//             + "<p>PWR: " + this.power + "</p>"
+//             + "<p>TGT: " + this.targeting + "</p>"
+//             + "<p>MRT: " + this.merit + "</p>"
+//             + "</li>";
+//   }
+// }
 
 Enemy.prototype.takeDamage = function(damage) {
   this.currentArmor -= damage;
   if (this.currentArmor < 0) {
     this.currentArmor = 0;
   }
+  this.updateCard();
 }
 
 Enemy.prototype.resetArmor = function() {
   this.currentArmor = this.armor;
 }
 
-const EnemyBaseCard = function(name, description) {
+const EnemyBaseCard = function(name, cssClass, description) {
   this.name = name;
+  this.cssClass = cssClass;
   this.description = description;
-  this.card = "<div id = 'enemyBaseCard'>"
+  this.card = "<div class = 'enemyBaseCard'>"
             + "<h3>" + this.name + "</h3>"
             + "<p>" + this.description + "</p>"
             + "</div>";
@@ -128,39 +161,16 @@ const medium = new Enemy("Medium","medium",4,2,4,2);
 const light = new Enemy("Light","light",3,2,4,1);
 const empty = new Enemy("Empty space","emptySpace",0,0,0,0);
 const placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
-const enemyBase = new EnemyBase();
 
 // define enemy base cards
-const fireLight = new EnemyBaseCard("Fire light weapons", "Friendly base takes 3 damage");
-fireLight.action = function() {
-  console.log(this.description);
-  FriendlyBase.takeDamage(3);
-}
-const fireHeavy = new EnemyBaseCard("Fire heavy weapons", "Friendly base takes 5 damage");
-fireHeavy.action = function() {
-  console.log(this.description);
-  FriendlyBase.takeDamage(5);
-}
-const deploy = new EnemyBaseCard("Deploy", "Draw an extra enemy card into play in the next round");
-deploy.action = function() {
-  console.log(this.description);
-}
-const repair = new EnemyBaseCard("Repairs", "Enemy base repairs 5 hp.");
-deploy.action = function() {
-  enemyBase.currentArmor += 3;
-  if (enemyBase.currentArmor > enemyBase.maxArmor) {
-    enemyBase.currentArmor = enemyBase.maxArmor;
-  }
-  console.log(this.description + " Current armor: "
-              + enemyBase.currentArmor + "/" + enemyBase.maxArmor);
-}
-const reinforce = new EnemyBaseCard("Reinforcements", "Increase the amount enemies that enter the fray each turn by 1");
-reinforce.action = function() {
-  console.log(this.description);
-  enemyBase.enemiesPerTurn += 1;
-}
+const fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Friendly base takes 3 damage");
+const fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly base takes 5 damage");
+const deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
+const repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 hp.");
+const reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
 
 
+const enemyBase = new EnemyBase();
 // IF MIGRATED TO SERVER SIDE
 // module.exports.EnemyBase = EnemyBase;
 // module.exports.Enemy = Enemy;

@@ -2,19 +2,23 @@
 // let tactical = require("./tactical");
 // let enemies = require("./enemies");
 
-const Game = function(socket1, socket2) {
+const Game = function() {
   this.name = "Starfire";
   this.difficulty = 3;
   this.roundNumber = 0;
-  this.friendlies = [FriendlyBase, Player1, Player2, Player3, Player4];
-  this.friendlies[1].user = socket1;
-  this.friendlies[2].user = socket2;
+  this.friendlies = [FriendlyBase, Player1, Player2];
   this.tacticalDeck = {
     name: "Tactical deck",
     cards: [],
     discard: []
   };
   this.gameID = 1;
+}
+
+Game.prototype.moveCard = function(index, origin, destination) {
+  let removed = origin.splice(index, 1);
+  destination.push(removed[0]);
+  origin.join();
 }
 
 Game.prototype.randomIndex = function(number) {
@@ -51,20 +55,23 @@ Game.prototype.sortByMerit = function() {
   let baseIndex;
   let friendly;
   let friendyIndex;
-  // find the friendly base and set baseIndex to its location
-  // determine who has the highest merit. If highest merit is tied, return to default order
+
   for (let i = 0; i < this.friendlies.length; i++) {
     friendly = this.friendlies[i];
+    // 1. Find the friendly base and set baseIndex to its location.
     if (friendly === FriendlyBase) {
       baseIndex = i;
+    // 2. Determine who has the highest merit.
     } else if (friendly.merit > highestMerit) {
       highestMerit = friendly.merit;
       firstFriendlyIndex = i;
+    // 3. If highest merit is tied, return to default order.
     } else if (friendly.merit === highestMerit) {
       firstFriendlyIndex = baseIndex;
     }
   }
-  // reorder the friendly list so that the player with highest merit is first, but turn order is maintained
+  // Reorder the friendly list so that the player with highest merit is first
+  // Original turn order is always maintained.
   if (firstFriendlyIndex > 0) {
     let firstPlayer = this.friendlies.splice(firstFriendlyIndex, 1);
     friendlySort.push(firstPlayer[0]);
@@ -107,6 +114,19 @@ Game.prototype.replaceCards = function(amount, deck, active) {
   }
 }
 
+Game.prototype.distributeEnemies = function(source) {
+  while (source.length > 0) {
+    for (let i = 0; i < this.friendlies.length; i++) {
+      let friendly = this.friendlies[i];
+      if (source.length > 0) {
+        friendly.pursuers.push(source.pop());
+      } else {
+        break;
+      }
+    }
+  }
+}
+
 Game.prototype.turns = function() {
   this.turnNumber = 1;
   while (true) {
@@ -146,8 +166,10 @@ Game.prototype.round = function() {
   console.log("Round: " + this.gameID + "." + this.roundNumber + " begin.");
   // add enemies and advanced tactics into play
   if (this.roundNumber === 1) {
-    this.replaceCards(enemyBase.startingEnemies, enemyBase.enemyDeck, enemyBase.enemiesActive);
-    this.replaceCards(FriendlyBase.marketSize, FriendlyBase.advTactics, FriendlyBase.market);
+    this.replaceCards(enemyBase.startingEnemies, enemyBase.enemyDeck,
+                      enemyBase.enemiesActive);
+    this.replaceCards(FriendlyBase.marketSize, FriendlyBase.advTactics,
+                      FriendlyBase.market);
   } else {
     let newEnemies = enemyBase.enemiesPerTurn;
     if (enemyBase.effects.intercepted === true) {
@@ -157,58 +179,67 @@ Game.prototype.round = function() {
     for (let i = 0; i < newEnemies; i++) {
       enemyBase.addEnemy();
     }
-    if (enemyBase.currentEnemyBaseCard === deploy) {
+    if (enemyBase.effects.deploy === true) {
       enemyBase.addEnemy();
+      enemyBase.effects.deploy = false;
     }
     FriendlyBase.addAdvTactic();
   }
+
   // sort player order by merit
   this.sortByMerit();
   // distribute enemies
-  if (this.roundNumber === 1) {
-    while (enemyBase.enemiesActive.length > 0) {
-      for (let i = 0; i < this.friendlies.length; i++) {
-        let friendly = this.friendlies[i];
-        if (enemyBase.enemiesActive.length > 0) {
-          friendly.pursuers.push(enemyBase.enemiesActive.pop());
-        }
-      }
-    }
+  this.distributeEnemies(enemyBase.enemiesActive);
+
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    friendly.adjustPursuerDamage();
   }
+
   // replace tactical cards from last turn
   for (let i = 0; i < this.friendlies.length; i++) {
     let player = this.friendlies[i];
     if (player === FriendlyBase) {
       continue;
     } else {
-      this.replaceCards(player.tacticalCardsPerTurn, this.tacticalDeck, player.hand);
+      this.replaceCards(player.tacticalCardsPerTurn,
+                        this.tacticalDeck, player.hand);
     }
   }
-
   // refresh play area
 }
 
-Game.prototype.postRound = function() {
+Game.prototype.postRound = function() { //strange behavior removing placeholders
   console.log("Round: " + this.gameID + "." + this.roundNumber + " end.");
+  // discard empty space cards and remove place holders
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    for (let x = 0; x < friendly.pursuers.length; x++) {
+      let enemy = friendly.pursuers[x];
+      if (enemy === placeHolder) {
+        let removedCard = friendly.pursuers.splice(x, 1);
+        friendly.pursuers.join();
+        let removedTracker = friendly.pursuerDamage.splice(x, 1);
+        friendly.pursuerDamage.join();
+      } else if (enemy === empty) {
+        this.moveCard(x, friendly.pursuers, enemyBase.enemyDeck.discard);
+        let removedTracker = friendly.pursuerDamage.splice(x, 1);
+        friendly.pursuerDamage.join();
+      }
+    }
+  }
+
   // deal pursuer damage to friendlies, handle cases for damage negation
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];
-    let damage = 0;
-    if (friendly.effects.emp === true) {
+    if (friendly.effects.emp) {
       console.log(friendly.name + " is protected by EMP.");
-      friendly.effects.emp === false;
+      friendly.effects.emp = false;
     } else {
+      let damage = 0;
       for (let x = 0; x < friendly.pursuers.length; x++) {
         let enemy = friendly.pursuers[x];
         damage += enemy.power;
-        if (enemy = placeHolder) {
-          let removed = friendly.pursuers.splice(x, 1);
-          friendly.pursuers.join();
-        } else if (enemy = emptySpace) {
-          let removed = friendly.pursuers.splice(x, 1);
-          enemyBase.enemyDiscard.push(removed[0]);
-          friendly.pursuers.join();
-        }
       }
       if (friendly.effects.divertShields > 0) {
         console.log(friendly.name + "'s shields reduce damage by "
@@ -225,7 +256,7 @@ Game.prototype.postRound = function() {
           friendly.effects.divertShields = 0;
         }
       }
-      if (friendly.effects.countermeasures === true) {
+      if (friendly.effects.countermeasures) {
         let counterDamage = friendly.calcDamage(4);
         console.log(friendly.name + " deploys countermeasures to avoid "
                     + counterDamage + " damage.");
@@ -243,29 +274,13 @@ Game.prototype.postRound = function() {
     enemyBase.enemyBaseDeck.discard.push(enemyBase.currentEnemyBaseCard.pop());
     enemyBase.jammed = false;
   } else {
-    this.replaceCards(enemyBase.enemyBaseCardsPerTurn, enemyBase.enemyBaseDeck, enemyBase.currentEnemyBaseCard);
-    enemyBase.currentEnemyBaseCard[0].action();
+    this.replaceCards(enemyBase.enemyBaseCardsPerTurn, enemyBase.enemyBaseDeck,
+                      enemyBase.currentEnemyBaseCard);
+    let ebCard = enemyBase.currentEnemyBaseCard[0];
+    enemyBase[ebCard.cssClass]();
   }
-
-  // show the new enemy base card
 
   // run the enemy base card's function
-
-  // discard empty space cards and remove place holders
-  for (let i = 0; i < this.friendlies.length; i++) {
-    let friendly = this.friendlies[i];
-    for (let x = 0; x < friendly.pursuers.length; x++) {
-      let enemy = friendly.pursuers[x];
-      if (enemy = placeHolder) {
-        let removed = friendly.pursuers.splice(x, 1);
-        friendly.pursuers.join();
-      } else if (enemy = emptySpace) {
-        let removed = friendly.pursuers.splice(x, 1);
-        enemyBase.enemyDiscard.push(removed[0]);
-        friendly.pursuers.join();
-      }
-    }
-  }
 }
 
 const game = new Game();
@@ -274,7 +289,7 @@ game.addToDeck(enemyBase.enemyDeck, ace, 4);
 game.addToDeck(enemyBase.enemyDeck, heavy, 9);
 game.addToDeck(enemyBase.enemyDeck, medium, 12);
 game.addToDeck(enemyBase.enemyDeck, light, 15);
-game.addToDeck(enemyBase.enemyDeck, empty, 12);
+game.addToDeck(enemyBase.enemyDeck, empty, 9);
 
 enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
 
@@ -283,7 +298,7 @@ game.shuffle(enemyBase.enemyDeck);
 //build tactical deck
 game.addToDeck(game.tacticalDeck, missile, 8);
 game.addToDeck(game.tacticalDeck, repairDrone, 3);
-game.addToDeck(game.tacticalDeck, assist, 3);
+// game.addToDeck(game.tacticalDeck, assist, 3);
 game.addToDeck(game.tacticalDeck, drawFire, 4);
 game.addToDeck(game.tacticalDeck, heatSeeker, 2);
 game.addToDeck(game.tacticalDeck, bomb, 3);

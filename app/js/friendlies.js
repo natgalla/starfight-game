@@ -2,12 +2,28 @@
 // let enemies = require("./enemies");
 // let tactical = require("./tactical");
 
+
+/**************************
+FRIENDLY BASE CONSTRUCTOR
+**************************/
+
 const Friendly = function(name, maxArmor) {
+  this.id = "FriendlyBase";
   this.name = name;
   this.maxArmor = maxArmor;
   this.pursuers = [];
+  this.pursuerDamage = [];
+  this.effects = {
+    medalOfHonor: false,
+    medic: false,
+    daredevil: false,
+    sharpShooter: false,
+    emp: false,
+    countermeasures: false,
+    divertShields: 0,
+  };
   this.market = [];
-  this.marketSize = 3;
+  this.marketSize = 5;
   this.advTactics = {
     name: "Advanced tactics",
     cards: [],
@@ -15,20 +31,29 @@ const Friendly = function(name, maxArmor) {
   };
   this.currentArmor = maxArmor;
   this.summary = "<h3>" + this.name + "</h3>"
-            + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
-            + "<div id='market'><h3>Market</h3></div>";
+            + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
 }
 
-Friendly.prototype.useAdvTactical = function(index) {
-  let choice = this.market.splice(index, 1);
-  this.advTactics.discard.push(choice[0]);
-  this.market.join();
+/**************************
+FRIENDLY BASE UTILITY FUNCTIONS
+**************************/
+
+Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
+  while (this.pursuerDamage.length < this.pursuers.length) {
+    this.pursuerDamage.push(0);
+  }
+  while (this.pursuerDamage.length > this.pursuers.length) {
+    this.pursuerDamage.pop();
+  }
 }
 
 Friendly.prototype.updateSummary = function() {
   this.summary = "<h3>" + this.name + "</h3>"
-            + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
-            + "<div id='market'><h3>Market</h3></div>";
+            + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
+}
+
+Friendly.prototype.removeAdvTactic = function(index) {
+  game.moveCard(index, this.market, this.advTactics.discard);
 }
 
 Friendly.prototype.addAdvTactic = function() {
@@ -55,7 +80,20 @@ Friendly.prototype.takeDamage = function(damage) {
   }
 }
 
-const Player = function(name) {
+Friendly.prototype.insertPlaceholder = function(index) { // Player should inherit
+  //removes an enemy card from the fray and inserts a "destroyed" place holder
+  this.pursuers.splice(index, 0, placeHolder);
+  this.pursuers.join();
+}
+
+
+
+/**************************
+PLAYER CONSTRUCTOR
+**************************/
+
+const Player = function(id, name) {
+  this.id = id;
   this.name = name;
   this.maxArmor = 10;
   this.currentArmor = this.maxArmor;
@@ -63,6 +101,7 @@ const Player = function(name) {
   this.cardsUsed = [];
   this.hand = [];
   this.pursuers = [];
+  this.pursuerDamage = [];
   this.merit = 0;
   this.combatDie = [0,0,0,1,1,2];
   this.improvedDie = [0,0,1,1,1,2];
@@ -76,17 +115,25 @@ const Player = function(name) {
     countermeasures: false,
     divertShields: 0,
   };
-  this.summary = "<div class='playerSummary " + this.name + "'>"
+  this.summary = "<div class='playerSummary " + this.id + "'>"
                 + "<h3>" + this.name + "</h3>"
-                + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
+                + "<p>Armor: " + this.currentArmor + "/"
+                + this.maxArmor + "</p>"
                 + "<p>Merit: " + this.merit + "</p>"
                 + "</div>";
 }
 
+
+
+/**************************
+PLAYER UTILITY FUNCTIONS
+**************************/
+
 Player.prototype.updateSummary = function() {
   this.summary = "<div class='playerSummary " + this.name + "'>"
                   + "<h3>" + this.name + "</h3>"
-                  + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
+                  + "<p>Armor: " + this.currentArmor
+                  + "/" + this.maxArmor + "</p>"
                   + "<p>Merit: " + this.merit + "</p>"
                   + "</div>";
 }
@@ -103,8 +150,6 @@ Player.prototype.setAmtImproved = function() {
 
 Player.prototype.insertPlaceholder = function(index) {
   //removes an enemy card from the fray and inserts a "destroyed" place holder
-  let removed = this.pursuers.splice(index, 1);
-  enemyBase.enemyDiscard.push(removed[0]);
   this.pursuers.splice(index, 0, placeHolder);
   this.pursuers.join();
 }
@@ -116,7 +161,7 @@ Player.prototype.damageRoll = function(list) {
 
 Player.prototype.increaseMerit = function(amount) {
   let merit = amount;
-  if (this.upgrades.medalOfHonor === true) {
+  if (this.effects.medalOfHonor === true) {
     merit += 1;
   }
   this.merit += merit;
@@ -145,16 +190,16 @@ Player.prototype.checkDeath = function() {
   // see if player is dead
   if (this.currentArmor <= 0) {
     console.log(this.name + " has been destroyed.");
+    game.distributeEnemies(this.pursuers);
     game.friendlies.splice(game.friendlies.indexOf(this), 1);
     game.friendlies.join();
-    if (game.friendlies.length === 0) {
+    if (game.friendlies === [FriendlyBase]) {
       console.log("All pilots destroyed. Players lose.");
     }
   }
 }
 
 Player.prototype.takeDamage = function(damage) {
-  // take damage
   if (damage > 0) {
     this.currentArmor -= damage;
     if (this.currentArmor < 0) {
@@ -168,40 +213,52 @@ Player.prototype.takeDamage = function(damage) {
 
 Player.prototype.checkKill = function(friendly, index) {
   // if kill: award merit, insert placeholder
-  if (friendly.pursuers[index].currentArmor <= 0) {
+  if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
     console.log(friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
     this.increaseMerit(friendly.pursuers[index].merit);
+    game.moveCard(index, friendly.pursuers, enemyBase.enemyDeck.discard);
     friendly.insertPlaceholder(index);
   }
 }
 
 Player.prototype.doDamage = function(friendly, index, damage) {
+  // if damage is more than 0, deal damage to a selected enemy, check for kill
+  // does not allow damage to empty space or place holders
+  if (friendly === undefined) {
+    friendly = this;
+  }
   if (index === undefined) {
     index = 0;
   }
-  if (damage > 0) {
-    if (friendly === enemyBase) {
-        enemyBase.takeDamage(damage);
-        console.log(this.name + " deals " + damage + " damage to "
-                    + enemyBase.name + ". Current armor: "
-                    + enemyBase.currentArmor + "/"
-                    + enemyBase.maxArmor);
-        this.increaseMerit(1);
-    } else {
-      // deal damage to a selected enemy, check for kill
-      friendly.pursuers[index].takeDamage(damage);
-      console.log(this.name + " deals " + damage + " damage to "
-                  + friendly.pursuers[index].name + " pursuing "
-                  + friendly.name + ". Current armor: "
-                  + friendly.pursuers[index].currentArmor + "/"
-                  + friendly.pursuers[index].armor)
-      this.checkKill(friendly, index);
-    }
+  if (friendly === enemyBase) {
+    enemyBase.takeDamage(damage);
+    console.log(this.name + " deals " + damage + " damage to enemy base.");
+    this.increaseMerit(1);
   } else {
-    console.log("No damage to target.");
+    if (friendly.pursuers[index] === empty
+      || friendly.pursuers[index] === placeHolder) {
+      console.log("No enemy at index " + index);
+    } else {
+      if (damage > 0) {
+        friendly.pursuerDamage[index] += damage;
+        let enemyArmor = friendly.pursuers[index].armor - friendly.pursuerDamage[index];
+        if (enemyArmor < 0) {
+          enemyArmor = 0;
+        }
+        console.log(this.name + " deals " + damage + " damage to "
+                    + friendly.pursuers[index].name + " pursuing "
+                    + friendly.name + ". Current armor: "
+                    + enemyArmor
+                    + "/" + friendly.pursuers[index].armor);
+        this.checkKill(friendly, index);
+      } else {
+        console.log("No damage to target.");
+      }
+    }
   }
 }
+
 
 Player.prototype.chooseAlly = function() {
   for (let i=0; i > game.friendlies.length; i++) {
@@ -218,15 +275,35 @@ Player.prototype.chooseEnemy = function() {
   // bind a click event to valid enemies
 }
 
+
+
+/**************************
+PLAYER TACTICAL FUNCTIONS
+**************************/
+
 Player.prototype.fire = function(friendly, pursuerIndex) {
   // deal damage equal to 4 combat dice to target
   let damage = this.calcDamage(4);
   this.doDamage(friendly, pursuerIndex, damage);
 }
 
+Player.prototype.evade = function(pursuerIndex) {
+  // choose a target and attempt evade (D6 vs. enemy targeting)
+  let evadeRoll = Math.floor(Math.random() * 6) + 1;
+  let pursuer = this.pursuers[pursuerIndex];
+  if (evadeRoll >= pursuer.targeting) {
+    console.log(this.name + " shakes " + pursuer.name + " to friendly base.");
+    game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
+    this.insertPlaceholder(index);
+  } else {
+    console.log(this.name + " can't shake 'em!")
+  }
+}
+
 Player.prototype.missile = function(friendly, pursuerIndex) {
   // deal damage equal to 5 combat dice to target
-  let damage = this.calcDamage(5);
+  let damage = this.calcDamage(4);
+  damage += this.damageRoll([0,0,1,1,2,2]);
   this.doDamage(friendly, pursuerIndex, damage);
 }
 
@@ -236,27 +313,45 @@ Player.prototype.heatSeeker = function(friendly, pursuerIndex) {
   this.doDamage(friendly, pursuerIndex, damage);
 }
 
-Player.prototype.bomb = function(friendly, pursuerIndex) {
+Player.prototype.bomb = function(friendly, pursuerIndex, damage, collateral) { // throwing error when attack enemyBase
     // deal 6 damage to target and 2 damage to each adjacent targeting
     // if there is no adjacent target, collateral damage is applied to pursued ally
+    // flat 10 damage to enemyBase
     if (pursuerIndex === undefined) {
       pursuerIndex = 0;
     }
+    if (damage === undefined) {
+      damage = 6;
+    }
+    if (collateral === undefined) {
+      collateral = 2;
+    }
+    let friendlyFire = 0;
     if (friendly === enemyBase) {
-      this.doDamage(enemyBase, pursuerIndex, 10);
+      baseDamage = damage+(collateral*2);
+      this.doDamage(enemyBase, pursuerIndex, baseDamage);
     } else {
-      let damage = 6;
-      let collateral = 2;
-      let friendlyFire = 0;
       let adjacentLeft = pursuerIndex - 1;
       let adjacentRight = pursuerIndex + 1;
-      if (adjacentRight < friendly.pursuers.length) {
+      if (friendly.pursuers[adjacentLeft] === placeHolder) {
+        while (friendly.pursuers[adjacentLeft] === placeHolder) {
+          adjacentLeft -= 1;
+        }
+      }
+      if (friendly.pursuers[adjacentRight] === placeHolder) {
+        while (friendly.pursuers[adjacentRight] === placeHolder) {
+          adjacentRight += 1;
+        }
+      }
+      if (adjacentRight < friendly.pursuers.length &&
+        friendly.pursuers[adjacentRight] != empty) {
           this.doDamage(friendly, adjacentRight, collateral);
       } else {
           friendlyFire += collateral;
       }
       this.doDamage(friendly, pursuerIndex, damage);
-      if (adjacentLeft > -1) {
+      if (adjacentLeft > -1 &&
+        friendly.pursuers[adjacentLeft] != empty) {
           this.doDamage(friendly, adjacentLeft, collateral);
       } else {
           friendlyFire += collateral;
@@ -265,8 +360,11 @@ Player.prototype.bomb = function(friendly, pursuerIndex) {
     }
 }
 
-Player.prototype.repairDrone = function(friendly, repairPoints, meritReward) {
+Player.prototype.repairDrone = function(friendly, index, repairPoints, meritReward) {
   // repair a selected ally, can choose self, award merit if not self
+  if (index === undefined) {
+    index = 0;
+  }
   if (repairPoints === undefined) {
     repairPoints = 3;
   }
@@ -277,13 +375,13 @@ Player.prototype.repairDrone = function(friendly, repairPoints, meritReward) {
     friendly.currentArmor += repairPoints;
     if (friendly.currentArmor > friendly.maxArmor) {
       friendly.currentArmor = friendly.maxArmor;
-      console.log(this.name + " repairs " + repairPoints + " damage on "
-                  + friendly.name + ". Current armor: "
-                  + friendly.currentArmor + "/" + friendly.maxArmor)
     }
     if (this != friendly) {
       this.increaseMerit(meritReward);
     }
+    console.log(this.name + " repairs " + repairPoints + " damage on "
+                + friendly.name + ". Current armor: "
+                + friendly.currentArmor + "/" + friendly.maxArmor)
   } else {
     console.log(friendly.name + " is already at maximum armor.");
   }
@@ -294,9 +392,9 @@ Player.prototype.drawFire = function(friendly, index) {
   console.log(friendly.pursuers[index].name + " moves from " + friendly.name
               + " to " + this.name + ".");
   this.increaseMerit(friendly.pursuers[index].merit);
-  let selected = friendly.pursuers.splice(index, 1);
-  this.pursuers.push(selected[0]);
-  friendly.pursuers.join();
+  game.moveCard(index, friendly.pursuers, this.pursuers);
+  friendly.insertPlaceholder(index);
+  this.adjustPursuerDamage();
 }
 
 Player.prototype.assist = function() {
@@ -307,75 +405,69 @@ Player.prototype.feint = function() {
   // choose a tCard previously used this round and play it again
 }
 
-Player.prototype.barrelRoll = function(index) {
-  // bind click events to the player's pursuers
-  // have them choose a pursuer
-  let enemy = this.pursuers.splice[index];
-  console.log(this.name + " does a barrel roll! " + enemy.name + " now pursues "
+Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
+  if (friendly === undefined) {
+    friendly = this;
+  }
+  // move pursuer at pursuerIndex to friendly base
+  console.log(this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
               + FriendlyBase.name + ".");
-  FriendlyBase.pursuers.push(enemy[0]);
-  this.pursuers.join();
+  game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
+  this.insertPlaceholder(pursuerIndex);
+  this.adjustPursuerDamage();
+  FriendlyBase.adjustPursuerDamage();
 }
 
 Player.prototype.scatterShot = function(friendly, pursuerIndex) {
-  if (pursuerIndex === undefined) {
-    pursuerIndex = 0;
-  }
-  if (friendly === enemyBase) {
-    this.doDamage(enemyBase, undefined, 3);
-  } else {
-    let damage = 1;
-    let friendlyFire = 0;
-    let adjacentLeft = pursuerIndex - 1;
-    let adjacentRight = pursuerIndex + 1;
-    if (adjacentRight < friendly.pursuers.length) {
-        this.doDamage(friendly, adjacentRight, damage);
-    } else {
-        friendlyFire += damage;
-    }
-    this.doDamage(friendly, pursuerIndex, damage);
-    if (adjacentLeft > -1) {
-        this.doDamage(friendly, adjacentLeft, damage);
-    } else {
-        friendlyFire += damage;
-    }
-    friendly.takeDamage(friendlyFire);
-  }
+  // deal a small amount of damage to 3 adjacent targets
+  this.bomb(friendly, pursuerIndex, 2, 1)
 }
 
-Player.prototype.immelmann = function(index) {
+Player.prototype.immelman = function(friendly, index) {
   // bind click events to the player's pursuers
   // have them choose a pursuer
   this.missile(this, index);
 }
 
+
+
+/**************************
+PLAYER ADVANCED TACTICAL FUNCTIONS
+**************************/
+
 Player.prototype.medalOfHonor = function() {
   this.effects.medalOfHonor = true;
+  console.log(this.name + " will now receive +1 merit any time they are awarded merit.");
 }
 
 Player.prototype.daredevil = function() {
   // allow player to attack enemy base if they have one or no pursuers
   this.effects.daredevil = true;
+  console.log(this.name + " can now attack the enemy base with one pursuer.");
 }
 
 Player.prototype.medic = function() {
   this.effects.medic = true;
+  console.log(this.name + " can now repair 1 damage on a chosen ally each round.");
 }
 
 Player.prototype.sharpShooter = function() {
   this.effects.sharpShooter = true;
+  console.log(this.name + " is now better at hurting things.");
 }
 
 Player.prototype.healthPack = function(friendly) {
-  this.repairDrone(friendly, 5, 3);
+  this.repairDrone(friendly, index, 5, 3);
 }
 
 Player.prototype.intercept = function() {
   enemyBase.effects.intercepted = true;
+  console.log(intercept.description);
 }
 
 Player.prototype.jammer = function() {
   enemyBase.effects.jammed = true;
+  console.log(jammer.description);
 }
 
 Player.prototype.emp = function(friendly) {
@@ -385,7 +477,7 @@ Player.prototype.emp = function(friendly) {
 }
 
 Player.prototype.countermeasures = function() {
-  friendly.effects.countermeasures = true;
+  this.effects.countermeasures = true;
   console.log(this.name + " prepares countermeasures...")
 }
 
@@ -409,11 +501,74 @@ Player.prototype.hardSix = function() {
   this.takeDamage(this.calcDamage(4));
 }
 
+
+/**************************
+GENERIC FUNCTIONS TO USE TACTICAL CARDS
+**************************/
+
+Player.prototype.useAdvTactic = function(advTactic, friendly) {
+  // takes the index of a market card and uses that card if the player has enough merit
+  // optional argument 'friendly' defines a target for the card
+  if (friendly === undefined) {
+    friendly = this;
+  }
+  if (typeof advTactic === "number") {
+    let choice = FriendlyBase.market[advTactic];
+    let action = choice.cssClass;
+    if (this.merit >= choice.cost) {
+      this.merit -= choice.cost;
+      this[action](friendly);
+      FriendlyBase.removeAdvTactic(advTactic);
+    } else {
+      console.log(this.name + " does not have enough merit.");
+    }
+  } else if (typeof advTactic === "string") {
+    let action = advTactic.cssClass;
+    if (this.merit >= choice.cost) {
+      this.merit -= choice.cost;
+      this[action](friendly);
+    } else {
+      console.log(this.name + " does not have enough merit.");
+    }
+  }
+}
+
+Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
+  // takes the index of a card in hand and uses that card
+  // optional argument 'friendly' defines a player target for the card
+  // optional argument 'pursuerIndex' defines an enemy target in friendly.hand
+  if (friendly === undefined) {
+    friendly = this;
+  }
+  if (pursuerIndex === undefined) {
+    pursuerIndex = 0;
+  }
+  let failed = false;
+  let choice = this.hand[cardIndex];
+  let action = choice.cssClass;
+  console.log(this.name + " uses " + choice.name)
+  this[action](friendly, pursuerIndex);
+  if (failed) {
+    console.log("Invalid use of tactical card. Try again.");
+  } else {
+    game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
+  }
+}
+
+Player.prototype.adjustPursuerDamage = function() {
+  while (this.pursuerDamage.length < this.pursuers.length) {
+    this.pursuerDamage.push(0);
+  }
+  while (this.pursuerDamage.length > this.pursuers.length) {
+    this.pursuerDamage.pop();
+  }
+}
+
 const FriendlyBase = new Friendly("Friendly Base", 30);
-const Player1 = new Player();
-const Player2 = new Player();
-const Player3 = new Player();
-const Player4 = new Player();
+const Player1 = new Player("Player1");
+const Player2 = new Player("Player2");
+const Player3 = new Player("Player3");
+const Player4 = new Player("Player4");
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.FriendlyBase = FriendlyBase;
