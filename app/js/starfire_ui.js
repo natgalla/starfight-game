@@ -66,7 +66,6 @@ Player3.name = "Ruth";
 Player4.name = "Alan";
 
 
-
 /********************
 UTILITY FUNCTIONS
 ********************/

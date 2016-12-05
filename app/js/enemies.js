@@ -58,6 +58,17 @@ EnemyBase.prototype.addEnemy = function() {
   this.enemiesActive.push(this.enemyDeck.cards.pop());
 }
 
+EnemyBase.prototype.replaceEnemyBaseCard = function() {
+  if (this.effects.jammed === true) {
+    this.enemyBaseDeck.discard.push(this.currentEnemyBaseCard.pop());
+    this.effects.jammed = false;
+  } else {
+    game.replaceCards(this.enemyBaseCardsPerTurn, this.enemyBaseDeck,
+                      this.currentEnemyBaseCard);
+    let ebCard = this.currentEnemyBaseCard[0];
+    this[ebCard.cssClass]();
+  }
+}
 
 
 /************************

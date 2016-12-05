@@ -7,8 +7,8 @@
 FRIENDLY BASE CONSTRUCTOR
 **************************/
 
-const Friendly = function(name, maxArmor) {
-  this.id = "FriendlyBase";
+const Friendly = function(id, name, maxArmor) {
+  this.id = id;
   this.name = name;
   this.maxArmor = maxArmor;
   this.pursuers = [];
@@ -53,7 +53,7 @@ Friendly.prototype.updateSummary = function() {
 }
 
 Friendly.prototype.removeAdvTactic = function(index) {
-  game.moveCard(index, this.market, this.advTactics.discard);
+  game.moveCard(index, this.market, game.tacticalDeck.discard);
 }
 
 Friendly.prototype.addAdvTactic = function() {
@@ -67,16 +67,21 @@ Friendly.prototype.addAdvTactic = function() {
 Friendly.prototype.takeDamage = function(damage) {
   // take damage
   if (damage > 0) {
-    this.currentArmor -= damage;
-    if (this.currentArmor < 0) {
-      this.currentArmor = 0;
+    if (this.effects.emp) {
+      console.log(this.name + " is protected by EMP.");
+      this.effects.emp = false;
+    } else {
+      this.currentArmor -= damage;
+      if (this.currentArmor < 0) {
+        this.currentArmor = 0;
+      }
+      console.log(this.name + " takes " + damage + " damage. Current armor: "
+                  + this.currentArmor + "/" + this.maxArmor);
+      if (this.currentArmor === 0) {
+        console.log(this.name + " has been destroyed. Players lose.")
+        //end game;
+      }
     }
-    console.log(this.name + " takes " + damage + " damage. Current armor: "
-                + this.currentArmor + "/" + this.maxArmor);
-  }
-  if (this.currentArmor === 0) {
-    console.log(this.name + " has been destroyed. Players lose.")
-    //end game;
   }
 }
 
@@ -201,13 +206,46 @@ Player.prototype.checkDeath = function() {
 
 Player.prototype.takeDamage = function(damage) {
   if (damage > 0) {
-    this.currentArmor -= damage;
-    if (this.currentArmor < 0) {
-      this.currentArmor = 0;
+    if (this.effects.emp) {
+      console.log(this.name + " is protected by EMP.");
+      this.effects.emp = false;
+    } else {
+      if (this.effects.divertShields > 0) {
+        console.log(this.name + "'s shields reduce damage by "
+                    + this.effects.divertShields);
+        let difference = this.effects.divertShields - damage;
+        if (difference > 0) {
+          this.effects.divertShields -= damage;
+          damage = difference;
+        } else if (difference < 0) {
+          damage -= this.effects.divertShields;
+          this.effects.divertShields = 0;
+        } else {
+          damage = 0;
+          this.effects.divertShields = 0;
+        }
+      }
+      if (this.effects.countermeasures) {
+        let counterDamage = this.calcDamage(4);
+        console.log(this.name + " deploys countermeasures to avoid "
+                    + counterDamage + " damage.");
+        damage -= counterDamage;
+        this.effects.countermeasures = false;
+      }
+      if (damage < 0) {
+        damage = 0;
+      }
+      if (damage > 0) {
+        this.currentArmor -= damage;
+        if (this.currentArmor < 0) {
+          this.currentArmor = 0;
+        }
+        console.log(this.name + " takes " + damage + " damage. Current armor: "
+                    + this.currentArmor + "/" + this.maxArmor);
+        } else {
+          console.log("All damage to " + this.name + " negated.");
+      }
     }
-    console.log(this.name + " takes " + damage + " damage. Current armor: "
-                + this.currentArmor + "/" + this.maxArmor);
-    this.checkDeath();
   }
 }
 
@@ -564,7 +602,7 @@ Player.prototype.adjustPursuerDamage = function() {
   }
 }
 
-const FriendlyBase = new Friendly("Friendly Base", 30);
+const FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
 const Player1 = new Player("Player1");
 const Player2 = new Player("Player2");
 const Player3 = new Player("Player3");
