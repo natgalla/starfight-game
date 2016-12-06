@@ -304,6 +304,10 @@ const disableSelect = function() {
   for (i=0; i<hand.children.length; i++) {
     let card = hand.children[i];
     card.onclick = false;
+    let cardSelected = card.classList.contains("selected");
+    if(!cardSelected) {
+      card.className = "tactical disabled";
+    }
   }
 }
 
@@ -334,10 +338,6 @@ const use = function() {
   buttons.append(cancelButton);
   disableSelect();
   selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
-  // 1. allow player to choose appropriate targets
-  // 2. get the cardIndex of the selected card
-  // 3. run the card function on the active player, passing in the cardIndex and friendly
-  //
 }
 
 const discard = function() {
@@ -347,19 +347,11 @@ const discard = function() {
   buttons.append(cicButton);
   buttons.append(cancelButton);
   ["fire", "evade"].forEach(addTurnListener);
-  for (i=0; i<hand.children.length; i++) {
-    let card = hand.children[i];
-    let cardSelected = card.classList.contains("selected");
-    if(!cardSelected) {
-      card.className = "tactical disabled";
-    }
-  }
   disableSelect();
 }
 
 const fire = function() {
   clearButtons();
-  disableSelect();
   //run fire function
   removeCard();
   checkCards();
@@ -368,7 +360,6 @@ const fire = function() {
 
 const evade = function() {
   clearButtons();
-  disableSelect();
   //run evade function
   removeCard();
   checkCards();
