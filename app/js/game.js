@@ -236,7 +236,7 @@ Game.prototype.postRound = function() { //strange behavior removing placeholders
       let enemy = friendly.pursuers[x];
       damage += enemy.power;
     }
-    friendly.takeDamage(damage);
+    friendly.takeDamage(friendly.checkDamageNegation(damage));
   }
   // replace the active enemy base card & run the new card's function
   enemyBase.replaceEnemyBaseCard();
