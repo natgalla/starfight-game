@@ -98,8 +98,17 @@ let $confirmTargetButton = $("<button>", {
 let $confirmAdvButton = $("<button>", {
   id: "confirmAdvTactic",
   title: "Confirm choice",
-  text: "Cancel"
+  text: "Confirm choice"
 });
+
+$buttons.append($useButton);
+$buttons.append($discardButton);
+$buttons.append($fireButton);
+$buttons.append($evadeButton);
+$buttons.append($cicButton);
+$buttons.append($confirmTargetButton);
+$buttons.append($confirmAdvButton);
+$buttons.append($cancelButton);
 
 // for demonstration purposes
 Player1.name = "Nathan";
@@ -115,7 +124,7 @@ UTILITY FUNCTIONS
 
 const clearButtons = function() {
   //clear all action buttons
-  $buttons.html("");
+  $buttons.children().hide();
 }
 
 const checkCards = function() {
@@ -243,6 +252,7 @@ const updateEnemyCards = function() {
 
 const update = function() {
   // update entire play area
+  clearButtons();
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
@@ -269,8 +279,8 @@ const selectCard = function() {
   // assign "selected" class only to the clicked card
   deselect();
   this.classList.toggle("selected");
-  $buttons.append($useButton);
-  $buttons.append($discardButton);
+  $useButton.show();
+  $discardButton.show();
   // addTurnListener("use");
 }
 
@@ -279,8 +289,8 @@ const targetCard = function(condition) {
   detarget();
   clearButtons();
   this.classList.toggle("targeted");
-  $buttons.append($confirmTargetButton);
-  $buttons.append($cancelButton);
+  $confirmTargetButton.show();
+  $cancelButton.show();
   // addTurnListener("use");
 }
 
@@ -326,8 +336,8 @@ const enableSelect = function() {
   $("#playerHand li").on("click", function() {
     deselect();
     $(this).addClass("selected");
-    $buttons.append($useButton);
-    $buttons.append($discardButton);
+    $useButton.show();
+    $discardButton.show();
   });
 }
 
@@ -364,41 +374,44 @@ const selectTargets = function(...ids) {
 BUTTON FUNCTIONS
 ********************/
 
-$useButton.click(function() {
+$useButton.on("click", function() {
   clearButtons();
-  $buttons.append($cancelButton);
+  $cancelButton.show();
   disableSelect();
   action = "use";
   selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
 
 })
 
-$discardButton.click(function() {
+$discardButton.on("click", function() {
   clearButtons();
-  $buttons.append($fireButton);
-  $buttons.append($evadeButton);
-  $buttons.append($cicButton);
-  $buttons.append($cancelButton);
+  $fireButton.show();
+  $evadeButton.show();
+  $cicButton.show();
+  $cancelButton.show();
   disableSelect();
 });
 
-$fireButton.click(function() {
+$fireButton.on("click", function() {
   clearButtons();
-  $buttons.append($cancelButton);
+  $cancelButton.show();
   disableSelect();
   action = "fire";
   selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
 });
 
-$evadeButton.click(function() {
+$evadeButton.on("click", function() {
   clearButtons();
-  $buttons.append($cancelButton);
+  $cancelButton.show();
   disableSelect();
   action = "evade";
   selectTargets("playerPursuers");
 });
 
-$cancelButton.click(function() {
+$cancelButton.on("click", function() {
+  if ($overlay) {
+    $overlay.slideUp(400);
+  }
   clearButtons();
   deselect();
   detarget();
@@ -406,7 +419,9 @@ $cancelButton.click(function() {
   enableSelect();
 });
 
-$cicButton.click(function() {
+$cicButton.on("click", function() {
+  clearButtons();
+  $cancelButton.show();
   action = "useAdvTactic";
   $overlay = $('<ul id="overlay"></ul>');
   $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", 30));
@@ -416,19 +431,16 @@ $cicButton.click(function() {
   }
   // $overlay.append("<button id='exit'>Exit</button>")
   $("body").append($overlay);
-  $overlay.click(function() {
-    $(this).hide();
-  });
+  $($overlay).hide();
+  $($overlay).slideDown(500);
   $(".advTactical").on("click", function() {
+      $confirmAdvButton.show();
       $(".advTactical").removeClass("purchasing");
       $(this).addClass("purchasing");
   })
-  // $("#exit").on("click", function(){
-  //   $overlay.hide();
-  // });
 });
 
-$confirmTargetButton.click(function() {
+$confirmTargetButton.on("click", function() {
   let cardIndex = getCardIndex(".selected");
   let friendly = getFriendly(".targeted");
   let pursuerIndex = getCardIndex(".targeted");
@@ -443,7 +455,7 @@ $confirmTargetButton.click(function() {
   update();
 });
 
-$confirmAdvButton.click(function() {
+$confirmAdvButton.on("click", function() {
   let cardIndex = getCardIndex(".selected");
   let friendly = getFriendly(".targeted");
   let purchaseIndex = getCardIndex(".purchasing");
