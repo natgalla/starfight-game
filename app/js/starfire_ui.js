@@ -236,9 +236,13 @@ const targetCard = function() {
 const getCardIndex = function(className) {
   // get the index of the targetted card in its list
   let card = document.querySelector(className);
-  let list = card.parentElement;
-  let index = Array.from(list.children).indexOf(card);
-  return index;
+  if (card) {
+    let list = card.parentElement;
+    let index = Array.from(list.children).indexOf(card);
+    return index;
+  } else {
+    return undefined;
+  }
 }
 
 const getCardFunction = function(className) {
@@ -284,6 +288,7 @@ const enableSelect = function() {
         $selected.html("<h3>Feint</h3><p>" + user.lastCardUsed.description + "</p>");
         $useButton.show();
       } else {
+        $useButton.hide();
         $selected.html("<h3>Feint</h3><p>" + feint.description + "<br><br>Nothing to feint</p>");
       }
     } else {
@@ -400,7 +405,8 @@ $confirmTargetButton.on("click", function() {
   if (action === "use") {
     user.useTactic(cardIndex, friendly, pursuerIndex);
   } else {
-    user.discard(cardIndex, action, friendly, pursuerIndex);
+    let purchaseIndex = getCardIndex(".purchasing");
+    user.discard(cardIndex, action, friendly, pursuerIndex, purchaseIndex);
   }
   $overlay.slideUp(400);
   detarget();
@@ -411,8 +417,9 @@ $confirmTargetButton.on("click", function() {
 $confirmAdvButton.on("click", function() {
   let cardIndex = getCardIndex(".selected");
   let friendly = getFriendly(".targeted");
+  let pursuerIndex = getCardIndex(".targeted");
   let purchaseIndex = getCardIndex(".purchasing");
-  user.discard(cardIndex, "useAdvTactic", friendly, purchaseIndex);
+  user.discard(cardIndex, "useAdvTactic", friendly, pursuerIndex, purchaseIndex);
   $overlay.slideUp(400);
   detarget();
   clearButtons();
