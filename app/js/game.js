@@ -195,15 +195,15 @@ Game.prototype.round = function() {
   }
 
   // replace tactical cards from last turn
-  for (let i = 0; i < this.friendlies.length; i++) {
-    let player = this.friendlies[i];
+  this.friendlies.forEach( function(player) {
     if (player === FriendlyBase) {
-      continue;
+      return;
     } else {
-      this.replaceCards(player.tacticalCardsPerTurn,
-                        this.tacticalDeck, player.hand);
+      player.resetCardsUsed();
+      game.replaceCards(player.tacticalCardsPerTurn,
+                        game.tacticalDeck, player.hand);
     }
-  }
+  });
   // refresh play area
 }
 
@@ -257,7 +257,6 @@ game.shuffle(enemyBase.enemyDeck);
 //build tactical deck
 game.addToDeck(game.tacticalDeck, missile, 8);
 game.addToDeck(game.tacticalDeck, repairDrone, 3);
-// game.addToDeck(game.tacticalDeck, assist, 3);
 game.addToDeck(game.tacticalDeck, drawFire, 4);
 game.addToDeck(game.tacticalDeck, heatSeeker, 2);
 game.addToDeck(game.tacticalDeck, bomb, 3);
@@ -299,6 +298,7 @@ FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
 game.shuffle(FriendlyBase.advTactics);
 
 enemyBase.startingEnemies = game.friendlies.length * 2;
+enemyBase.enemiesPerTurn = game.friendlies.length;
 
 game.round();
 //IF MIGRATED TO SERVER SIDE

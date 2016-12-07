@@ -23,7 +23,7 @@ const Friendly = function(id, name, maxArmor) {
     divertShields: 0,
   };
   this.market = [];
-  this.marketSize = 5;
+  this.marketSize = 4;
   this.advTactics = {
     name: "Advanced tactics",
     cards: [],
@@ -62,6 +62,25 @@ Friendly.prototype.addAdvTactic = function() {
     game.checkDeck(this.advTactics);
     this.market.push(this.advTactics.cards.pop());
   }
+}
+
+Friendly.prototype.checkShields = function(damage) {
+  if (this.effects.divertShields > 0) {
+    let difference = this.effects.divertShields - damage;
+    if (difference > 0) {
+      this.effects.divertShields -= damage;
+      damage = 0;
+    } else if (difference < 0) {
+      damage -= this.effects.divertShields;
+      this.effects.divertShields = 0;
+    } else {
+      damage = 0;
+      this.effects.divertShields = 0;
+    }
+    console.log(this.name + "'s shields reduce damage to "
+                + damage);
+  }
+  return damage;
 }
 
 Friendly.prototype.checkDamageNegation = function(damage) {
@@ -109,7 +128,7 @@ const Player = function(id, name) {
   this.maxArmor = 10;
   this.currentArmor = this.maxArmor;
   this.tacticalCardsPerTurn = 3;
-  this.cardsUsed = [];
+  this.lastCardUsed = null;
   this.hand = [];
   this.pursuers = [];
   this.pursuerDamage = [];
@@ -151,7 +170,7 @@ Player.prototype.updateSummary = function() {
 
 Player.prototype.resetCardsUsed = function() {
   // returns list that keeps track of cards used this round to empty list
-  this.cardsUsed = [];
+  this.cardsUsed = null;
 }
 
 Player.prototype.setAmtImproved = function() {
@@ -236,7 +255,7 @@ Player.prototype.checkDamageNegation = function(damage) {
       this.effects.emp = false;
       return 0;
     } else {
-      damage = this.shields(damage);
+      damage = this.checkShields(damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
         console.log(this.name + " deploys countermeasures to avoid "
@@ -294,7 +313,7 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   } else {
     if (friendly.pursuers[index] === empty
       || friendly.pursuers[index] === placeHolder) {
-      console.log("No enemy at index " + index);
+      console.error("No enemy at index " + index);
     } else {
       if (damage > 0) {
         friendly.pursuerDamage[index] += damage;
@@ -315,20 +334,13 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   }
 }
 
-
-Player.prototype.chooseAlly = function() {
-  for (let i=0; i > game.friendlies.length; i++) {
-    let friendly = game.friendlies[i];
-    if (friendly === this) {
-      continue
-    } else {
-      // bind a click event to the friendly
-    }
+Player.prototype.adjustPursuerDamage = function() {
+  while (this.pursuerDamage.length < this.pursuers.length) {
+    this.pursuerDamage.push(0);
   }
-}
-
-Player.prototype.chooseEnemy = function() {
-  // bind a click event to valid enemies
+  while (this.pursuerDamage.length > this.pursuers.length) {
+    this.pursuerDamage.pop();
+  }
 }
 
 
@@ -343,14 +355,17 @@ Player.prototype.fire = function(friendly, pursuerIndex) {
   this.doDamage(friendly, pursuerIndex, damage);
 }
 
-Player.prototype.evade = function(pursuerIndex) {
+Player.prototype.evade = function(friendly, pursuerIndex) {
+  if (friendly === undefined) {
+    friendly = this;
+  }
   // choose a target and attempt evade (D6 vs. enemy targeting)
   let evadeRoll = Math.floor(Math.random() * 6) + 1;
   let pursuer = this.pursuers[pursuerIndex];
   if (evadeRoll >= pursuer.targeting) {
     console.log(this.name + " shakes " + pursuer.name + " to friendly base.");
     game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
-    this.insertPlaceholder(index);
+    this.insertPlaceholder(pursuerIndex);
   } else {
     console.log(this.name + " can't shake 'em!")
   }
@@ -439,7 +454,7 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
                 + friendly.name + ". Current armor: "
                 + friendly.currentArmor + "/" + friendly.maxArmor)
   } else {
-    console.log(friendly.name + " is already at maximum armor.");
+    console.error(friendly.name + " is already at maximum armor.");
   }
 }
 
@@ -453,12 +468,16 @@ Player.prototype.drawFire = function(friendly, index) {
   this.adjustPursuerDamage();
 }
 
-Player.prototype.assist = function() {
-  // we still don't even know what this does
-}
-
-Player.prototype.feint = function() {
+Player.prototype.feint = function(friendly, pursuerIndex) {
   // choose a tCard previously used this round and play it again
+  if (this.lastCardUsed) {
+    let card = this.lastCardUsed;
+    let action = this.lastCardUsed.cssClass;
+    console.log(this.name + " uses feint to play " + card.name)
+    this[action](friendly, pursuerIndex);
+  } else {
+    console.error("No action to feint");
+  }
 }
 
 Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
@@ -512,8 +531,11 @@ Player.prototype.sharpShooter = function() {
   console.log(this.name + " is now better at hurting things.");
 }
 
-Player.prototype.healthPack = function(friendly) {
-  this.repairDrone(friendly, index, 5, 3);
+Player.prototype.healthPack = function(friendly, index) {
+  if (index === undefined) {
+    index = 0;
+  }
+  this.repairDrone(friendly, index, 5, 0);
 }
 
 Player.prototype.intercept = function() {
@@ -599,25 +621,29 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   if (pursuerIndex === undefined) {
     pursuerIndex = 0;
   }
-  let failed = false;
-  let choice = this.hand[cardIndex];
-  let action = choice.cssClass;
-  console.log(this.name + " uses " + choice.name)
+  let card = this.hand[cardIndex];
+  let action = card.cssClass;
+  console.log(this.name + " uses " + card.name)
   this[action](friendly, pursuerIndex);
-  if (failed) {
-    console.log("Invalid use of tactical card. Try again.");
-  } else {
-    game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
+  if (action != "feint") {
+    this.lastCardUsed = card;
   }
+  game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
 }
 
-Player.prototype.adjustPursuerDamage = function() {
-  while (this.pursuerDamage.length < this.pursuers.length) {
-    this.pursuerDamage.push(0);
+Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex) {
+  if (friendly === undefined) {
+    friendly = this;
   }
-  while (this.pursuerDamage.length > this.pursuers.length) {
-    this.pursuerDamage.pop();
+  if (pursuerIndex === undefined) {
+    pursuerIndex = 0;
   }
+  if (action === "useAdvTactic") {
+    this.useAdvTactic(pursuerIndex, friendly);
+  } else {
+    this[action](friendly, pursuerIndex);
+  }
+  game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
 }
 
 const FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);

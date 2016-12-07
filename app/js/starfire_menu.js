@@ -1,61 +1,102 @@
-const gameName = "Starfire";
-let sessionName;
-const validSession = "test1";
-const $setup = $("#setup");
-const $newSessionNameInput = $("#newSessionName");
-const $joinSessionNameInput = $("#joinSessionName");
-const $createGameName = $("#createGameName");
-const $enterGameName = $("#enterGameName");
-const $newGame = $("#newGame");
-const $joinGame = $("#joinGame");
+let typeWord = function(location, element, text, interval) {
+  let newText = document.createElement(element);
+  location.prepend(newText);
+  let i=0;
+  let testInterval = setInterval(type, interval);
+  function type() {
+    if (i === text.length+1) {
+      clearInterval(testInterval);
+    } else {
+      if (i === 0) {
+        newText.textContent += text[i] + "|";
+        i++;
+      } else if (i === text.length) {
+        newText.textContent = newText.textContent.slice(0, -1);
+        i++;
+      } else {
+        newText.textContent = newText.textContent.slice(0, -1);
+        newText.textContent += text[i] + "|";
+        i++;
+      }
+    }
+  }
+}
 
-const $greet = $("#greet");
-const $transition1 = $("#transition1");
-const $startGame = $("#startGame");
-const $newSession = $("#newSession");
-const $joinSession = $("#joinSession");
-const $playArea = $("#playArea");
+let gameName = "Starfire";
+let sessionName;
+let validSession = "test1";
+let $setup = $("<div>", {id: "setup"});
+let $newSessionNameInput = $("<input>", {type: "text", id: "newSessionName"});
+let $joinSessionNameInput = $("<input>", {type: "text", id: "joinSessionName"});
+let $play = $("<button>", {id: "play", text: "Play"});
+let $createGameName = $("<button>", {id: "createGameName", text: "Create"});
+let $enterGameName = $("<button>", {id: "enterGameName", text: "Enter"});
+let $newGame = $("<button>", {id: "newGame", text: "Create"});
+let $joinGame = $("<button>", {id: "joinGame", text: "Join"});
+
+let $greet = $("<div>", {id: "greet"});
+let $startGame = $("<div>", {id: "startGame"});
+let $newSession = $("<div>", {id: "setup"});
+let $joinSession = $("<div>", {id: "joinSession"});
+let $playArea = $("#playArea");
 
 $playArea.hide();
-$transition1.hide();
-$startGame.hide();
-$newSession.hide();
-$joinSession.hide();
-$greet.prepend("<h3>Welcome to the " + gameName + " playtest module</h3>");
-const $play = $("#play");
+$("body").append($setup);
+$setup.append($greet);
+// $setup.append("<h3> Welcome to " + gameName + "<h3>");
+typeWord($greet[0], "h3", "Welcome to " + gameName, 40);
+$greet.append($play)
+// $startGame.append("<h3>Create a new game or join an existing one?</h3>");
+$startGame.append($newGame);
+$startGame.append($joinGame);
+// $newSession.append("<h3>Please enter a name for your session.</h3>");
+$newSession.append($newSessionNameInput);
+$newSession.append($createGameName);
+// $joinSession.append("<h3>Please enter the name of the session you would like to join</h3>");
+$joinSession.append($joinSessionNameInput);
+$joinSession.append($enterGameName);
 
-$play.click(function() {
+$play.on("click", function() {
   $greet.hide();
+  $setup.append($startGame);
+  $startGame.hide();
   $startGame.fadeIn();
+  typeWord($startGame[0], "h3", "Create a new game or join an existing one?", 40);
 });
 
-$newGame.click(function() {
+$newGame.on("click", function() {
   $startGame.hide();
+  $setup.append($newSession);
+  $newSession.hide();
   $newSession.fadeIn();
+  typeWord($newSession[0], "h3", "Please enter a name for your session.", 40);
 });
 
-$joinGame.click(function() {
+$joinGame.on("click", function() {
   $startGame.hide();
+  $setup.append($joinSession);
+  $joinSession.hide();
   $joinSession.fadeIn();
+  typeWord($joinSession[0], "h3", "Please enter the name of the session you would like to join", 40);
   $("#notActive").hide();
 });
 
 $newSessionNameInput.on("keyup change", function() {
-  sessionName = this.value;
+  sessionName = $(this).val();
 });
 $joinSessionNameInput.on("keyup change", function() {
   $("#notActive").hide();
-  sessionName = this.value;
+  sessionName = $(this).val();
 });
 
-$createGameName.click(function() {
+$createGameName.on("click", function() {
   if (sessionName) {
     $newSession.hide();
     $("#title").hide();
     $("#info").hide();
     $playArea.fadeIn();
   }
-})
+});
 
 $enterGameName.click(function() {
   if (sessionName === validSession) {
@@ -64,6 +105,13 @@ $enterGameName.click(function() {
     $("#info").hide();
     $playArea.fadeIn();
   } else {
-    $("#notActive").show();
+    $setup.append("<p id='notActive'>Not an active session</p>");
   }
-})
+});
+
+
+//Quick start
+// $("#playArea").hide();
+// $("#title").hide();
+// $("#info").hide();
+// $("#playArea").fadeIn();

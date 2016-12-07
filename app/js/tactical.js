@@ -19,6 +19,22 @@ const AdvTactical = function(name, cssClass, description, cost) {
 }
 AdvTactical.prototype = Object.create(Tactical.prototype);
 
+AdvTactical.prototype.generateCard = function(player) {
+  if (player.merit >= this.cost) {
+    return "<li class='advTactical purchasable " + this.cssClass + "'>"
+            + "<h3>" + this.name + "</h3>"
+            + "<p>" + this.description + "</p>"
+            + "<p class='cost'> Merit cost: " + this.cost + "</p>"
+            + "</li>";
+  } else {
+    return "<li class='advTactical unavailable " + this.cssClass + "'>"
+            + "<h3>" + this.name + "</h3>"
+            + "<p>" + this.description + "</p>"
+            + "<p class='cost'> Merit cost: " + this.cost + "</p>"
+            + "</li>";
+  }
+}
+
 // Tactical cards
 const missile = new Tactical("Missile", "missile", "Choose a target and roll 5 combat dice");
 const repairDrone = new Tactical("Repair drone", "repairDrone", "Choose a friendly and restore 3 hp");
@@ -26,7 +42,7 @@ const assist = new Tactical("Assist", "assist", "Draw a tactical card, then give
 const drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a friendly and bring it to you");
 const heatSeeker = new Tactical("Heat Seeker", "heatSeeker", "Deal 5 damage to a chosen enemy");
 const bomb = new Tactical("Bomb", "bomb", "Deal 6 damage to a single target, and 2 damage to the target on either side of it.");
-const feint = new Tactical("Feint", "feint", "Reuse a tactical card you already used this round");
+const feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
 const barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself and place it in the middle of the fray");
 const scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 1 damage to 3 adjacent targets");
 const immelman = new Tactical("Immelmann", "immelman", "Choose an enemy pursuing you and roll 5 combat dice");
