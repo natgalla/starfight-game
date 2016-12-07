@@ -285,6 +285,7 @@ const enableSelect = function() {
         $useButton.show();
       } else {
         $selected.html("<h3>Feint</h3><p>" + feint.description + "<br><br>Nothing to feint</p>");
+        $useButton.hide();
       }
     } else {
       $useButton.show();
