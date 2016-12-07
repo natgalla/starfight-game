@@ -255,7 +255,7 @@ Player.prototype.checkDamageNegation = function(damage) {
       this.effects.emp = false;
       return 0;
     } else {
-      damage = this.shields(damage);
+      damage = this.checkShields(damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
         console.log(this.name + " deploys countermeasures to avoid "
@@ -313,7 +313,7 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   } else {
     if (friendly.pursuers[index] === empty
       || friendly.pursuers[index] === placeHolder) {
-      console.log("No enemy at index " + index);
+      console.error("No enemy at index " + index);
     } else {
       if (damage > 0) {
         friendly.pursuerDamage[index] += damage;
@@ -454,7 +454,7 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
                 + friendly.name + ". Current armor: "
                 + friendly.currentArmor + "/" + friendly.maxArmor)
   } else {
-    console.log(friendly.name + " is already at maximum armor.");
+    console.error(friendly.name + " is already at maximum armor.");
   }
 }
 
@@ -471,11 +471,12 @@ Player.prototype.drawFire = function(friendly, index) {
 Player.prototype.feint = function(friendly, pursuerIndex) {
   // choose a tCard previously used this round and play it again
   if (this.lastCardUsed) {
+    let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
-    console.log(this.name + " uses " + card.name)
+    console.log(this.name + " uses feint to play " + card.name)
     this[action](friendly, pursuerIndex);
   } else {
-    console.log("No action to feint");
+    console.error("No action to feint");
   }
 }
 

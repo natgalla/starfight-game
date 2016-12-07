@@ -15,7 +15,7 @@ const EnemyBase = function() {
     discard: []
   };
   this.enemiesActive = [];
-  this.enemiesPerTurn = 3;
+  this.enemiesPerTurn;
   this.effects = {
     jammed: false,
     intercepted: false,
@@ -29,16 +29,19 @@ EnemyBase.prototype.updateSummary = function() {
   if (game.roundNumber === 1) {
     this.summary = "<h3>" + this.name + "</h3>"
                     + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>";
+                    + this.maxArmor + "</p>"
+                    + "<p>Launch rate: " + this.enemiesPerTurn + "</p>";
   } else if (this.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
     this.summary = "<h3>" + this.name + "</h3>"
                     + "<p>Armor: " + this.currentArmor + "/"
                     + this.maxArmor + "</p>"
+                    + "<p>Launch rate: " + this.enemiesPerTurn + "</p>"
                     + "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
   } else {
     this.summary = "<h3>" + this.name + "</h3>"
                     + "<p>Armor: " + this.currentArmor + "/"
                     + this.maxArmor + "</p>"
+                    + "<p>Launch rate: " + this.enemiesPerTurn + "</p>"
                     + this.currentEnemyBaseCard[0].card;
   }
 }
@@ -159,10 +162,7 @@ const EnemyBaseCard = function(name, cssClass, description) {
   this.name = name;
   this.cssClass = cssClass;
   this.description = description;
-  this.card = "<div class = 'enemyBaseCard'>"
-            + "<h3>" + this.name + "</h3>"
-            + "<p>" + this.description + "</p>"
-            + "</div>";
+  this.card = "<p>" + this.description + "</p>";
 }
 
 // define enemy types

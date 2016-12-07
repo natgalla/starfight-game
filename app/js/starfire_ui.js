@@ -1,30 +1,6 @@
 let user = Player1;
 let action;
 
-let typeWord = function(location, text, interval) {
-  let p = document.createElement("p");
-  location.appendChild(p);
-  let i=0;
-  let testInterval = setInterval(type, interval);
-  function type() {
-    if (i === text.length+1) {
-      clearInterval(testInterval);
-    } else {
-      if (i === 0) {
-        p.textContent += text[i] + "|";
-        i++;
-      } else if (i === text.length) {
-        p.textContent = p.textContent.slice(0, -1);
-        i++;
-      } else {
-        p.textContent = p.textContent.slice(0, -1);
-        p.textContent += text[i] + "|";
-        i++;
-      }
-    }
-  }
-}
-
 //the controlling player's hand
 const hand = document.getElementById("playerHand");
 
@@ -185,7 +161,10 @@ const updateTacticalCards = function() {
 
 const updateEnemyCards = function() {
   // update and show current pursuers
-  const dealEnemies = function(location, friendly) {
+  const refreshPursuerList = function(location, friendly) {
+    location.empty();
+    location.removeClass();
+    location.addClass(friendly.id);
     for (let i = 0; i < friendly.pursuers.length; i++) {
       let eCard = friendly.pursuers[i];
       if (eCard.cssClass === "emptySpace" || eCard.cssClass === "destroyed") {
@@ -203,17 +182,10 @@ const updateEnemyCards = function() {
       }
     }
   }
-  const refreshPursuerList = function(location, friendly) {
-    location.html("");
-    location.removeClass();
-    location.addClass(friendly.id);
-    dealEnemies(location, friendly);
-  }
   let wingman = 1;
   const $playerPursuers = $("#playerPursuers");
   const $basePursuers = $("#basePursuers");
-  for (let i = 0; i < game.friendlies.length; i++) {
-    let friendly = game.friendlies[i];
+  game.friendlies.forEach( function(friendly) {
     if (friendly === FriendlyBase) {
       refreshPursuerList($basePursuers, friendly);
     } else if (friendly === user) {
@@ -223,7 +195,7 @@ const updateEnemyCards = function() {
       refreshPursuerList($wingmanPursuers, friendly);
       wingman++;
     }
-  }
+  });
 }
 
 const update = function() {
@@ -277,7 +249,10 @@ const getCardFunction = function(className) {
 const getFriendly = function(className) {
   // determine which Friendly holds the selected card
   let card = document.querySelector(className);
-  let friendly = card.parentElement.className;
+  let friendly = undefined;
+  if (card) {
+    friendly = card.parentElement.className;
+  }
   if (friendly === "Player1") {
     return Player1;
   } else if (friendly === "Player2") {
@@ -396,17 +371,17 @@ $cancelButton.on("click", function() {
 });
 
 $cicButton.on("click", function() {
+  action = "useAdvTactic";
   clearButtons();
   $cancelButton.show();
-  action = "useAdvTactic";
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", 30));
+  $overlay.append(typeWord($overlay[0], "p", "Incoming transmition from " + game.name + " command...", 30));
   $overlay.append($marketList)
-  for (let i=0; i < FriendlyBase.market.length; i++) {
-    let advCard = FriendlyBase.market[i].generateCard(user, i);
+  FriendlyBase.market.forEach( function(card) {
+    let advCard = card.generateCard(user);
     $marketList.append(advCard);
-  }
+  });
   $("body").append($overlay);
   $($overlay).hide();
   $($overlay).slideDown(500);
@@ -427,7 +402,7 @@ $confirmTargetButton.on("click", function() {
   } else {
     user.discard(cardIndex, action, friendly, pursuerIndex);
   }
-  $overlay.slideUp(500);
+  $overlay.slideUp(400);
   detarget();
   clearButtons();
   update();
@@ -438,6 +413,7 @@ $confirmAdvButton.on("click", function() {
   let friendly = getFriendly(".targeted");
   let purchaseIndex = getCardIndex(".purchasing");
   user.discard(cardIndex, "useAdvTactic", friendly, purchaseIndex);
+  $overlay.slideUp(400);
   detarget();
   clearButtons();
   update();

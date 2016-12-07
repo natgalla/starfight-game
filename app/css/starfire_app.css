@@ -50,7 +50,7 @@ p {
   width: 100%;
   height: 350px;
   position: fixed;
-  bottom: 5%;
+  bottom: 55px;
   left: 0;
   background: rgba(0,0,0,0.9);
   text-align: center;
@@ -137,8 +137,12 @@ POSITIONING
   width: 120px;
   padding: 5px;
   margin: 5px;
-  vertical-align: middle;
   font-size: 0.9em;
+}
+
+#friendlyBase p,
+#enemyBase p {
+  font-size: 1.1rem;
 }
 
 #friendlyBase {
@@ -156,7 +160,6 @@ POSITIONING
 
 #basePursuers,
 #wingmen-pursuers {
-  z-index: 1;
   text-align: center;
   height: 100px;
 }
@@ -172,10 +175,12 @@ POSITIONING
 CARD STYLES
 ******************/
 
+.tactical {
+  transform: rotateX(15deg);
+}
 .tactical,
 .enemy,
 .advTactical {
-  transform: rotateX(15deg);
   transition: transform 0.4s;
   font-size: .75em;
   color: white;
@@ -254,6 +259,10 @@ li p {
   color: #888;
 }
 
+#playerHand #placeHolder {
+  opacity: 0;
+}
+
 #wingmen ul,
 #wingmen-pursuers ul {
   display: inline-block;
@@ -300,10 +309,10 @@ li p {
 }
 
 #basePursuers {
-  position: absolute;
+  float: left;
   transform: rotate(-90deg);
-  left: 10%;
-  top: 70%;
+  margin-left: 30px;
+  margin-top: 12%;
 }
 
 #playerPursuers,
@@ -326,12 +335,12 @@ li p {
   display: none;
 }
 
-.enemyBaseCard {
+#enemyBaseCard {
   font-size: .5em;
   text-align: center;
   border-radius: 5px;
-  height: 100px;
-  width: 60px;
+  height: 120px;
+  width: 80px;
   padding: 1em;
   border: 2px solid crimson;
   background: #333;

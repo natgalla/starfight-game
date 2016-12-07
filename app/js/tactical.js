@@ -19,7 +19,7 @@ const AdvTactical = function(name, cssClass, description, cost) {
 }
 AdvTactical.prototype = Object.create(Tactical.prototype);
 
-AdvTactical.prototype.generateCard = function(player, index) {
+AdvTactical.prototype.generateCard = function(player) {
   if (player.merit >= this.cost) {
     return "<li class='advTactical purchasable " + this.cssClass + "'>"
             + "<h3>" + this.name + "</h3>"
