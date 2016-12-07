@@ -53,7 +53,7 @@ Friendly.prototype.updateSummary = function() {
 }
 
 Friendly.prototype.removeAdvTactic = function(index) {
-  game.moveCard(index, this.market, this.advTactics.discard);
+  game.moveCard(index, this.market, game.tacticalDeck.discard);
 }
 
 Friendly.prototype.addAdvTactic = function() {
@@ -569,7 +569,7 @@ Player.prototype.jump = function() {
   console.log(this.name + " shakes " + this.pursuers.length
               + " pursuers to the friendly base.");
   for (let i = 0; i = this.pursuers.length; i++) {
-    friendlyBase.pursuers.push(this.pursuers.pop());
+    enemyBase.enemyDeck.discard.push(this.pursuers.pop());
   }
 }
 
@@ -577,6 +577,23 @@ Player.prototype.hardSix = function() {
   console.log("Sometimes you gotta roll the hard six.");
   this.missile(enemyBase, undefined);
   this.takeDamage(this.calcDamage(4));
+}
+
+Player.prototype.strafe = function(friendly, pursuerIndex) {
+  console.log(this.name + " destroys " + this.pursuers[pursuerIndex].name
+              + " pursuing " + friendly.name);
+  game.moveCard(pursuerIndex, friendly.pursuers, enemyBase.enemyDeck.discard);
+  this.insertPlaceholder(pursuerIndex);
+}
+
+Player.prototype.guidedMissile = function() {
+  console.log(this.name + " fires a guided missile at " + enemyBase.name);
+  enemyBase.takeDamage(6);
+}
+
+Player.prototype.incinerate = function() {
+  console.log(this.name + " prepares afterburner...");
+  this.effects.incinerator = true;
 }
 
 
@@ -625,7 +642,7 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   let action = card.cssClass;
   console.log(this.name + " uses " + card.name)
   this[action](friendly, pursuerIndex);
-  if (action != "feint") {
+  if (action != "feint" && card.type === "basic") {
     this.lastCardUsed = card;
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);

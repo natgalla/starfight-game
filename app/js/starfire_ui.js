@@ -300,7 +300,7 @@ const selectEnemyStandard = function() {
 const disableSelect = function() {
   //disable clicking other cards while an action is being taken
   $("#playerHand li").not(".selected").addClass("disabled");
-  $(".disabled").off("click");
+  $(".tactical").off("click");
 }
 
 const selectAlly = function() {
