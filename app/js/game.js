@@ -202,6 +202,7 @@ Game.prototype.round = function() {
     if (player === FriendlyBase) {
       continue;
     } else {
+      player.resetCardsUsed();
       this.replaceCards(player.tacticalCardsPerTurn,
                         this.tacticalDeck, player.hand);
     }

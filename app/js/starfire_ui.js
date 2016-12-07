@@ -1,34 +1,5 @@
-// var sock = io();
-// let user;
-//
-// sock.on("msg", onMessage);
-//
-// sock.on("assign", assignPlayer);
-//
-// function assignPlayer(text) {
-//   if (text === "Player1") {
-//     user = Player1;
-//   } else if (text === "Player2") {
-//     user = Player2;
-//   }
-// }
-//
-// function onMessage(text) {
-//   var list = document.getElementById("status");
-//   var el = document.createElement("li");
-//   el.innerHTML = text;
-//   list.appendChild(el);
-// }
-//
-// function addTurnListener(id) {
-//     let button = document.getElementById(id);
-//     button.addEventListener("click", () => {
-//         socket.emit("turn", id);
-//     });
-// }
 let user = Player1;
 let action;
-let $overlay;
 
 let typeWord = function(location, text, interval) {
   let p = document.createElement("p");
@@ -59,6 +30,11 @@ const hand = document.getElementById("playerHand");
 
 //establish buttons for card use
 let $buttons = $("#buttons");
+let $overlay = $("<div>", {
+  id: "overlay"
+});
+$("body").append($overlay);
+$overlay.hide();
 
 let $useButton = $("<button>", {
   id: "use",
@@ -275,16 +251,7 @@ const detarget = function() {
   $(".targeted").removeClass("targeted");
 }
 
-const selectCard = function() {
-  // assign "selected" class only to the clicked card
-  deselect();
-  this.classList.toggle("selected");
-  $useButton.show();
-  $discardButton.show();
-  // addTurnListener("use");
-}
-
-const targetCard = function(condition) {
+const targetCard = function() {
   // assign "selected" class only to the clicked card
   detarget();
   clearButtons();
@@ -336,7 +303,17 @@ const enableSelect = function() {
   $("#playerHand li").on("click", function() {
     deselect();
     $(this).addClass("selected");
-    $useButton.show();
+    let $selected = $(".selected");
+    if ($selected.hasClass("feint")) {
+      if (user.lastCardUsed) {
+        $selected.html("<h3>Feint</h3><p>" + user.lastCardUsed.description + "</p>");
+        $useButton.show();
+      } else {
+        $selected.html("<h3>Feint</h3><p>" + feint.description + "<br><br>Nothing to feint</p>");
+      }
+    } else {
+      $useButton.show();
+    }
     $discardButton.show();
   });
 }
@@ -380,7 +357,6 @@ $useButton.on("click", function() {
   disableSelect();
   action = "use";
   selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
-
 })
 
 $discardButton.on("click", function() {
@@ -423,20 +399,22 @@ $cicButton.on("click", function() {
   clearButtons();
   $cancelButton.show();
   action = "useAdvTactic";
-  $overlay = $('<ul id="overlay"></ul>');
+  $overlay.empty();
+  let $marketList = $("<ul>");
   $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", 30));
+  $overlay.append($marketList)
   for (let i=0; i < FriendlyBase.market.length; i++) {
-    let advCard = FriendlyBase.market[i].card;
-    $overlay.append(advCard);
+    let advCard = FriendlyBase.market[i].generateCard(user, i);
+    $marketList.append(advCard);
   }
-  // $overlay.append("<button id='exit'>Exit</button>")
   $("body").append($overlay);
   $($overlay).hide();
   $($overlay).slideDown(500);
-  $(".advTactical").on("click", function() {
+  $(".purchasable").on("click", function() {
       $confirmAdvButton.show();
-      $(".advTactical").removeClass("purchasing");
+      $(this).siblings().removeClass("purchasing");
       $(this).addClass("purchasing");
+      selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase"); // temporary workaround for target selection
   })
 });
 
@@ -449,7 +427,7 @@ $confirmTargetButton.on("click", function() {
   } else {
     user.discard(cardIndex, action, friendly, pursuerIndex);
   }
-  // checkCards();
+  $overlay.slideUp(500);
   detarget();
   clearButtons();
   update();

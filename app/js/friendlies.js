@@ -128,7 +128,7 @@ const Player = function(id, name) {
   this.maxArmor = 10;
   this.currentArmor = this.maxArmor;
   this.tacticalCardsPerTurn = 3;
-  this.cardsUsed = [];
+  this.lastCardUsed = null;
   this.hand = [];
   this.pursuers = [];
   this.pursuerDamage = [];
@@ -170,7 +170,7 @@ Player.prototype.updateSummary = function() {
 
 Player.prototype.resetCardsUsed = function() {
   // returns list that keeps track of cards used this round to empty list
-  this.cardsUsed = [];
+  this.cardsUsed = null;
 }
 
 Player.prototype.setAmtImproved = function() {
@@ -468,12 +468,15 @@ Player.prototype.drawFire = function(friendly, index) {
   this.adjustPursuerDamage();
 }
 
-Player.prototype.assist = function() {
-  // we still don't even know what this does
-}
-
-Player.prototype.feint = function() {
+Player.prototype.feint = function(friendly, pursuerIndex) {
   // choose a tCard previously used this round and play it again
+  if (this.lastCardUsed) {
+    let action = this.lastCardUsed.cssClass;
+    console.log(this.name + " uses " + card.name)
+    this[action](friendly, pursuerIndex);
+  } else {
+    console.log("No action to feint");
+  }
 }
 
 Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
@@ -617,16 +620,14 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   if (pursuerIndex === undefined) {
     pursuerIndex = 0;
   }
-  let failed = false;
-  let choice = this.hand[cardIndex];
-  let action = choice.cssClass;
-  console.log(this.name + " uses " + choice.name)
+  let card = this.hand[cardIndex];
+  let action = card.cssClass;
+  console.log(this.name + " uses " + card.name)
   this[action](friendly, pursuerIndex);
-  if (failed) {
-    console.log("Invalid use of tactical card. Try again.");
-  } else {
-    game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
+  if (action != "feint") {
+    this.lastCardUsed = card;
   }
+  game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
 }
 
 Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex) {

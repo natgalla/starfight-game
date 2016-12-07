@@ -227,10 +227,25 @@ li p {
   z-index: 8;
 }
 
+.purchasable {
+  box-shadow: 2px 2px 3px lightpink,
+              -2px -2px 5px lightpink;
+}
+
+.unavailable {
+  background: rgba(30, 30, 30, 0.8);
+}
+
+.purchasing,
 #playerHand .selected {
-  transform: translate3d(0, -40px, 200px);
   border: 2px solid lime;
   z-index: 10;
+  box-shadow: 2px 2px 3px lightgreen,
+              -2px -2px 5px lightgreen;
+}
+
+#playerHand .selected {
+  transform: translate3d(0, -40px, 200px);
 }
 
 #playerHand .disabled {
