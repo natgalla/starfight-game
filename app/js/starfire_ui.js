@@ -174,7 +174,8 @@ const updateEnemyCards = function() {
       } else {
         location.append("<li class='enemy " + eCard.cssClass + "'>"
                 + "<h3>" + eCard.name + "</h3>"
-                + "<p>ARM: " + (eCard.armor - friendly.pursuerDamage[i]) + "/" + eCard.armor + "</p>"
+                + "<p>ARM: " + (eCard.armor - friendly.pursuerDamage[i])
+                + "/" + eCard.armor + "</p>"
                 + "<p>PWR: " + eCard.power + "</p>"
                 + "<p>TGT: " + eCard.targeting + "</p>"
                 + "<p>MRT: " + eCard.merit + "</p>"

@@ -607,24 +607,15 @@ Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
-  if (typeof advTactic === "number") {
-    let choice = FriendlyBase.market[advTactic];
-    let action = choice.cssClass;
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
-      this[action](friendly, pursuerIndex);
-      FriendlyBase.removeAdvTactic(advTactic);
-    } else {
-      console.log(this.name + " does not have enough merit.");
-    }
-  } else if (typeof advTactic === "string") {
-    let action = advTactic.cssClass;
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
-      this[action](friendly, pursuerIndex);
-    } else {
-      console.log(this.name + " does not have enough merit.");
-    }
+  let choice = FriendlyBase.market[advTactic];
+  this.lastCardUsed = choice;
+  let action = choice.cssClass;
+  if (this.merit >= choice.cost) {
+    this.merit -= choice.cost;
+    this[action](friendly, pursuerIndex);
+    FriendlyBase.removeAdvTactic(advTactic);
+  } else {
+    console.log(this.name + " does not have enough merit.");
   }
 }
 
@@ -642,7 +633,7 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   let action = card.cssClass;
   console.log(this.name + " uses " + card.name)
   this[action](friendly, pursuerIndex);
-  if (action != "feint" && card.type === "basic") {
+  if (action != "feint") {
     this.lastCardUsed = card;
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
