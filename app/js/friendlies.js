@@ -21,6 +21,7 @@ const Friendly = function(id, name, maxArmor) {
     emp: false,
     countermeasures: false,
     divertShields: 0,
+    freeOfPursuers: false
   };
   this.market = [];
   this.marketSize = 4;
@@ -50,10 +51,21 @@ Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
 Friendly.prototype.updateSummary = function() {
   this.summary = "<h3>" + this.name + "</h3>"
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
+  for (let i=0; i<this.pursuers.length; i++) {
+    let enemy = this.pursuers[i];
+    if (enemy.merit > 0) {
+      this.effects.freeOfPursuers = false;
+    }
+  }
+  if (this.effects.freeOfPursuers) {
+    this.summary += "<p class='free'>Free</p>";
+  } else {
+    this.summary += "<p class='pursued'>Pursued</p>";
+  }
 }
 
 Friendly.prototype.removeAdvTactic = function(index) {
-  game.moveCard(index, this.market, this.advTactics.discard);
+  game.moveCard(index, this.market, game.tacticalDeck.discard);
 }
 
 Friendly.prototype.addAdvTactic = function() {
@@ -160,12 +172,24 @@ PLAYER UTILITY FUNCTIONS
 **************************/
 
 Player.prototype.updateSummary = function() {
-  this.summary = "<div class='playerSummary " + this.name + "'>"
+  this.effects.freeOfPursuers = true;
+  this.summary = "<div class='playerSummary " + this.id + "'>"
                   + "<h3>" + this.name + "</h3>"
                   + "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
-                  + "<p>Merit: " + this.merit + "</p>"
-                  + "</div>";
+                  + "<p>Merit: " + this.merit + "</p>";
+  for (let i=0; i<this.pursuers.length; i++) {
+    let enemy = this.pursuers[i];
+    if (enemy.merit > 0) {
+      this.effects.freeOfPursuers = false;
+    }
+  }
+  if (this.effects.freeOfPursuers) {
+    this.summary += "<p class='free'>Free</p>";
+  } else {
+    this.summary += "<p class='pursued'>Pursued</p>";
+  }
+  this.summary += "</div>";
 }
 
 Player.prototype.resetCardsUsed = function() {
@@ -569,7 +593,7 @@ Player.prototype.jump = function() {
   console.log(this.name + " shakes " + this.pursuers.length
               + " pursuers to the friendly base.");
   for (let i = 0; i = this.pursuers.length; i++) {
-    friendlyBase.pursuers.push(this.pursuers.pop());
+    enemyBase.enemyDeck.discard.push(this.pursuers.pop());
   }
 }
 
@@ -579,35 +603,43 @@ Player.prototype.hardSix = function() {
   this.takeDamage(this.calcDamage(4));
 }
 
+Player.prototype.snapshot = function(friendly, pursuerIndex) {
+  console.log(this.name + " destroys " + this.pursuers[pursuerIndex].name
+              + " pursuing " + friendly.name);
+  game.moveCard(pursuerIndex, friendly.pursuers, enemyBase.enemyDeck.discard);
+  this.insertPlaceholder(pursuerIndex);
+}
+
+Player.prototype.guidedMissile = function() {
+  console.log(this.name + " fires a guided missile at " + enemyBase.name);
+  enemyBase.takeDamage(6);
+}
+
+Player.prototype.incinerate = function() {
+  console.log(this.name + " prepares afterburner...");
+  this.effects.incinerator = true;
+}
+
 
 /**************************
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
 **************************/
 
-Player.prototype.useAdvTactic = function(advTactic, friendly) {
+Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
   // takes the index of a market card and uses that card if the player has enough merit
   // optional argument 'friendly' defines a target for the card
   if (friendly === undefined) {
     friendly = this;
   }
-  if (typeof advTactic === "number") {
-    let choice = FriendlyBase.market[advTactic];
-    let action = choice.cssClass;
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
-      this[action](friendly);
-      FriendlyBase.removeAdvTactic(advTactic);
-    } else {
-      console.log(this.name + " does not have enough merit.");
-    }
-  } else if (typeof advTactic === "string") {
-    let action = advTactic.cssClass;
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
-      this[action](friendly);
-    } else {
-      console.log(this.name + " does not have enough merit.");
-    }
+  let choice = FriendlyBase.market[advTactic];
+  this.lastCardUsed = choice;
+  let action = choice.cssClass;
+  if (this.merit >= choice.cost) {
+    this.merit -= choice.cost;
+    this[action](friendly, pursuerIndex);
+    FriendlyBase.removeAdvTactic(advTactic);
+  } else {
+    console.log(this.name + " does not have enough merit.");
   }
 }
 
@@ -631,7 +663,7 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
 }
 
-Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex) {
+Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, advIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
@@ -639,7 +671,7 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex) {
     pursuerIndex = 0;
   }
   if (action === "useAdvTactic") {
-    this.useAdvTactic(pursuerIndex, friendly);
+    this.useAdvTactic(advIndex, friendly, pursuerIndex);
   } else {
     this[action](friendly, pursuerIndex);
   }
