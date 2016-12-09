@@ -181,7 +181,7 @@ CARD STYLES
 .tactical,
 .enemy,
 .advTactical {
-  transition: transform 0.4s;
+  transition: transform 0.4s ease-out;
   font-size: .75em;
   color: white;
   position: relative;
@@ -255,6 +255,8 @@ li p {
 #playerPursuers .targeted {
   margin-bottom: 70px;
 }
+
+
 
 .invalidTarget,
 .unavailable,
@@ -353,16 +355,30 @@ li p {
 }
 
 .target {
-  box-shadow: 2px 2px 3px deeppink,
-              -2px -2px 5px deeppink;
   z-index: 15;
-  transition: transform 0.4s;
+  transition: 0.4s ease-out;
+  box-shadow: 1px 1px 3px indianred,
+              -1px -1px 4px indianred;
 }
 
-.targeted {
+.target:hover {
+  box-shadow: 2px 2px 5px hotpink,
+              -2px -2px 7px hotpink;
+}
+
+.friendlyBase.targeted,
+#wingmen .targeted,
+#player .targeted {
+  transform: none;
+  box-shadow: 2px 2px 5px lightgreen,
+              -2px -2px 7px lightgreen;
+}
+
+.enemy.targeted,
+#playerPursuers .targeted {
   transform: translate3d(0, 0, 201px);
-  box-shadow: 2px 2px 5px crimson,
-              -2px -2px 7px crimson;
+  box-shadow: 2px 2px 5px orangered,
+              -2px -2px 7px orangered;
 }
 
 /******************
@@ -371,6 +387,14 @@ PLAYER SUMMARIES
 
 .playerSummary {
   text-align: left;
+  padding: 5px;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.playerSummary,
+#friendlyBase {
+  transition: box-shadow 0.5s ease-out;
 }
 
 #player .playerSummary {
@@ -378,6 +402,15 @@ PLAYER SUMMARIES
   bottom: 70px;
   right: -12%;
   z-index: -1;
+}
+
+.assist {
+  border: 2px solid steelblue;
+}
+
+.assist:hover {
+  box-shadow: 3px 3px 4px lightblue,
+              -2px -2px 3px lightblue;
 }
 
 #wingmen .playerSummary {

@@ -333,7 +333,9 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   if (friendly === enemyBase) {
     enemyBase.takeDamage(damage);
     console.log(this.name + " deals " + damage + " damage to enemy base.");
-    this.increaseMerit(1);
+    if (damage > 0) {
+      this.increaseMerit(1);
+    }
   } else {
     if (friendly.pursuers[index] === empty
       || friendly.pursuers[index] === placeHolder) {

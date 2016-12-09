@@ -222,6 +222,7 @@ const deselect = function() {
 
 const detarget = function() {
   $(".target").removeClass("target");
+  $(".assist").removeClass("assist");
   $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");
 }
@@ -255,20 +256,21 @@ const getCardFunction = function(className) {
 
 const getFriendly = function(className) {
   // determine which Friendly holds the selected card
-  let card = document.querySelector(className);
+  let $card = $(className);
   let friendly = undefined;
-  if (card) {
-    friendly = card.parentElement.className;
+  console.log($card);
+  if ($card) {
+    $friendly = $card.parent();
   }
-  if (friendly === "Player1") {
+  if ($card.hasClass("Player1") || $friendly.hasClass("Player1")) {
     return Player1;
-  } else if (friendly === "Player2") {
+  } else if ($card.hasClass("Player2") || $friendly.hasClass("Player2")) {
     return Player2;
-  } else if (friendly === "Player3") {
+  } else if ($card.hasClass("Player3") || $friendly.hasClass("Player3")) {
     return Player3;
-  } else if (friendly === "Player4") {
+  } else if ($card.hasClass("Player4") || $friendly.hasClass("Player4")) {
     return Player4;
-  } else if (friendly === "FriendlyBase") {
+  } else if ($card.hasClass("friendlyBase") || $friendly.hasClass("friendlyBase")) {
     return FriendlyBase;
   } else {
     return enemyBase;
@@ -313,10 +315,18 @@ const disableSelect = function() {
 
 const selectAlly = function(scope) {
   if (scope === "all") {
-    $(".playerSummary").not($("." + user.id)).addClass("assist");
+    $(".playerSummary").addClass("assist");
   } else {
-    $(".playerSummary").addClass("assist")
+    $(".playerSummary").not($("." + user.id)).addClass("assist");
   }
+  $("#friendlyBase").addClass("assist");
+  $(".assist").on("click", function() {
+    detarget();
+    clearButtons();
+    $(this).toggleClass("targeted");
+    $confirmTargetButton.show();
+    $cancelButton.show();
+  });
 }
 
 const selectTargets = function(...ids) {
