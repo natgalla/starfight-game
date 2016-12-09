@@ -65,7 +65,7 @@ Friendly.prototype.updateSummary = function() {
 }
 
 Friendly.prototype.removeAdvTactic = function(index) {
-  game.moveCard(index, this.market, game.tacticalDeck.discard);
+  game.moveCard(index, this.market, this.advTactics.discard);
 }
 
 Friendly.prototype.addAdvTactic = function() {
