@@ -229,7 +229,7 @@ const detarget = function() {
 
 const targetCard = function() {
   // assign "selected" class only to the clicked card
-  detarget();
+  $(".target").removeClass("target");
   clearButtons();
   this.classList.toggle("targeted");
   $confirmTargetButton.show();
@@ -258,7 +258,6 @@ const getFriendly = function(className) {
   // determine which Friendly holds the selected card
   let $card = $(className);
   let friendly = undefined;
-  console.log($card);
   if ($card) {
     $friendly = $card.parent();
   }
@@ -272,8 +271,10 @@ const getFriendly = function(className) {
     return Player4;
   } else if ($card.hasClass("friendlyBase") || $friendly.hasClass("friendlyBase")) {
     return FriendlyBase;
-  } else {
+  } else if ($card.attr("id") === "enemyBase") {
     return enemyBase;
+  } else {
+    return undefined;
   }
 }
 

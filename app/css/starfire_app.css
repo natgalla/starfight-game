@@ -253,7 +253,13 @@ li p {
 
 #playerPursuers .target,
 #playerPursuers .targeted {
-  margin-bottom: 70px;
+  margin-bottom: 150px;
+}
+
+#player .playerSummary.assist {
+  z-index: 500;
+  margin-bottom: 50px;
+  margin-right: -150px;
 }
 
 
@@ -387,7 +393,7 @@ PLAYER SUMMARIES
 
 .playerSummary {
   text-align: left;
-  padding: 5px;
+  padding: 5px 10px;
   margin: 10px;
   border-radius: 10px;
 }
