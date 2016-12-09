@@ -210,7 +210,9 @@ CARD STYLES
 .cost {
   position: absolute;
   bottom: 2em;
-  left: 3em;
+  left: 2.2em;
+  font-weight: bold;
+  font-size: 1.3em;
 }
 
 .enemy {
@@ -237,10 +239,6 @@ li p {
               -2px -2px 5px lightpink;
 }
 
-.unavailable {
-  background: rgba(30, 30, 30, 0.8);
-}
-
 .purchasing,
 #playerHand .selected {
   border: 2px solid lime;
@@ -253,9 +251,16 @@ li p {
   transform: translate3d(0, -40px, 200px);
 }
 
+#playerPursuers .target,
+#playerPursuers .targeted {
+  margin-bottom: 70px;
+}
+
+.invalidTarget,
+.unavailable,
 #playerHand .disabled {
-  background-color: #444;
-  border-color: #C59;
+  background-color: rgba(30,30,30,0.8);
+  border-color: #666;
   color: #888;
 }
 
@@ -355,8 +360,7 @@ li p {
 }
 
 .targeted {
-  z-index: 20;
-  transform: translate3d(0, 0, 200px);
+  transform: translate3d(0, 0, 201px);
   box-shadow: 2px 2px 5px crimson,
               -2px -2px 7px crimson;
 }
@@ -380,4 +384,8 @@ PLAYER SUMMARIES
   font-size: 0.7em;
   display: inline-block;
   margin-left: 3em;
+}
+
+.pursued {
+  color: red;
 }
