@@ -16,20 +16,20 @@ const AdvTactical = function(name, cssClass, description, cost) {
   this.card = "<li class='advTactical " + this.cssClass + "'>"
               + "<h3>" + this.name + "</h3>"
               + "<p>" + this.description + "</p>"
-              + "<p class='cost'> Merit cost: " + this.cost + "</p>"
+              + "<p class='cost'>Merit cost: " + this.cost + "</p>"
               + "</li>"
 }
 AdvTactical.prototype = Object.create(Tactical.prototype);
 
 AdvTactical.prototype.generateCard = function(player) {
   if (player.merit >= this.cost) {
-    return "<li class='advTactical purchasable " + this.cssClass + "'>"
+    return "<li class='advTactical " + this.cssClass + " purchasable'>"
             + "<h3>" + this.name + "</h3>"
             + "<p>" + this.description + "</p>"
             + "<p class='cost'> Merit cost: " + this.cost + "</p>"
             + "</li>";
   } else {
-    return "<li class='advTactical unavailable " + this.cssClass + "'>"
+    return "<li class='advTactical " + this.cssClass + " unavailable'>"
             + "<h3>" + this.name + "</h3>"
             + "<p>" + this.description + "</p>"
             + "<p class='cost'> Merit cost: " + this.cost + "</p>"
@@ -63,7 +63,7 @@ const countermeasures = new AdvTactical("Countermeasures", "countermeasures", "I
 const divertShields = new AdvTactical("Divert Shields", "divertShields", "Keep this card. It absorbes the next 5 damage you take.", 3);
 const jump = new AdvTactical("Jump", "jump", "Shake all your pursuers this round", 15);
 const hardSix = new AdvTactical("Roll the hard six", "hardSix", "You may missile the enemy base with any amount of pursuers, but you take damage of a standard combat roll.", 3);
-const strafe = new AdvTactical("Strafe", "jump", "Remove an enemy from play (no merit awarded)", 3);
+const snapshot = new AdvTactical("Snapshot", "snapshot", "Remove an enemy from play (no merit awarded)", 3);
 const guidedMissile = new AdvTactical("Guided Missile", "guidedMissile", "Deal 6 damage to the enemy base regardless of pursuers.", 10);
 const incinerate = new AdvTactical("Incinerate", "incinerate", "Shake all your pursuers this round", 3);
 

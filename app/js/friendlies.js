@@ -21,6 +21,7 @@ const Friendly = function(id, name, maxArmor) {
     emp: false,
     countermeasures: false,
     divertShields: 0,
+    freeOfPursuers: false
   };
   this.market = [];
   this.marketSize = 4;
@@ -50,6 +51,17 @@ Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
 Friendly.prototype.updateSummary = function() {
   this.summary = "<h3>" + this.name + "</h3>"
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
+  for (let i=0; i<this.pursuers.length; i++) {
+    let enemy = this.pursuers[i];
+    if (enemy.merit > 0) {
+      this.effects.freeOfPursuers = false;
+    }
+  }
+  if (this.effects.freeOfPursuers) {
+    this.summary += "<p class='free'>Free</p>";
+  } else {
+    this.summary += "<p class='pursued'>Pursued</p>";
+  }
 }
 
 Friendly.prototype.removeAdvTactic = function(index) {
@@ -160,12 +172,24 @@ PLAYER UTILITY FUNCTIONS
 **************************/
 
 Player.prototype.updateSummary = function() {
-  this.summary = "<div class='playerSummary " + this.name + "'>"
+  this.effects.freeOfPursuers = true;
+  this.summary = "<div class='playerSummary " + this.id + "'>"
                   + "<h3>" + this.name + "</h3>"
                   + "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
-                  + "<p>Merit: " + this.merit + "</p>"
-                  + "</div>";
+                  + "<p>Merit: " + this.merit + "</p>";
+  for (let i=0; i<this.pursuers.length; i++) {
+    let enemy = this.pursuers[i];
+    if (enemy.merit > 0) {
+      this.effects.freeOfPursuers = false;
+    }
+  }
+  if (this.effects.freeOfPursuers) {
+    this.summary += "<p class='free'>Free</p>";
+  } else {
+    this.summary += "<p class='pursued'>Pursued</p>";
+  }
+  this.summary += "</div>";
 }
 
 Player.prototype.resetCardsUsed = function() {
@@ -579,7 +603,7 @@ Player.prototype.hardSix = function() {
   this.takeDamage(this.calcDamage(4));
 }
 
-Player.prototype.strafe = function(friendly, pursuerIndex) {
+Player.prototype.snapshot = function(friendly, pursuerIndex) {
   console.log(this.name + " destroys " + this.pursuers[pursuerIndex].name
               + " pursuing " + friendly.name);
   game.moveCard(pursuerIndex, friendly.pursuers, enemyBase.enemyDeck.discard);

@@ -1,5 +1,6 @@
 let user = Player1;
 let action;
+let buttonPressed;
 
 //the controlling player's hand
 const hand = document.getElementById("playerHand");
@@ -104,7 +105,7 @@ const showSummary = function(player, hand) {
   if (player === user) {
     summary = "#player .playerSummary";
   } else {
-    summary = "#wingmen ." + player.name;
+    summary = "#wingmen ." + player.id;
   }
   let $summary = $(summary);
   if ($summary.length === 0) {
@@ -221,6 +222,7 @@ const deselect = function() {
 
 const detarget = function() {
   $(".target").removeClass("target");
+  $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");
 }
 
@@ -309,8 +311,12 @@ const disableSelect = function() {
   $(".tactical").off("click");
 }
 
-const selectAlly = function() {
-
+const selectAlly = function(scope) {
+  if (scope === "all") {
+    $(".playerSummary").not($("." + user.id)).addClass("assist");
+  } else {
+    $(".playerSummary").addClass("assist")
+  }
 }
 
 const selectTargets = function(...ids) {
@@ -318,15 +324,42 @@ const selectTargets = function(...ids) {
   $enemies.forEach((enemy) => {
     let classes = Array.from(enemy.classList);
     if (ids.includes(enemy.id) ||
-    (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
-        && !classes.includes("placeHolder"))) {
+      (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
+          && !classes.includes("placeHolder"))) {
       enemy.className += " target";
       enemy.onclick = targetCard;
+    } else {
+      enemy.className += " invalidTarget";
     }
   });
 }
 
-
+const showTargets = function(action) {
+  if (action === "feint") {
+    action = user.lastCardUsed.cssClass;
+  }
+  if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
+    if (user.effects.freeOfPursuers) {
+      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+        "enemyBase");
+    } else {
+      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+    }
+  }
+  if (["snapshot"].includes(action)) {
+    selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+      "enemyBase");
+  }
+  if (["drawFire", "emp"].includes(action)) {
+    selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+  }
+  if (["immelman", "evade", "barrelRoll"].includes(action)) {
+    selectTargets("playerPursuers");
+  }
+  if (["repairDrone"].includes(action)) {
+    selectAlly("all");
+  }
+}
 
 /********************
 BUTTON FUNCTIONS
@@ -336,8 +369,9 @@ $useButton.on("click", function() {
   clearButtons();
   $cancelButton.show();
   disableSelect();
-  action = "use";
-  selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
+  action = $(".selected")[0].classList[1];
+  buttonPressed = "use";
+  showTargets(action);
 })
 
 $discardButton.on("click", function() {
@@ -354,7 +388,8 @@ $fireButton.on("click", function() {
   $cancelButton.show();
   disableSelect();
   action = "fire";
-  selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase");
+  buttonPressed = "fire";
+  showTargets(action);
 });
 
 $evadeButton.on("click", function() {
@@ -362,7 +397,8 @@ $evadeButton.on("click", function() {
   $cancelButton.show();
   disableSelect();
   action = "evade";
-  selectTargets("playerPursuers");
+  buttonPressed = "evade";
+  showTargets(action);
 });
 
 $cancelButton.on("click", function() {
@@ -382,7 +418,7 @@ $cicButton.on("click", function() {
   $cancelButton.show();
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay[0], "p", "Incoming transmition from " + game.name + " command...", 30));
+  $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
   $overlay.append($marketList)
   FriendlyBase.market.forEach( function(card) {
     let advCard = card.generateCard(user);
@@ -392,10 +428,16 @@ $cicButton.on("click", function() {
   $($overlay).hide();
   $($overlay).slideDown(500);
   $(".purchasable").on("click", function() {
-      $confirmAdvButton.show();
       $(this).siblings().removeClass("purchasing");
       $(this).addClass("purchasing");
-      selectTargets("wingman1-pursuers", "basePursuers", "playerPursuers", "enemyBase"); // temporary workaround for target selection
+      action = $(this)[0].classList[1];
+      if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone"].includes(action)) {
+        $confirmAdvButton.hide();
+        showTargets(action);
+      } else {
+        detarget();
+        $confirmAdvButton.show();
+      }
   })
 });
 
@@ -403,7 +445,7 @@ $confirmTargetButton.on("click", function() {
   let cardIndex = getCardIndex(".selected");
   let friendly = getFriendly(".targeted");
   let pursuerIndex = getCardIndex(".targeted");
-  if (action === "use") {
+  if (buttonPressed === "use") {
     user.useTactic(cardIndex, friendly, pursuerIndex);
   } else {
     let purchaseIndex = getCardIndex(".purchasing");
