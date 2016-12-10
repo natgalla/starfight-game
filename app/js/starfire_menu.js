@@ -42,6 +42,7 @@ let gameName = "Starfire";
 let sessionName;
 let validSession = "test1";
 let $setup = $("<div>", {id: "setup"});
+let $server = $("<ul>", {id: "server"});
 let $newSessionNameInput = $("<input>", {type: "text", id: "newSessionName"});
 let $joinSessionNameInput = $("<input>", {type: "text", id: "joinSessionName"});
 let $play = $("<button>", {id: "play", text: "Play"});
@@ -58,11 +59,12 @@ let $joinSession = $("<div>", {id: "joinSession"});
 let $playArea = $("#playArea");
 
 $playArea.hide();
-$("body").append($setup);
+$("#menu").prepend($setup);
 $setup.append($greet);
 // $setup.append("<h3> Welcome to " + gameName + "<h3>");
 typeWord($greet[0], "Welcome to " + gameName, "h3");
-$greet.append($play)
+$greet.append($play);
+$setup.append($server);
 // $startGame.append("<h3>Create a new game or join an existing one?</h3>");
 $startGame.append($newGame);
 $startGame.append($joinGame);

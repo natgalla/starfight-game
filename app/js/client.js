@@ -1,8 +1,14 @@
 var sock = io();
+let user;
 
 sock.on("msg", onMessage);
-
 sock.on("assign", assignPlayer);
+sock.on("update", getUpdate);
+
+function getUpdate(packet) {
+  console.log("Server sent an update")
+  console.log(packet);
+}
 
 function assignPlayer(text) {
   if (text === "Player1") {
@@ -10,6 +16,7 @@ function assignPlayer(text) {
   } else if (text === "Player2") {
     user = Player2;
   }
+  console.log(user.name + " joined game as " + user.id);
 }
 
 function onMessage(text) {

@@ -310,7 +310,5 @@ game.shuffle(enemyBase.enemyBaseDeck);
 
 enemyBase.startingEnemies = game.friendlies.length * 2;
 enemyBase.enemiesPerTurn = game.friendlies.length;
-
-game.round();
 //IF MIGRATED TO SERVER SIDE
 // module.exports = Game;

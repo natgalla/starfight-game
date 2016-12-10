@@ -130,7 +130,7 @@ POSITIONING
   margin-top: 5px;
 }
 
-#friendlyBase,
+#FriendlyBase,
 #enemyBase {
   background: #333;
   height: 300px;
@@ -140,12 +140,12 @@ POSITIONING
   font-size: 0.9em;
 }
 
-#friendlyBase p,
+#FriendlyBase p,
 #enemyBase p {
   font-size: 1.1rem;
 }
 
-#friendlyBase {
+#FriendlyBase {
   float: left;
   border: 2px solid steelblue;
   border-radius: 0 33% 33% 0;
@@ -217,7 +217,7 @@ CARD STYLES
 
 .enemy {
   border: 2px solid crimson;
-  border-radius: 5px;
+  border-radius: 7px;
   height: 130px;
   width: 80px;
   margin-top: -110px;
@@ -372,7 +372,7 @@ li p {
               -2px -2px 7px hotpink;
 }
 
-.friendlyBase.targeted,
+.FriendlyBase.targeted,
 #wingmen .targeted,
 #player .targeted {
   transform: none;
@@ -399,7 +399,7 @@ PLAYER SUMMARIES
 }
 
 .playerSummary,
-#friendlyBase {
+#FriendlyBase {
   transition: box-shadow 0.5s ease-out;
 }
 

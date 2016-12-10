@@ -65,7 +65,7 @@ const jump = new AdvTactical("Jump", "jump", "Shake all your pursuers this round
 const hardSix = new AdvTactical("Roll the hard six", "hardSix", "You may missile the enemy base with any amount of pursuers, but you take damage of a standard combat roll.", 3);
 const snapshot = new AdvTactical("Snapshot", "snapshot", "Remove an enemy from play (no merit awarded)", 7);
 const guidedMissile = new AdvTactical("Guided Missile", "guidedMissile", "Deal 6 damage to the enemy base regardless of pursuers.", 10);
-const incinerate = new AdvTactical("Incinerate", "incinerate", "Shake all your pursuers this round", 3);
+const incinerate = new AdvTactical("Incinerate", "incinerate", "Destroy the first enemy drawn to you next round.", 7);
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.Tactical = Tactical;

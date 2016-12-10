@@ -21,7 +21,7 @@ const Friendly = function(id, name, maxArmor) {
     emp: false,
     countermeasures: false,
     divertShields: 0,
-    freeOfPursuers: false
+    status: "Pursued"
   };
   this.market = [];
   this.marketSize = 4;
@@ -49,18 +49,19 @@ Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
 }
 
 Friendly.prototype.updateSummary = function() {
+  this.effects.status = "Free";
   this.summary = "<h3>" + this.name + "</h3>"
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
   for (let i=0; i<this.pursuers.length; i++) {
     let enemy = this.pursuers[i];
     if (enemy.merit > 0) {
-      this.effects.freeOfPursuers = false;
+      this.effects.status = "Pursued";
     }
   }
-  if (this.effects.freeOfPursuers) {
-    this.summary += "<p class='free'>Free</p>";
+  if (this.effects.status === "Pursued") {
+    this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    this.summary += "<p class='pursued'>Pursued</p>";
+    this.summary += "<p class='free'>" + this.effects.status + "</p>";
   }
 }
 
@@ -156,6 +157,7 @@ const Player = function(id, name) {
     emp: false,
     countermeasures: false,
     divertShields: 0,
+    status: "Pursued"
   };
   this.summary = "<div class='playerSummary " + this.id + "'>"
                 + "<h3>" + this.name + "</h3>"
@@ -172,7 +174,7 @@ PLAYER UTILITY FUNCTIONS
 **************************/
 
 Player.prototype.updateSummary = function() {
-  this.effects.freeOfPursuers = true;
+  this.effects.status = "Free";
   this.summary = "<div class='playerSummary " + this.id + "'>"
                   + "<h3>" + this.name + "</h3>"
                   + "<p>Armor: " + this.currentArmor
@@ -181,15 +183,14 @@ Player.prototype.updateSummary = function() {
   for (let i=0; i<this.pursuers.length; i++) {
     let enemy = this.pursuers[i];
     if (enemy.merit > 0) {
-      this.effects.freeOfPursuers = false;
+      this.effects.status = "Pursued";
     }
   }
-  if (this.effects.freeOfPursuers) {
-    this.summary += "<p class='free'>Free</p>";
+  if (this.effects.status === "Pursued") {
+    this.summary += "<p class='pursued'>" + this.effects.status + "</p></div>";
   } else {
-    this.summary += "<p class='pursued'>Pursued</p>";
+    this.summary += "<p class='free'>" + this.effects.status + "</p></div>";
   }
-  this.summary += "</div>";
 }
 
 Player.prototype.resetCardsUsed = function() {
@@ -673,16 +674,17 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
   if (action === "useAdvTactic") {
     this.useAdvTactic(advIndex, friendly, pursuerIndex);
   } else {
+    console.log(action);
     this[action](friendly, pursuerIndex);
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
 }
 
 const FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-const Player1 = new Player("Player1");
-const Player2 = new Player("Player2");
-const Player3 = new Player("Player3");
-const Player4 = new Player("Player4");
+const Player1 = new Player("Player1", "Nathan");
+const Player2 = new Player("Player2", "Rudi");
+const Player3 = new Player("Player3", "Ruth");
+const Player4 = new Player("Player4", "Alan");
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.FriendlyBase = FriendlyBase;
