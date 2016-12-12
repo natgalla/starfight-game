@@ -65,60 +65,48 @@ $buttons.append($confirmAdvButton);
 $buttons.append($cancelButton);
 
 
-/********************
-UTILITY FUNCTIONS
-********************/
 
+/********************
+UPDATE FUNCTIONS
+********************/
 
 const clearButtons = function() {
   //clear all action buttons
   $buttons.children().hide();
 }
 
-const refreshBases = function() {
-  // update base summaries
-  FriendlyBase.updateSummary();
-  $("#FriendlyBase").html(FriendlyBase.summary);
-  enemyBase.updateSummary();
-  $("#enemyBase").html(enemyBase.summary);
-}
+
 
 const updateSummaries = function() {
-  const showSummary = function(player, hand) {
+  enemyBase.updateSummary();
+  $("#enemyBase").html(enemyBase.summary);
+  let wingman = 1;
+  const showSummary = function(player) {
     // show player summary
     player.updateSummary();
-    let $playerHand = $(hand);
     let summaryField;
     if (player === user) {
-      summaryField = "#player .playerSummary";
+      summaryField = "#userSummary";
     } else {
-      summaryField = "#wingmen ." + player.id;
+      summaryField = "#wingman" + wingman + "-summary";
     }
     let $summary = $(summaryField);
-    if ($summary.length === 0) {
-      $playerHand.after(player.summary);
-    } else {
-      $summary.replaceWith(player.summary);
-    }
+    $summary.html(player.summary).removeClass().addClass("playerSummary").addClass(player.id);
   }
-  // update and show all player summaries
-  for (let i = 0; i < game.friendlies.length; i++) {
-    let friendly = game.friendlies[i];
-    // friendly.updateSummary();
-  }
-  let wingman = 1;
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly === FriendlyBase) {
-      refreshBases();
+      friendly.updateSummary();
+      $("#FriendlyBase").html(FriendlyBase.summary);
     } else if (friendly === user) {
-      showSummary(friendly, "#playerHand")
+      showSummary(friendly)
     } else {
-      showSummary(friendly, "#wingman" + wingman + "-hand");
+      showSummary(friendly);
       wingman++
     }
   }
 }
+
 
 const updateTacticalCards = function() {
   // update and show all tactical hands
@@ -153,6 +141,7 @@ const updateTacticalCards = function() {
     }
   }
 }
+
 
 const updateEnemyCards = function() {
   // update and show current pursuers
@@ -194,14 +183,22 @@ const updateEnemyCards = function() {
   });
 }
 
+const clearOverlay = function() {
+  $overlay.slideUp(400, function() {
+    $("#userSummary").css("margin-left", "40px");
+  });
+}
+
 const update = function() {
   // update entire play area
   clearButtons();
+  detarget();
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
   enableSelect();
 }
+
 
 
 /********************
@@ -214,6 +211,7 @@ const deselect = function() {
   $(".selected").removeClass("selected");
 }
 
+
 const detarget = function() {
   $(".target").removeClass("target");
   $(".assist").removeClass("assist");
@@ -221,19 +219,12 @@ const detarget = function() {
   $(".targeted").removeClass("targeted");
 }
 
-const targetCard = function() {
-  // assign "selected" class only to the clicked card
-  $(".target").removeClass("target");
-  clearButtons();
-  this.classList.toggle("targeted");
-  $confirmTargetButton.show();
-  $cancelButton.show();
-}
 
 const getCardFunction = function(className) {
   let card = document.querySelector(className);
   return card.classList()[1]; // classlist will be .tactical .[action] ...
 }
+
 
 const getFriendly = function(className) {
   // determine which Friendly holds the selected card
@@ -259,6 +250,8 @@ const getFriendly = function(className) {
   }
 }
 
+
+
 /********************
 CARD BINDING
 ********************/
@@ -266,7 +259,7 @@ CARD BINDING
 
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
-  $("#playerHand li").on("click", function() {
+  $(".tactical").on("click", function() {
     deselect();
     $(this).addClass("selected");
     let $selected = $(".selected");
@@ -285,11 +278,13 @@ const enableSelect = function() {
   });
 }
 
+
 const disableSelect = function() {
   //disable clicking other cards while an action is being taken
-  $("#playerHand li").not(".selected").addClass("disabled");
+  $(".tactical").not(".selected").addClass("disabled");
   $(".tactical").off("click");
 }
+
 
 const selectAlly = function(scope) {
   if (scope === "all") {
@@ -307,50 +302,79 @@ const selectAlly = function(scope) {
   });
 }
 
+const getPlayer = function() { // for local playable version only
+  let $summary = $(".selected").parent().next();
+  if ($summary.hasClass("Player1")) {
+    return Player1;
+  } else if ($summary.hasClass("Player2")) {
+    return Player2;
+  } else if ($summary.hasClass("Player3")) {
+    return Player3;
+  } else if ($summary.hasClass("Player1")) {
+    return Player4;
+  } else {
+    return user;
+  }
+}
+
 const showTargets = function(action) {
+  let player = getPlayer();
   const selectTargets = function(...ids) {
-    let $enemies = Array.from($(".enemy"));
-    $enemies.forEach((enemy) => {
+    let enemies = Array.from($(".enemy"));
+    enemies.forEach((enemy) => {
       let classes = Array.from(enemy.classList);
       if (ids.includes(enemy.id) ||
         (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
-            && !classes.includes("placeHolder"))) {
+            && !classes.includes("destroyed"))) {
         enemy.className += " target";
-        enemy.onclick = targetCard;
+        $(".target").on("click", function() {
+          clearButtons();
+          $(this).addClass("targeted")
+          $(".targeted").not($(this)).removeClass("targeted");
+          $confirmTargetButton.show();
+          $cancelButton.show();
+        });
       } else {
         enemy.className += " invalidTarget";
       }
     });
   }
   if (action === "feint") {
-    action = user.lastCardUsed.cssClass;
+    action = player.lastCardUsed.cssClass;
   }
-  if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
-    if (user.effects.freeOfPursuers) {
-      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-        "enemyBase");
-    } else {
-      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-    }
-  }
-  if (["snapshot"].includes(action)) {
-    selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-      "enemyBase");
-  }
-  if (["drawFire", "emp"].includes(action)) {
-    selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-  }
-  if (["immelman", "evade", "barrelRoll"].includes(action)) {
-    selectTargets("playerPursuers");
-  }
+  // SERVER VERSION SELECTION LOGIC, DISABLED FOR LOCAL VERSION
+  // if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
+  //   if (player.effects.status == "Free") {
+  //     selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+  //       "enemyBase");
+  //   } else {
+  //     selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+  //   }
+  // }
+  // if (["snapshot"].includes(action)) {
+  //   selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+  //     "enemyBase");
+  // }
+  // if (["drawFire", "emp"].includes(action)) {
+  //   selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+  // }
+  // if (["immelman", "evade", "barrelRoll"].includes(action)) {
+  //   selectTargets("playerPursuers");
+  // }
   if (["repairDrone"].includes(action)) {
     selectAlly("all");
+  } else { // for local playable version only
+    selectTargets("playerPursuers", "basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+      "enemyBase")
   }
 }
+
+
 
 /********************
 BUTTON FUNCTIONS
 ********************/
+
 
 $useButton.on("click", function() {
   clearButtons();
@@ -359,7 +383,8 @@ $useButton.on("click", function() {
   disableSelect();
   action = $(".selected")[0].classList[1];
   showTargets(action);
-})
+});
+
 
 $discardButton.on("click", function() {
   clearButtons();
@@ -370,6 +395,7 @@ $discardButton.on("click", function() {
   $cancelButton.show();
   disableSelect();
 });
+
 
 $fireButton.on("click", function() {
   clearButtons();
@@ -389,8 +415,9 @@ $evadeButton.on("click", function() {
   showTargets(action);
 });
 
+
 $cancelButton.on("click", function() {
-  $overlay.slideUp(400);
+  clearOverlay();
   clearButtons();
   deselect();
   detarget();
@@ -398,8 +425,11 @@ $cancelButton.on("click", function() {
   enableSelect();
 });
 
+
 $cicButton.on("click", function() {
   action = "useAdvTactic";
+  buttonPressed = "useAdvTactic";
+  $("#userSummary").css("margin-left", "120px");
   clearButtons();
   $cancelButton.show();
   $overlay.empty();
@@ -412,6 +442,9 @@ $cicButton.on("click", function() {
   });
   $overlay.slideDown(500);
   $(".purchasable").on("click", function() {
+      clearButtons();
+      $cancelButton.show();
+      detarget();
       $(this).siblings().removeClass("purchasing");
       $(this).addClass("purchasing");
       action = $(this)[0].classList[1]; // $(this).attr("class").split(" ")[1]
@@ -425,35 +458,39 @@ $cicButton.on("click", function() {
   });
 });
 
+
 const sendPacket = function() { //for server version: modify to send packet to server
   let packet = {
-    player: user,
+    player: getPlayer(),
     button: buttonPressed,
     cardIndex: $(".selected").index(),
     friendly: getFriendly(".targeted"),
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
-    action: action
   }
+  console.log(packet);
   //sock.emit("confirm", packet);
   if (buttonPressed === "use") {
-    user.useTactic(packet.cardIndex, packet.friendly, packet.pursuerIndex); //server will run
+    getPlayer().useTactic(packet.cardIndex, packet.friendly, packet.pursuerIndex); //server will run
   } else {
-    user.discard(packet.cardIndex, packet.action, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
+    getPlayer().discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
-  $overlay.slideUp(400);
+  clearOverlay();
   detarget();
   clearButtons();
   update();
 }
 
+
 $confirmTargetButton.on("click", function() {
   sendPacket();
 });
 
+
 $confirmAdvButton.on("click", function() {
   sendPacket();
 });
+
 
 game.round();
 update();
