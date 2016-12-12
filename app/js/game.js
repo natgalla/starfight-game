@@ -6,7 +6,7 @@ const Game = function() {
   this.name = "Starfire";
   this.difficulty = 3;
   this.roundNumber = 0;
-  this.friendlies = [FriendlyBase, Player1, Player2];
+  this.friendlies = [FriendlyBase, Player1, Player2, Player3];
   this.tacticalDeck = {
     name: "Tactical deck",
     cards: [],
@@ -53,11 +53,10 @@ Game.prototype.sortByMerit = function() {
   let highestMerit = 0;
   let firstFriendlyIndex;
   let baseIndex;
-  let friendly;
   let friendyIndex;
 
   for (let i = 0; i < this.friendlies.length; i++) {
-    friendly = this.friendlies[i];
+    let friendly = this.friendlies[i];
     // 1. Find the friendly base and set baseIndex to its location.
     if (friendly === FriendlyBase) {
       baseIndex = i;
@@ -118,9 +117,9 @@ Game.prototype.distributeEnemies = function(source) {
   while (source.length > 0) {
     for (let i = 0; i < this.friendlies.length; i++) {
       let friendly = this.friendlies[i];
-      if (source.length > 0 && friendly.incinerator) {
+      if (source.length > 0 && friendly.effects.incinerator) {
         friendly.pursuers.push(source.pop());
-        console.log(friendly.name + " incinerates " + friendly.pursuers[-1].name);
+        console.log(friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
         enemyBase.enemyDeck.discard.push(friendly.pursuers.pop());
         friendly.incinerator = false;
       } else if (source.length > 0) {
@@ -250,16 +249,7 @@ Game.prototype.postRound = function() { //strange behavior removing placeholders
 }
 
 const game = new Game();
-//build enemy deck
-game.addToDeck(enemyBase.enemyDeck, ace, 4);
-game.addToDeck(enemyBase.enemyDeck, heavy, 9);
-game.addToDeck(enemyBase.enemyDeck, medium, 12);
-game.addToDeck(enemyBase.enemyDeck, light, 15);
-game.addToDeck(enemyBase.enemyDeck, empty, 9);
 
-enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
-
-game.shuffle(enemyBase.enemyDeck);
 
 //build tactical deck
 game.addToDeck(game.tacticalDeck, missile, 6);
@@ -296,6 +286,17 @@ game.addToDeck(FriendlyBase.advTactics, hardSix, 4);
 FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
 
 game.shuffle(FriendlyBase.advTactics);
+
+//build enemy deck
+game.addToDeck(enemyBase.enemyDeck, ace, 4);
+game.addToDeck(enemyBase.enemyDeck, heavy, 9);
+game.addToDeck(enemyBase.enemyDeck, medium, 12);
+game.addToDeck(enemyBase.enemyDeck, light, 15);
+game.addToDeck(enemyBase.enemyDeck, empty, 6);
+
+enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
+
+game.shuffle(enemyBase.enemyDeck);
 
 //build enemy base deck
 game.addToDeck(enemyBase.enemyBaseDeck, fireLight, 3);
