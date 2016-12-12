@@ -468,7 +468,7 @@ const sendPacket = function() { //for server version: modify to send packet to s
   if (buttonPressed === "use") {
     getPlayer().useTactic(packet.cardIndex, packet.friendly, packet.pursuerIndex); //server will run
   } else {
-    getPlyaer().discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
+    getPlayer().discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
   $overlay.slideUp(400);
   detarget();
