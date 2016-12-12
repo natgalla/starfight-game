@@ -461,7 +461,6 @@ const sendPacket = function() { //for server version: modify to send packet to s
     friendly: getFriendly(".targeted"),
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
-    action: action
   }
   console.log(packet);
   //sock.emit("confirm", packet);

@@ -47,6 +47,16 @@ Game.prototype.checkDeck = function(deck) {
   }
 }
 
+Game.prototype.setEmpties = function(twoP, threeP, fourP) {
+  if (this.friendlies.length === 3) {
+    return twoP;
+  } else if (this.friendlies.length === 4) {
+    return threeP;
+  } else {
+    return fourP;
+  }
+}
+
 Game.prototype.sortByMerit = function() {
   // procedure to sort player order based on merit
   let friendlySort = [];
@@ -292,7 +302,7 @@ game.addToDeck(enemyBase.enemyDeck, ace, 4);
 game.addToDeck(enemyBase.enemyDeck, heavy, 9);
 game.addToDeck(enemyBase.enemyDeck, medium, 12);
 game.addToDeck(enemyBase.enemyDeck, light, 15);
-game.addToDeck(enemyBase.enemyDeck, empty, 6);
+game.addToDeck(enemyBase.enemyDeck, empty, game.setEmpties(8, 4, 0));
 
 enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
 
