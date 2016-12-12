@@ -150,7 +150,6 @@ POSITIONING
   padding: 5px;
   margin: 5px;
   font-size: 0.9em;
-  z-index: 500;
 }
 
 #FriendlyBase p,
@@ -278,12 +277,6 @@ li p {
   transform: translate3d(0, -30px, 200px);
 }
 
-#player .playerSummary.assist {
-  z-index: 500;
-  margin-bottom: 50px;
-  margin-right: -150px;
-}
-
 .invalidTarget,
 .unavailable,
 #playerHand .disabled {
@@ -334,12 +327,10 @@ li p {
 }
 
 #basePursuers {
-  position: relative;
   float: left;
   transform: rotate(-90deg);
-  margin-left: 20px;
-  margin-top: 10%;
-  z-index: 501;
+  margin-top: 180px;
+  margin-left: 30px;
 }
 
 .destroyed,
@@ -435,7 +426,7 @@ PLAYER SUMMARIES
   position: absolute;
   display: inline-block;
   z-index: -1;
-  margin-left: 120px;
+  margin-left: 40px;
   width: 100px;
 }
 
@@ -451,7 +442,6 @@ PLAYER SUMMARIES
 #wingmen .playerSummary {
   font-size: 0.7em;
   display: inline-block;
-  margin-left: 3em;
   margin-top: 2em;
 }
 

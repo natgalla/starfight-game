@@ -183,6 +183,11 @@ const updateEnemyCards = function() {
   });
 }
 
+const clearOverlay = function() {
+  $overlay.slideUp(400, function() {
+    $("#userSummary").css("margin-left", "40px");
+  });
+}
 
 const update = function() {
   // update entire play area
@@ -412,7 +417,7 @@ $evadeButton.on("click", function() {
 
 
 $cancelButton.on("click", function() {
-  $overlay.slideUp(400);
+  clearOverlay();
   clearButtons();
   deselect();
   detarget();
@@ -424,6 +429,7 @@ $cancelButton.on("click", function() {
 $cicButton.on("click", function() {
   action = "useAdvTactic";
   buttonPressed = "useAdvTactic";
+  $("#userSummary").css("margin-left", "120px");
   clearButtons();
   $cancelButton.show();
   $overlay.empty();
@@ -469,7 +475,7 @@ const sendPacket = function() { //for server version: modify to send packet to s
   } else {
     getPlayer().discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
-  $overlay.slideUp(400);
+  clearOverlay();
   detarget();
   clearButtons();
   update();
