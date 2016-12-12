@@ -254,7 +254,7 @@ CARD BINDING
 
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
-  $("#playerHand li").on("click", function() {
+  $(".tactical").on("click", function() {
     deselect();
     $(this).addClass("selected");
     let $selected = $(".selected");
@@ -276,7 +276,7 @@ const enableSelect = function() {
 
 const disableSelect = function() {
   //disable clicking other cards while an action is being taken
-  $("#playerHand li").not(".selected").addClass("disabled");
+  $(".tactical").not(".selected").addClass("disabled");
   $(".tactical").off("click");
 }
 
@@ -297,8 +297,23 @@ const selectAlly = function(scope) {
   });
 }
 
+const getPlayer = function() { // for local playable version only
+  let $summary = $(".selected").parent().next();
+  if ($summary.hasClass("Player1")) {
+    return Player1;
+  } else if ($summary.hasClass("Player2")) {
+    return Player2;
+  } else if ($summary.hasClass("Player3")) {
+    return Player3;
+  } else if ($summary.hasClass("Player1")) {
+    return Player4;
+  } else {
+    return user;
+  }
+}
 
 const showTargets = function(action) {
+  let player = getPlayer();
   const selectTargets = function(...ids) {
     let enemies = Array.from($(".enemy"));
     enemies.forEach((enemy) => {
@@ -320,28 +335,32 @@ const showTargets = function(action) {
     });
   }
   if (action === "feint") {
-    action = user.lastCardUsed.cssClass;
+    action = player.lastCardUsed.cssClass;
   }
-  if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
-    if (user.effects.status == "Free") {
-      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-        "enemyBase");
-    } else {
-      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-    }
-  }
-  if (["snapshot"].includes(action)) {
-    selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-      "enemyBase");
-  }
-  if (["drawFire", "emp"].includes(action)) {
-    selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-  }
-  if (["immelman", "evade", "barrelRoll"].includes(action)) {
-    selectTargets("playerPursuers");
-  }
+  // SERVER VERSION SELECTION LOGIC, DISABLED FOR LOCAL VERSION
+  // if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
+  //   if (player.effects.status == "Free") {
+  //     selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+  //       "enemyBase");
+  //   } else {
+  //     selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+  //   }
+  // }
+  // if (["snapshot"].includes(action)) {
+  //   selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+  //     "enemyBase");
+  // }
+  // if (["drawFire", "emp"].includes(action)) {
+  //   selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+  // }
+  // if (["immelman", "evade", "barrelRoll"].includes(action)) {
+  //   selectTargets("playerPursuers");
+  // }
   if (["repairDrone"].includes(action)) {
     selectAlly("all");
+  } else { // for local playable version only
+    selectTargets("playerPursuers", "basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+      "enemyBase")
   }
 }
 
@@ -417,6 +436,8 @@ $cicButton.on("click", function() {
   });
   $overlay.slideDown(500);
   $(".purchasable").on("click", function() {
+      clearButtons();
+      $cancelButton.show();
       detarget();
       $(this).siblings().removeClass("purchasing");
       $(this).addClass("purchasing");
@@ -434,7 +455,7 @@ $cicButton.on("click", function() {
 
 const sendPacket = function() { //for server version: modify to send packet to server
   let packet = {
-    player: user,
+    player: getPlayer(),
     button: buttonPressed,
     cardIndex: $(".selected").index(),
     friendly: getFriendly(".targeted"),
@@ -445,9 +466,9 @@ const sendPacket = function() { //for server version: modify to send packet to s
   console.log(packet);
   //sock.emit("confirm", packet);
   if (buttonPressed === "use") {
-    user.useTactic(packet.cardIndex, packet.friendly, packet.pursuerIndex); //server will run
+    getPlayer().useTactic(packet.cardIndex, packet.friendly, packet.pursuerIndex); //server will run
   } else {
-    user.discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
+    getPlyaer().discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
   $overlay.slideUp(400);
   detarget();
