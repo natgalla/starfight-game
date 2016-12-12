@@ -21,7 +21,7 @@ const Friendly = function(id, name, maxArmor) {
     emp: false,
     countermeasures: false,
     divertShields: 0,
-    freeOfPursuers: false
+    status: "Pursued"
   };
   this.market = [];
   this.marketSize = 4;
@@ -35,8 +35,10 @@ const Friendly = function(id, name, maxArmor) {
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
 }
 
+
+
 /**************************
-FRIENDLY BASE UTILITY FUNCTIONS
+FRIENDLY BASE UTILITY METHODS
 **************************/
 
 Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
@@ -49,18 +51,19 @@ Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
 }
 
 Friendly.prototype.updateSummary = function() {
+  this.effects.status = "Free";
   this.summary = "<h3>" + this.name + "</h3>"
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
   for (let i=0; i<this.pursuers.length; i++) {
     let enemy = this.pursuers[i];
     if (enemy.merit > 0) {
-      this.effects.freeOfPursuers = false;
+      this.effects.status = "Pursued";
     }
   }
-  if (this.effects.freeOfPursuers) {
-    this.summary += "<p class='free'>Free</p>";
+  if (this.effects.status === "Pursued") {
+    this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    this.summary += "<p class='pursued'>Pursued</p>";
+    this.summary += "<p class='free'>" + this.effects.status + "</p>";
   }
 }
 
@@ -147,6 +150,7 @@ const Player = function(id, name) {
   this.merit = 0;
   this.combatDie = [0,0,0,1,1,2];
   this.improvedDie = [0,0,1,1,1,2];
+  this.missileDie = [0,0,1,1,2,2];
   this.amtImproved = 0;
   this.effects = {
     medalOfHonor: false,
@@ -156,56 +160,53 @@ const Player = function(id, name) {
     emp: false,
     countermeasures: false,
     divertShields: 0,
+    incinerator: false,
+    status: "Pursued"
   };
-  this.summary = "<div class='playerSummary " + this.id + "'>"
-                + "<h3>" + this.name + "</h3>"
+  this.summary = "<h3>" + this.name + "</h3>"
                 + "<p>Armor: " + this.currentArmor + "/"
                 + this.maxArmor + "</p>"
-                + "<p>Merit: " + this.merit + "</p>"
-                + "</div>";
+                + "<p>Merit: " + this.merit + "</p>";
 }
 
 
 
 /**************************
-PLAYER UTILITY FUNCTIONS
+PLAYER UTILITY METHODS
 **************************/
 
+
+
+Player.prototype.insertPlaceholder = Friendly.prototype.insertPlaceholder;
+Player.prototype.checkShields = Friendly.prototype.checkShields;
+Player.prototype.adjustPursuerDamage = Friendly.prototype.adjustPursuerDamage;
+
+Player.prototype.resetCardsUsed = function() {
+  this.lastCardUsed = null;
+}
+
 Player.prototype.updateSummary = function() {
-  this.effects.freeOfPursuers = true;
-  this.summary = "<div class='playerSummary " + this.id + "'>"
-                  + "<h3>" + this.name + "</h3>"
+  this.effects.status = "Free";
+  this.summary = "<h3>" + this.name + "</h3>"
                   + "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
                   + "<p>Merit: " + this.merit + "</p>";
   for (let i=0; i<this.pursuers.length; i++) {
     let enemy = this.pursuers[i];
     if (enemy.merit > 0) {
-      this.effects.freeOfPursuers = false;
+      this.effects.status = "Pursued";
     }
   }
-  if (this.effects.freeOfPursuers) {
-    this.summary += "<p class='free'>Free</p>";
+  if (this.effects.status === "Pursued") {
+    this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    this.summary += "<p class='pursued'>Pursued</p>";
+    this.summary += "<p class='free'>" + this.effects.status + "</p>";
   }
-  this.summary += "</div>";
-}
-
-Player.prototype.resetCardsUsed = function() {
-  // returns list that keeps track of cards used this round to empty list
-  this.cardsUsed = null;
 }
 
 Player.prototype.setAmtImproved = function() {
   // set interval for the amount of improved dice
   this.amtImproved = Math.floor(this.merit/5);
-}
-
-Player.prototype.insertPlaceholder = function(index) {
-  //removes an enemy card from the fray and inserts a "destroyed" place holder
-  this.pursuers.splice(index, 0, placeHolder);
-  this.pursuers.join();
 }
 
 Player.prototype.damageRoll = function(list) {
@@ -251,25 +252,6 @@ Player.prototype.checkDeath = function() {
       console.log("All pilots destroyed. Players lose.");
     }
   }
-}
-
-Player.prototype.checkShields = function(damage) {
-  if (this.effects.divertShields > 0) {
-    let difference = this.effects.divertShields - damage;
-    if (difference > 0) {
-      this.effects.divertShields -= damage;
-      damage = 0;
-    } else if (difference < 0) {
-      damage -= this.effects.divertShields;
-      this.effects.divertShields = 0;
-    } else {
-      damage = 0;
-      this.effects.divertShields = 0;
-    }
-    console.log(this.name + "'s shields reduce damage to "
-                + damage);
-  }
-  return damage;
 }
 
 Player.prototype.checkDamageNegation = function(damage) {
@@ -333,9 +315,7 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   if (friendly === enemyBase) {
     enemyBase.takeDamage(damage);
     console.log(this.name + " deals " + damage + " damage to enemy base.");
-    if (damage > 0) {
-      this.increaseMerit(1);
-    }
+    this.increaseMerit(1);
   } else {
     if (friendly.pursuers[index] === empty
       || friendly.pursuers[index] === placeHolder) {
@@ -357,15 +337,6 @@ Player.prototype.doDamage = function(friendly, index, damage) {
         console.log("No damage to target.");
       }
     }
-  }
-}
-
-Player.prototype.adjustPursuerDamage = function() {
-  while (this.pursuerDamage.length < this.pursuers.length) {
-    this.pursuerDamage.push(0);
-  }
-  while (this.pursuerDamage.length > this.pursuers.length) {
-    this.pursuerDamage.pop();
   }
 }
 
@@ -391,7 +362,10 @@ Player.prototype.evade = function(friendly, pursuerIndex) {
   if (evadeRoll >= pursuer.targeting) {
     console.log(this.name + " shakes " + pursuer.name + " to friendly base.");
     game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
+    game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
+    this.adjustPursuerDamage();
+    FriendlyBase.adjustPursuerDamage();
   } else {
     console.log(this.name + " can't shake 'em!")
   }
@@ -399,15 +373,13 @@ Player.prototype.evade = function(friendly, pursuerIndex) {
 
 Player.prototype.missile = function(friendly, pursuerIndex) {
   // deal damage equal to 5 combat dice to target
-  let damage = this.calcDamage(4);
-  damage += this.damageRoll([0,0,1,1,2,2]);
+  let damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
   this.doDamage(friendly, pursuerIndex, damage);
 }
 
 Player.prototype.heatSeeker = function(friendly, pursuerIndex) {
   // deal 5 damage to target
-  let damage = 5;
-  this.doDamage(friendly, pursuerIndex, damage);
+  this.doDamage(friendly, pursuerIndex, 5);
 }
 
 Player.prototype.bomb = function(friendly, pursuerIndex, damage, collateral) { // throwing error when attack enemyBase
@@ -490,8 +462,10 @@ Player.prototype.drawFire = function(friendly, index) {
               + " to " + this.name + ".");
   this.increaseMerit(friendly.pursuers[index].merit);
   game.moveCard(index, friendly.pursuers, this.pursuers);
+  game.moveCard(index, friendly.pursuerDamage, this.pursuerDamage);
   friendly.insertPlaceholder(index);
   this.adjustPursuerDamage();
+  friendly.adjustPursuerDamage();
 }
 
 Player.prototype.feint = function(friendly, pursuerIndex) {
@@ -514,6 +488,7 @@ Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
   console.log(this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
               + FriendlyBase.name + ".");
   game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
+  game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
   this.insertPlaceholder(pursuerIndex);
   this.adjustPursuerDamage();
   FriendlyBase.adjustPursuerDamage();
@@ -629,7 +604,7 @@ GENERIC FUNCTIONS TO USE TACTICAL CARDS
 
 Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
   // takes the index of a market card and uses that card if the player has enough merit
-  // optional argument 'friendly' defines a target for the card
+  // optional arguments 'friendly' and 'pursuerIndex' defines a target for the card
   if (friendly === undefined) {
     friendly = this;
   }
@@ -681,10 +656,10 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
 }
 
 const FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-const Player1 = new Player("Player1");
-const Player2 = new Player("Player2");
-const Player3 = new Player("Player3");
-const Player4 = new Player("Player4");
+const Player1 = new Player("Player1", "Nathan");
+const Player2 = new Player("Player2", "Rudi");
+const Player3 = new Player("Player3", "Ruth");
+const Player4 = new Player("Player4", "Alan");
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.FriendlyBase = FriendlyBase;
