@@ -783,6 +783,8 @@ input {
   z-index: 10;
   margin-left: 40px;
   width: 100px; }
+  #userSummary.bumped {
+    margin-left: 120px; }
 
 #wingmen .playerSummary {
   font-size: 0.8em;

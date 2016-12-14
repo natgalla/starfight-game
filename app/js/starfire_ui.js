@@ -182,7 +182,7 @@ const updateEnemyCards = function() {
 
 const clearOverlay = function() {
   $overlay.slideUp(400, function() {
-    $("#userSummary").css("margin-left", "40px");
+    $("#userSummary").removeClass("bumped");
   });
 }
 
@@ -432,7 +432,7 @@ $(document).keyup(function(e) {
 $cicButton.on("click", function() {
   action = "useAdvTactic";
   buttonPressed = "useAdvTactic";
-  $("#userSummary").css("margin-left", "120px");
+  $("#userSummary").addClass("bumped");
   clearButtons();
   $cancelButton.show();
   $overlay.empty();
@@ -472,9 +472,9 @@ const sendPacket = function() { //for server version: modify to send packet to s
     purchaseIndex: $(".purchasing").index(),
   }
   if (packet.button === "use") {
-    packet.player.useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
+    getPlayer().useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
   } else {
-    packet.player.discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
+    getPlayer().discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
   // $.post("/", JSON.stringify(packet), function(data) {
   //   console.log(data);
