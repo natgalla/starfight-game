@@ -27,6 +27,30 @@ app.use(express.static(application_root + "/.."));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
+app.post("/", function(req, res) {
+  console.log("POST request to home page");
+  let body = "";
+  req.on("data", function(data) {
+    body += data;
+  })
+  req.on("end", function() {
+    let specs = JSON.parse(body);
+    // if (specs.button === "use") {
+    //   game.friendlies[specs.player].useTactic(specs.cardIndex,
+    //                                           game.friendlies[specs.friendly],
+    //                                           specs.pursuerIndex);
+    // } else {
+    //   game.friendlies[specs.player].discard(specs.cardIndex,
+    //                                         specs.button,
+    //                                         game.friendlies[specs.friendly],
+    //                                         specs.pursuerIndex,
+    //                                         specs.purchaseIndex);
+    // }
+    console.log(specs);
+  });
+  res.send("Server received the request");
+});
+
 function onConnection(socket) {
   socket.emit("msg", "Connection established.");
   if(waitingPlayer) {
@@ -43,7 +67,7 @@ function onConnection(socket) {
 function notifyGameReady(...sockets) {
   sockets.forEach((socket) => {
     socket.emit("msg", "Game Ready");
-    socket.emit("update", packet);
+    // socket.emit("update", packet);
   });
 }
 

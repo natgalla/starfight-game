@@ -32,7 +32,8 @@ const Friendly = function(id, name, maxArmor) {
   };
   this.currentArmor = maxArmor;
   this.summary = "<h3>" + this.name + "</h3>"
-            + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>";
+            + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
+            + "<p class='pursued'>" + this.effects.status + "</p>";
 }
 
 
@@ -166,7 +167,8 @@ const Player = function(id, name) {
   this.summary = "<h3>" + this.name + "</h3>"
                 + "<p>Armor: " + this.currentArmor + "/"
                 + this.maxArmor + "</p>"
-                + "<p>Merit: " + this.merit + "</p>";
+                + "<p>Merit: " + this.merit + "</p>"
+                + "<p class='pursued'>" + this.effects.status + "</p>";
 }
 
 
@@ -637,7 +639,13 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   if (action != "feint") {
     this.lastCardUsed = card;
   }
-  game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
+  game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard)
+  if (friendly === this) {
+    this.updateSummary();
+  } else {
+    this.updateSummary();
+    friendly.updateSummary();
+  }
 }
 
 Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, advIndex) {
@@ -653,6 +661,12 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
     this[action](friendly, pursuerIndex);
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
+  if (friendly === this) {
+    this.updateSummary();
+  } else {
+    this.updateSummary();
+    friendly.updateSummary();
+  }
 }
 
 const FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);

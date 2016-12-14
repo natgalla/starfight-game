@@ -256,6 +256,7 @@ Game.prototype.postRound = function() { //strange behavior removing placeholders
   }
   // replace the active enemy base card & run the new card's function
   enemyBase.replaceEnemyBaseCard();
+  enemyBase.updateSummary();
 }
 
 const game = new Game();
