@@ -1,21 +1,29 @@
 var sock = io();
 let user;
 
+let game;
+let Player1;
+let Player2;
+let Player3;
+let FriendlyBase;
+let enemyBase;
+
 sock.on("msg", onMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
 
 function getUpdate(packet) {
-  console.log("Server sent an update")
-  console.log(packet);
+  console.log("Server sent an update");
+  game = packet.game;
+  Player1 = packet.Player1;
+  Player2 = packet.Player2;
+  Player3 = packet.Player3;
+  FriendlyBase = packet.FriendlyBase;
+  enemyBase = packet.enemyBase;
 }
 
-function assignPlayer(text) {
-  if (text === "Player1") {
-    user = Player1;
-  } else if (text === "Player2") {
-    user = Player2;
-  }
+function assignPlayer(player) {
+  user = player;
   console.log(user.name + " joined game as " + user.id);
 }
 

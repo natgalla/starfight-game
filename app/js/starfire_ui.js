@@ -83,7 +83,7 @@ const updateSummaries = function() {
   const showSummary = function(player) {
     // show player summary
     let summaryField;
-    if (player === user) {
+    if (player.id === user.id) {
       summaryField = "#userSummary";
     } else {
       summaryField = "#wingman" + wingman + "-summary";
@@ -93,7 +93,7 @@ const updateSummaries = function() {
   }
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
-    if (friendly === FriendlyBase) {
+    if (friendly.id === FriendlyBase.id) {
       $("#FriendlyBase").html(FriendlyBase.summary);
     } else if (friendly === user) {
       showSummary(friendly)
@@ -114,7 +114,7 @@ const updateTacticalCards = function() {
     if (player.id === "FriendlyBase") {
       continue;
     }
-    else if (player === user) {
+    else if (player.id === user.id) {
       $("#playerHand").empty();
       for (let i = 0; i < user.hand.length; i++) {
         let tCard = user.hand[i];
@@ -168,9 +168,9 @@ const updateEnemyCards = function() {
   const $playerPursuers = $("#playerPursuers");
   const $basePursuers = $("#basePursuers");
   game.friendlies.forEach( function(friendly) {
-    if (friendly === FriendlyBase) {
+    if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
-    } else if (friendly === user) {
+    } else if (friendly.id === user.id) {
       refreshPursuerList($playerPursuers, friendly);
     } else {
       let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
@@ -266,7 +266,7 @@ const enableSelect = function() {
         $useButton.show();
       } else {
         $useButton.hide();
-        $selected.html("<h3>Feint</h3><p>" + feint.description + "<br><br>Nothing to feint</p>");
+        $selected.html("<h3>Feint</h3><p>Nothing to feint</p>");
       }
     } else {
       $useButton.show();
@@ -462,7 +462,6 @@ $cicButton.on("click", function() {
   });
 });
 
-
 const sendPacket = function() { //for server version: modify to send packet to server
   let packet = {
     player: game.friendlies.indexOf(getPlayer()),
@@ -477,14 +476,15 @@ const sendPacket = function() { //for server version: modify to send packet to s
   } else {
     getPlayer().discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
-  $.post("/", JSON.stringify(packet), function(data) {
-    console.log(data);
-  });
+  // $.post("/", JSON.stringify(packet), function(data) {
+  //   console.log(data);
+  // });
   clearOverlay();
   detarget();
   clearButtons();
   update();
 }
+
 
 $confirmTargetButton.on("click", function() {
   sendPacket();
