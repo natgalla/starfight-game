@@ -1,0 +1,84 @@
+.enemy {
+  @include cardBase;
+  border: 2px solid crimson;
+  border-radius: 8px;
+  height: 120px;
+  width: 75px;
+  margin-top: -70px;
+  z-index: 5;
+  &.targeted {
+    @include enemyTargeted;
+  }
+}
+
+.invalidTarget {
+  @include disabled;
+}
+
+.emptySpace {
+  @include disabled;
+}
+
+.destroyed {
+  @include hide;
+}
+
+.target {
+  z-index: 15;
+  transition: 0.4s ease-out;
+  box-shadow: 1px 1px 3px $shadeOrange,
+              -1px -1px 4px $shadeOrange;
+  &:hover {
+    z-index: 16 !important;
+    box-shadow: 2px 2px 5px $primaryPink,
+                -2px -2px 7px $primaryPink;
+    cursor: crosshair;
+  }
+}
+
+#basePursuers,
+#wingmen-pursuers {
+  text-align: center;
+  height: 100px;
+  perspective: 1200px;
+}
+
+#playerPursuers {
+  text-align: center;
+  display: block;
+  margin-bottom: -100px;
+  perspective: 1200px;
+  & .enemy {
+    z-index: -1;
+  }
+  & .target,
+  & .targeted {
+    z-index: 15;
+    margin-bottom: 170px;
+  }
+  & .targeted {
+    @include enemyTargeted;
+  }
+  & .emptySpace {
+    z-index: -2;
+  }
+}
+
+#basePursuers {
+  float: left;
+  transform: rotate(-90deg);
+  margin-top: 180px;
+  & .enemy {
+    margin-top: -90px;
+  }
+}
+
+#wingmen-pursuers ul {
+  margin: 0 6%;
+}
+
+.FriendlyBase.targeted,
+#wingmen .targeted,
+#player .targeted {
+  @include enemyTargeted;
+}

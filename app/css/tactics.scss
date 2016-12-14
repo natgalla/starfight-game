@@ -1,0 +1,60 @@
+.tactical,
+.advTactical {
+  @include cardBase;
+}
+
+.tactical,
+.advTactical {
+  border: 2px solid magenta;
+  border-radius: 10px;
+  height: 170px;
+  width: 105px;
+  z-index: 2;
+  transition: 0.4s ease-out;
+  position: relative;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.selected {
+  @include selection;
+}
+
+#playerHand {
+  & .tactical {
+    transform: rotateX(15deg);
+    z-index: 8;
+    &:hover {
+      @include selectable;
+    }
+  }
+  & .selected {
+    z-index: 200 !important;
+    transform: translate3d(0, -25px, 200px);
+    &:hover {
+      @include selection;
+    }
+  }
+  & .disabled {
+    @include disabled;
+  }
+}
+
+#wingmen .tactical {
+  margin: 0 -1.5em;
+  border-radius: 7px;
+  margin-top: -90px;
+  height: 120px;
+  padding: 1em;
+  width: 80px;
+  font-size: .5em;
+  z-index: 0;
+  vertical-align: middle;
+  & h3 {
+    // @include hide;
+  }
+  & p {
+    // @include hide;
+  }
+}

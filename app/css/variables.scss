@@ -1,0 +1,16 @@
+$tint: 20%;
+$primaryPink: magenta;
+$highlightPink: lighten($primaryPink, $tint);
+$shadePink: darken($primaryPink, $tint);
+$secondaryBlue: steelblue;
+$highlightBlue: lighten($secondaryBlue, $tint);
+$shadeBlue: darken($secondaryBlue, $tint);
+$secondaryOrange: crimson;
+$highlightOrange: lighten($secondaryOrange, $tint);
+$shadeOrange: lighten($secondaryOrange, $tint);
+$complementGreen: limegreen;
+$highlightGreen: lighten($complementGreen, $tint);
+$shadeGreen: darken($complementGreen, $tint);
+$darkGrey: #333;
+$black: #000;
+$white: #FFF;

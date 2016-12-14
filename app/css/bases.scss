@@ -1,0 +1,51 @@
+#FriendlyBase,
+#enemyBase {
+  position: relative;
+  background: $darkGrey;
+  height: 300px;
+  width: 120px;
+  padding: 5px;
+  margin: 5px;
+  font-size: 0.9em;
+  & p {
+    font-size: 1.1rem;
+  }
+}
+
+#enemyBaseCard {
+  font-size: 0.9rem;
+  text-align: right;
+  font-size: 0.8rem;
+  &.targeted {
+    @include enemyTargeted;
+  }
+}
+
+#FriendlyBase {
+  float: left;
+  border-right: 2px solid $secondaryBlue;
+  border-top: 2px solid $secondaryBlue;
+  border-bottom: 2px solid $secondaryBlue;
+  border-radius: 0 3em 3em 0;
+  margin-left: 0px;
+  &.targeted {
+    @include friendlyTargeted;
+  }
+}
+
+#enemyBase {
+  float: right;
+  text-align: right;
+  border-left: 2px solid $secondaryOrange;
+  border-top: 2px solid $secondaryOrange;
+  border-bottom: 2px solid $secondaryOrange;
+  border-radius: 3em 0 0 3em;
+  margin-right: -2px;
+}
+
+#basePursuers,
+#wingmen-pursuers {
+  text-align: center;
+  height: 100px;
+  perspective: 1200px;
+}

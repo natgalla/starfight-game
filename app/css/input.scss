@@ -1,0 +1,43 @@
+button {
+  font-family: VT323, courier, monospace;
+  font-size: 1.2em;
+  border: 1px solid $complementGreen;
+  color: $complementGreen;
+  padding: 0.5em;
+  background-color: $darkGrey;
+  margin: 0 2px;
+  border-radius: 3px;
+  box-shadow: inset -2px -2px 1px $complementGreen, inset 1px 0px 1px $complementGreen;
+  transition: box-shadow 0.15s;
+  &:hover {
+    color: $highlightGreen;
+    box-shadow: inset -2px -2px 1px lightgreen, inset 1px 0px 1px lightgreen, 0px 0px 5px lightgreen;
+    cursor: pointer;
+  }
+  &:focus {
+    outline: none;
+    box-shadow: none;
+    color: $complementGreen;
+    border-color: $shadeGreen;
+  }
+}
+
+#buttons {
+  text-align: center;
+  height: 50px;
+  margin-top: 5px;
+}
+
+input {
+  text-align: center;
+  font-family: VT323, courier, monospace;
+  font-size: 1.2em;
+  padding-top: 10px;
+  padding-bottom: 12px;
+  background-color: $darkGrey;
+  border: none;
+  color: $complementGreen;
+  &[type=text]:focus {
+    outline: 2px solid $complementGreen;
+  }
+}

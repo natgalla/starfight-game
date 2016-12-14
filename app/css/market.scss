@@ -1,0 +1,42 @@
+#overlay {
+  width: 600px;
+  height: 290px;
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  margin-left: -300px;
+  text-align: center;
+  background: rgba(0,0,0,0.9);
+  vertical-align: middle;
+  border-top: 3px solid $primaryPink;
+  border-bottom: 5px solid $primaryPink;
+  border-radius: 0.8em;
+  z-index: 100;
+  transform: rotateX(10deg);
+  & ul {
+    margin-left: -40px;
+    transform: rotateX(10deg);
+  }
+  & .advTactical {
+    margin: 0.8em;
+  }
+  & .unavailable {
+    @include disabled;
+  }
+}
+
+.cost {
+  position: absolute;
+  bottom: 2em;
+  left: 1.5em;
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+.purchasable:hover {
+  @include selectable;
+}
+
+.purchasing {
+  @include selection
+}

@@ -1,0 +1,52 @@
+@mixin selectable {
+  box-shadow: 2px 2px 3px $highlightPink,
+              -2px -2px 5px $highlightPink;
+  z-index: 9 !important;
+}
+
+@mixin selection {
+  border-color: $complementGreen;
+  box-shadow: 2px 2px 3px $highlightGreen,
+              -2px -2px 5px $highlightGreen;
+}
+
+@mixin cardBase {
+  transition: 0.5s ease-out;
+  font-size: .7em;
+  color: white;
+  position: relative;
+  background-color: $darkGrey;
+  display: inline-block;
+  padding: 1em;
+  margin: 0 -1em;
+  vertical-align: middle;
+}
+
+@mixin disabled {
+  z-index: 0;
+  background-color: rgba(30,30,30,0.8);
+  border-color: #666;
+  box-shadow: none;
+  color: #888;
+  &:hover {
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+@mixin hide {
+  display: none;
+}
+
+@mixin enemyTargeted {
+  z-index: 1000;
+  transform: translate3d(0, 0, 201px);
+  box-shadow: 2px 2px 5px $highlightOrange,
+              -2px -2px 7px $highlightOrange;
+}
+
+@mixin friendlyTargeted {
+  z-index: 1000;
+  box-shadow: 2px 2px 5px $highlightGreen,
+              -2px -2px 7px $highlightGreen;
+}

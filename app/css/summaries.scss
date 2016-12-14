@@ -1,0 +1,37 @@
+.playerSummary {
+  text-align: left;
+  padding: 5px 10px;
+  margin: 10px;
+  border-radius: 10px;
+}
+
+.playerSummary,
+#FriendlyBase {
+  transition: 0.5s ease-out;
+}
+
+#userSummary {
+  position: absolute;
+  display: inline-block;
+  z-index: 10;
+  margin-left: 40px;
+  width: 100px;
+}
+
+#wingmen .playerSummary {
+  font-size: 0.8em;
+  display: inline-block;
+  margin-top: 2em;
+}
+
+.assist {
+  border: 2px solid #019583;
+  &:hover {
+    box-shadow: 3px 3px 4px $highlightBlue,
+                -2px -2px 3px $highlightBlue;
+  }
+}
+
+.pursued {
+  color: $secondaryOrange;
+}

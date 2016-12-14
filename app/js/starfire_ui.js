@@ -471,10 +471,10 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  if (buttonPressed === "use") {
-    getPlayer().useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
+  if (packet.button === "use") {
+    packet.player.useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
   } else {
-    getPlayer().discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
+    packet.player.discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
   // $.post("/", JSON.stringify(packet), function(data) {
   //   console.log(data);

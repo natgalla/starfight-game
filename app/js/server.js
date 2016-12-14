@@ -47,6 +47,7 @@ app.post("/", function(req, res) {
     //                                         specs.purchaseIndex);
     // }
     console.log(specs);
+    updateObjects();
   });
   res.send("Server received the request");
 });
@@ -79,14 +80,15 @@ function updateObjects(vars) {
   //   player2: Player2,
   //   enemyBase: enemyBase
   // }
-  console.log("A confirmation happened");
+  console.log("A card was played");
   console.log(vars);
   testPacket = {
     game: "test1",
-    friendlyBase: "test2",
-    player1: "test3",
-    player2: "test4",
-    enemyBase: "test5"
+    FriendlyBase: "test2",
+    Player1: "test3",
+    Player2: "test4",
+    Player3: "test5",
+    enemyBase: "test6"
   }
   sockets.forEach((socket) => {
     socket.emit("update", testPacket);
