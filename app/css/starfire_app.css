@@ -4,6 +4,10 @@ GENERAL STYLES
 
 body {
   background-color: black;
+  background-repeat: no-repeat;
+  background-size: 100% 100vh;
+  background-image: linear-gradient(#000, rgba(0,0,0,0.3), #000),
+                    url(../../img/space.jpg);
   perspective: 1200;
 }
 
@@ -11,11 +15,11 @@ h1 {
   color: magenta;
   font-family: 'Orbitron', sans-serif;
   margin: 2% auto 1%;
-  font-size: 5em;
+  font-size: 5.5em;
   padding-top: 5%;
   text-align: center;
-  text-shadow: 1px 1px 5px steelblue,
-              -1px -1px 4px dodgerblue;
+  text-shadow: 2px 2px 5px steelblue,
+              -2px -2px 4px dodgerblue;
 }
 
 h3 {
@@ -50,16 +54,22 @@ p {
   width: 600px;
   height: 290px;
   position: absolute;
-  bottom: 55px;
+  bottom: 52px;
   left: 50%;
   margin-left: -300px;
   text-align: center;
   background: rgba(0,0,0,0.9);
   vertical-align: middle;
-  border-top: 2px solid magenta;
-  border-bottom: 2px solid magenta;
+  border-top: 3px solid magenta;
+  border-bottom: 5px solid magenta;
   border-radius: 0.8em;
   z-index: 100;
+  transform: rotateX(10deg);
+}
+
+#overlay ul {
+  margin-left: -40px;
+  transform: rotateX(10deg);
 }
 
 #overlay ul {
@@ -77,11 +87,22 @@ button {
   color: lime;
   padding: 0.5em;
   background-color: #333;
+  margin: 0 2px;
+  border-radius: 3px;
+  box-shadow: inset -2px -2px 1px limegreen, inset 1px 0px 1px limegreen;
+  transition: box-shadow 0.15s;
 }
-
-button:focus {
-  outline: 2px solid limegreen;
-}
+  button:hover {
+    color: lightgreen;
+    box-shadow: inset -2px -2px 1px lightgreen, inset 1px 0px 1px lightgreen, 0px 0px 5px lightgreen;
+    cursor: pointer;
+  }
+  button:focus {
+    outline: none;
+    box-shadow: none;
+    color: limegreen;
+    border-color: green;
+  }
 
 input {
   text-align: center;
@@ -93,10 +114,9 @@ input {
   border: none;
   color: lime;
 }
-
-input[type=text]:focus {
-  outline: 2px solid lime;
-}
+  input[type=text]:focus {
+    outline: 2px solid lime;
+  }
 
 
 
@@ -155,6 +175,12 @@ POSITIONING
 #FriendlyBase p,
 #enemyBase p {
   font-size: 1.1rem;
+}
+
+#enemyBase #enemyBaseCard {
+  font-size: 0.9rem;
+  text-align: right;
+  font-size: 0.8rem;
 }
 
 #FriendlyBase {
@@ -221,6 +247,10 @@ CARD STYLES
   transition: 0.4s ease-out;
   position: relative;
 }
+  .tactical:hover,
+  .advTactical:hover {
+    cursor: pointer;
+  }
 
 #overlay .advTactical {
   margin: 0.8em;
@@ -264,24 +294,21 @@ li p {
   z-index: 9 !important;
 }
 
-.emptySpace:hover,
-.destroyed:hover,
-.disabled:hover {
-  box-shadow: none;
-}
-
 .purchasing,
 .selected {
   border: 2px solid lime;
-  z-index: 10;
   box-shadow: 2px 2px 3px lightgreen,
               -2px -2px 5px lightgreen;
 }
 
 #playerHand .selected {
-  z-index: 15;
-  transform: translate3d(0, -30px, 200px);
+  z-index: 200 !important;
+  transform: translate3d(0, -25px, 200px);
 }
+  #playerHand .selected:hover {
+    box-shadow: 2px 2px 3px lightgreen,
+                -2px -2px 5px lightgreen;
+  }
 
 .invalidTarget,
 .unavailable,
@@ -289,12 +316,16 @@ li p {
   z-index: 0;
   background-color: rgba(30,30,30,0.8);
   border-color: #666;
+  box-shadow: none;
   color: #888;
 }
 
-/*#playerHand .destroyed {
-  opacity: 0;
-}*/
+.emptySpace:hover,
+.invalidTarget:hover,
+#playerHand .disabled:hover {
+  box-shadow: none;
+  cursor: not-allowed;
+}
 
 #wingmen ul,
 #wingmen-pursuers ul,
@@ -314,7 +345,7 @@ li p {
 #wingmen .tactical {
   margin: 0 -1.5em;
   border-radius: 7px;
-  margin-top: -70px;
+  margin-top: -90px;
   height: 120px;
   padding: 1em;
   width: 80px;
@@ -336,38 +367,17 @@ li p {
   float: left;
   transform: rotate(-90deg);
   margin-top: 180px;
-  margin-left: 30px;
 }
 
-.destroyed,
 .emptySpace {
   background: rgba(0, 0, 0, 0.5);
   margin-left: -50px;
+  border: 2px solid #333;
   z-index: 0;
 }
 
 .destroyed {
-  border: 1px dashed #333;
-}
-
-.emptySpace {
-  border: 2px solid #333;
-}
-
-.destroyed h3 {
   display: none;
-}
-
-#enemyBaseCard {
-  font-size: .5em;
-  text-align: center;
-  border-radius: 5px;
-  height: 120px;
-  width: 80px;
-  padding: 1em;
-  border: 2px solid crimson;
-  background: #333;
-  margin: 5px auto;
 }
 
 .target {
@@ -376,12 +386,12 @@ li p {
   box-shadow: 1px 1px 3px indianred,
               -1px -1px 4px indianred;
 }
-
-.target:hover {
-  z-index: 16 !important;
-  box-shadow: 2px 2px 5px hotpink,
-              -2px -2px 7px hotpink;
-}
+  .target:hover {
+    z-index: 16 !important;
+    box-shadow: 2px 2px 5px hotpink,
+                -2px -2px 7px hotpink;
+    cursor: crosshair;
+  }
 
 #basePursuers .target {
   z-index: 501;
@@ -394,7 +404,7 @@ li p {
 #playerPursuers .target,
 #playerPursuers .targeted {
   z-index: 15;
-  margin-bottom: 150px;
+  margin-bottom: 170px;
 }
 
 .FriendlyBase.targeted,
@@ -436,26 +446,20 @@ PLAYER SUMMARIES
   width: 100px;
 }
 
-.assist {
-  border: 2px solid steelblue;
-}
-
-.assist:hover {
-  box-shadow: 3px 3px 4px lightblue,
-              -2px -2px 3px lightblue;
-}
-
 #wingmen .playerSummary {
-  font-size: 0.7em;
+  font-size: 0.8em;
   display: inline-block;
   margin-top: 2em;
 }
 
+.assist {
+  border: 2px solid #019583;
+}
+  .assist:hover {
+    box-shadow: 3px 3px 4px lightblue,
+                -2px -2px 3px lightblue;
+  }
+
 .pursued {
   color: crimson;
-}
-
-.emptySpace:last-child,
-.destroyed:last-child {
-  display: none;
 }

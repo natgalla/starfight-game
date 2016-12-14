@@ -17,42 +17,42 @@ let $buttons = $("#buttons");
 let $useButton = $("<button>", {
   id: "use",
   title: "Use the selected card",
-  text: "Use"
+  text: "USE"
 });
 let $discardButton = $("<button>", {
   id: "discard",
   title: "Discard the selected card",
-  text: "Discard"
+  text: "DSC"
 });
 let $cancelButton = $("<button>", {
   id: "cancel",
   title: "Cancel this action",
-  text: "Cancel"
+  text: "ESC"
 });
 let $fireButton = $("<button>", {
   id: "fire",
   title: "Fire at a valid target",
-  text: "Fire"
+  text: "ATK"
 });
 let $evadeButton = $("<button>", {
   id: "Evade",
   title: "Attempt to evade a pursuer",
-  text: "Evade"
+  text: "EVD"
 });
 let $cicButton = $("<button>", {
   id: "cic",
   title: "View advanced tactics",
-  text: "Contact CIC"
+  text: "CIC"
 });
 let $confirmTargetButton = $("<button>", {
   id: "confirmTarget",
   title: "Confirm target",
-  text: "Confirm Target"
+  text: "CFM"
 });
 let $confirmAdvButton = $("<button>", {
   id: "confirmAdvTactic",
   title: "Confirm choice",
-  text: "Confirm choice"
+  text: "CFM"
 });
 
 $buttons.append($useButton);
@@ -78,12 +78,10 @@ const clearButtons = function() {
 
 
 const updateSummaries = function() {
-  enemyBase.updateSummary();
   $("#enemyBase").html(enemyBase.summary);
   let wingman = 1;
   const showSummary = function(player) {
     // show player summary
-    player.updateSummary();
     let summaryField;
     if (player === user) {
       summaryField = "#userSummary";
@@ -96,7 +94,6 @@ const updateSummaries = function() {
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly === FriendlyBase) {
-      friendly.updateSummary();
       $("#FriendlyBase").html(FriendlyBase.summary);
     } else if (friendly === user) {
       showSummary(friendly)
@@ -415,16 +412,22 @@ $evadeButton.on("click", function() {
   showTargets(action);
 });
 
-
-$cancelButton.on("click", function() {
+const cancel = function() {
   clearOverlay();
   clearButtons();
   deselect();
   detarget();
   action = "";
   enableSelect();
-});
+}
 
+$cancelButton.on("click", cancel);
+
+$(document).keyup(function(e) {
+  if (e.keyCode == 27) {
+    cancel();
+  }
+})
 
 $cicButton.on("click", function() {
   action = "useAdvTactic";
@@ -435,12 +438,13 @@ $cicButton.on("click", function() {
   $overlay.empty();
   let $marketList = $("<ul>");
   $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
-  $overlay.append($marketList)
+  $overlay.append($marketList);
   FriendlyBase.market.forEach( function(card) {
-    let advCard = card.generateCard(user);
+    let advCard = card.generateCard(getPlayer());
     $marketList.append(advCard);
   });
-  $overlay.slideDown(500);
+  $overlay.slideDown(600);
+  $marketList.hide().fadeIn(1000);
   $(".purchasable").on("click", function() {
       clearButtons();
       $cancelButton.show();
@@ -461,36 +465,34 @@ $cicButton.on("click", function() {
 
 const sendPacket = function() { //for server version: modify to send packet to server
   let packet = {
-    player: getPlayer(),
+    player: game.friendlies.indexOf(getPlayer()),
     button: buttonPressed,
     cardIndex: $(".selected").index(),
-    friendly: getFriendly(".targeted"),
+    friendly: game.friendlies.indexOf(getFriendly(".targeted")),
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  console.log(packet);
-  //sock.emit("confirm", packet);
   if (buttonPressed === "use") {
-    getPlayer().useTactic(packet.cardIndex, packet.friendly, packet.pursuerIndex); //server will run
+    getPlayer().useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
   } else {
-    getPlayer().discard(packet.cardIndex, packet.button, packet.friendly, packet.pursuerIndex, packet.purchaseIndex); //server will run
+    getPlayer().discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
+  $.post("/", JSON.stringify(packet), function(data) {
+    console.log(data);
+  });
   clearOverlay();
   detarget();
   clearButtons();
   update();
 }
 
-
 $confirmTargetButton.on("click", function() {
   sendPacket();
 });
 
-
 $confirmAdvButton.on("click", function() {
   sendPacket();
 });
-
 
 game.round();
 update();

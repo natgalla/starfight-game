@@ -6,7 +6,7 @@ const Game = function() {
   this.name = "Starfire";
   this.difficulty = 3;
   this.roundNumber = 0;
-  this.friendlies = [FriendlyBase, Player1, Player2];
+  this.friendlies = [FriendlyBase, Player1, Player2, Player3];
   this.tacticalDeck = {
     name: "Tactical deck",
     cards: [],
@@ -47,17 +47,26 @@ Game.prototype.checkDeck = function(deck) {
   }
 }
 
+Game.prototype.setEmpties = function(twoP, threeP, fourP) {
+  if (this.friendlies.length === 3) {
+    return twoP;
+  } else if (this.friendlies.length === 4) {
+    return threeP;
+  } else {
+    return fourP;
+  }
+}
+
 Game.prototype.sortByMerit = function() {
   // procedure to sort player order based on merit
   let friendlySort = [];
   let highestMerit = 0;
   let firstFriendlyIndex;
   let baseIndex;
-  let friendly;
   let friendyIndex;
 
   for (let i = 0; i < this.friendlies.length; i++) {
-    friendly = this.friendlies[i];
+    let friendly = this.friendlies[i];
     // 1. Find the friendly base and set baseIndex to its location.
     if (friendly === FriendlyBase) {
       baseIndex = i;
@@ -118,7 +127,12 @@ Game.prototype.distributeEnemies = function(source) {
   while (source.length > 0) {
     for (let i = 0; i < this.friendlies.length; i++) {
       let friendly = this.friendlies[i];
-      if (source.length > 0) {
+      if (source.length > 0 && friendly.effects.incinerator) {
+        friendly.pursuers.push(source.pop());
+        console.log(friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
+        enemyBase.enemyDeck.discard.push(friendly.pursuers.pop());
+        friendly.incinerator = false;
+      } else if (source.length > 0) {
         friendly.pursuers.push(source.pop());
       } else {
         break;
@@ -240,34 +254,58 @@ Game.prototype.postRound = function() { //strange behavior removing placeholders
   }
   // replace the active enemy base card & run the new card's function
   enemyBase.replaceEnemyBaseCard();
+  enemyBase.updateSummary();
 }
 
 const game = new Game();
-//build enemy deck
-game.addToDeck(enemyBase.enemyDeck, ace, 4);
-game.addToDeck(enemyBase.enemyDeck, heavy, 9);
-game.addToDeck(enemyBase.enemyDeck, medium, 12);
-game.addToDeck(enemyBase.enemyDeck, light, 15);
-game.addToDeck(enemyBase.enemyDeck, empty, 9);
 
-enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
-
-game.shuffle(enemyBase.enemyDeck);
 
 //build tactical deck
-game.addToDeck(game.tacticalDeck, missile, 8);
-game.addToDeck(game.tacticalDeck, repairDrone, 3);
+game.addToDeck(game.tacticalDeck, missile, 6);
+game.addToDeck(game.tacticalDeck, scatterShot, 4);
 game.addToDeck(game.tacticalDeck, drawFire, 4);
-game.addToDeck(game.tacticalDeck, heatSeeker, 2);
-game.addToDeck(game.tacticalDeck, bomb, 3);
-game.addToDeck(game.tacticalDeck, feint, 2);
+game.addToDeck(game.tacticalDeck, feint, 4);
 game.addToDeck(game.tacticalDeck, barrelRoll, 3);
-game.addToDeck(game.tacticalDeck, scatterShot, 3);
 game.addToDeck(game.tacticalDeck, immelman, 3);
 
 game.tacticalDeck.size = game.tacticalDeck.cards.length;
 
 game.shuffle(game.tacticalDeck);
+
+//build advanced tactical deck
+// game.addToDeck(FriendlyBase.advTactics, medalOfHonor, 1);
+// game.addToDeck(FriendlyBase.advTactics, daredevil, 1);
+// game.addToDeck(FriendlyBase.advTactics, medic, 1);
+// game.addToDeck(FriendlyBase.advTactics, sharpShooter, 1);
+// game.addToDeck(FriendlyBase.advTactics, healthPack, 4);
+game.addToDeck(FriendlyBase.advTactics, heatSeeker, 6);
+game.addToDeck(FriendlyBase.advTactics, repairDrone, 7);
+game.addToDeck(FriendlyBase.advTactics, bomb, 3);
+game.addToDeck(FriendlyBase.advTactics, snapshot, 3);
+game.addToDeck(FriendlyBase.advTactics, guidedMissile, 3);
+game.addToDeck(FriendlyBase.advTactics, incinerate, 3);
+game.addToDeck(FriendlyBase.advTactics, jammer, 6);
+game.addToDeck(FriendlyBase.advTactics, intercept, 3);
+game.addToDeck(FriendlyBase.advTactics, emp, 2);
+game.addToDeck(FriendlyBase.advTactics, countermeasures, 3);
+game.addToDeck(FriendlyBase.advTactics, divertShields, 2);
+game.addToDeck(FriendlyBase.advTactics, jump, 1);
+game.addToDeck(FriendlyBase.advTactics, hardSix, 4);
+
+FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
+
+game.shuffle(FriendlyBase.advTactics);
+
+//build enemy deck
+game.addToDeck(enemyBase.enemyDeck, ace, 4);
+game.addToDeck(enemyBase.enemyDeck, heavy, 9);
+game.addToDeck(enemyBase.enemyDeck, medium, 12);
+game.addToDeck(enemyBase.enemyDeck, light, 15);
+game.addToDeck(enemyBase.enemyDeck, empty, game.setEmpties(8, 4, 0));
+
+enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
+
+game.shuffle(enemyBase.enemyDeck);
 
 //build enemy base deck
 game.addToDeck(enemyBase.enemyBaseDeck, fireLight, 3);
@@ -280,26 +318,7 @@ enemyBase.enemyBaseDeck.size = enemyBase.enemyBaseDeck.cards.length;
 
 game.shuffle(enemyBase.enemyBaseDeck);
 
-game.addToDeck(FriendlyBase.advTactics, medalOfHonor, 1);
-game.addToDeck(FriendlyBase.advTactics, daredevil, 1);
-game.addToDeck(FriendlyBase.advTactics, medic, 1);
-game.addToDeck(FriendlyBase.advTactics, sharpShooter, 1);
-game.addToDeck(FriendlyBase.advTactics, healthPack, 4);
-game.addToDeck(FriendlyBase.advTactics, jammer, 3);
-game.addToDeck(FriendlyBase.advTactics, intercept, 3);
-game.addToDeck(FriendlyBase.advTactics, emp, 2);
-game.addToDeck(FriendlyBase.advTactics, countermeasures, 3);
-game.addToDeck(FriendlyBase.advTactics, divertShields, 3);
-game.addToDeck(FriendlyBase.advTactics, jump, 2);
-game.addToDeck(FriendlyBase.advTactics, hardSix, 3);
-
-FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
-
-game.shuffle(FriendlyBase.advTactics);
-
 enemyBase.startingEnemies = game.friendlies.length * 2;
 enemyBase.enemiesPerTurn = game.friendlies.length;
-
-game.round();
 //IF MIGRATED TO SERVER SIDE
 // module.exports = Game;
