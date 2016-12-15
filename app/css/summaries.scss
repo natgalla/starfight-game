@@ -1,8 +1,15 @@
 .playerSummary {
   text-align: left;
   padding: 5px 10px;
-  margin: 10px;
+  margin-left: 10px;
   border-radius: 10px;
+  background-color: rgba(0,0,0,0.9);
+  border-top: 3px solid $secondaryBlue;
+  border-bottom: 5px solid $secondaryBlue;
+  & h3 {
+    margin-top: 0.5em;
+  }
+  margin-top: 20px 0;
 }
 
 .playerSummary,
@@ -13,11 +20,12 @@
 #userSummary {
   position: absolute;
   display: inline-block;
-  z-index: 10;
-  margin-left: 40px;
+  z-index: -10;
+  margin-left: 10px;
+  margin-top: 40px;
   width: 100px;
   &.bumped {
-    margin-left: 120px;
+    margin-left: 98px;
   }
 }
 
@@ -28,10 +36,11 @@
 }
 
 .assist {
-  border: 2px solid #019583;
+  box-shadow: 3px 3px 4px $secondaryBlue,
+              -2px -2px 3px $secondaryBlue;
   &:hover {
-    box-shadow: 3px 3px 4px $highlightBlue,
-                -2px -2px 3px $highlightBlue;
+    box-shadow: 4px 4px 5px $highlightBlue,
+                -3px -3px 4px $highlightBlue;
   }
 }
 

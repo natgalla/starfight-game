@@ -25,6 +25,11 @@ p {
   font-family: $fontStack;
   color: $complementGreen;
   font-size: 1.2em;
+  margin: 5px 0;
+}
+
+ul {
+  margin-left: -40px;
 }
 
 li p {
@@ -81,7 +86,7 @@ li p {
 #playerHand {
   display: inline-block;
   text-align: center;
-  perspective: 1200px;
+  perspective: $perspective;
   margin: 0;
 }
 

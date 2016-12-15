@@ -10,6 +10,7 @@
   & p {
     font-size: 1.1rem;
   }
+  z-index: -11;
 }
 
 #enemyBaseCard {
@@ -47,5 +48,5 @@
 #wingmen-pursuers {
   text-align: center;
   height: 100px;
-  perspective: 1200px;
+  perspective: $perspective;
 }

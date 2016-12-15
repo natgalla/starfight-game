@@ -2,8 +2,8 @@
   @include cardBase;
   border: 2px solid $secondaryOrange;
   border-radius: 8px;
-  height: 120px;
-  width: 75px;
+  height: 110px;
+  width: 70px;
   margin-top: -70px;
   z-index: 5;
   &.targeted {
@@ -40,14 +40,14 @@
 #wingmen-pursuers {
   text-align: center;
   height: 100px;
-  perspective: 1200px;
+  perspective: $perspective;
 }
 
 #playerPursuers {
   text-align: center;
   display: block;
-  margin-bottom: -100px;
-  perspective: 1200px;
+  margin-bottom: -80px;
+  perspective: $perspective;
   & .enemy {
     z-index: -1;
   }
@@ -79,6 +79,6 @@
 
 .FriendlyBase.targeted,
 #wingmen .targeted,
-#player .targeted {
-  @include enemyTargeted;
+#userSummary .targeted {
+  @include friendlyTargeted;
 }

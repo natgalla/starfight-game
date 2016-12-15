@@ -1,3 +1,7 @@
+@mixin undoListOffset {
+  padding-left: 0;
+}
+
 @mixin selectable {
   box-shadow: 2px 2px 3px $highlightPink,
               -2px -2px 5px $highlightPink;
@@ -25,9 +29,9 @@
 @mixin disabled {
   z-index: 0;
   background-color: rgba(30,30,30,0.8);
-  border-color: #666;
+  border-color: $mediumGrey;
   box-shadow: none;
-  color: #888;
+  color: $lightGrey;
   &:hover {
     box-shadow: none;
     cursor: not-allowed;
@@ -47,6 +51,6 @@
 
 @mixin friendlyTargeted {
   z-index: 1000;
-  box-shadow: 2px 2px 5px $highlightGreen,
-              -2px -2px 7px $highlightGreen;
+  // box-shadow: 2px 2px 5px $highlightGreen,
+  //             -2px -2px 7px $highlightGreen;
 }

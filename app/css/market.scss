@@ -23,6 +23,9 @@
   & .unavailable {
     @include disabled;
   }
+  & p {
+    padding-top: 1em;
+  }
 }
 
 .cost {

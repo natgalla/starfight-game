@@ -5,7 +5,7 @@
 
 .tactical,
 .advTactical {
-  border: 2px solid magenta;
+  border: 2px solid $primaryPink;
   border-radius: 10px;
   height: 170px;
   width: 105px;
@@ -22,6 +22,14 @@
 }
 
 #playerHand {
+  @include undoListOffset;
+  width: 328px;
+  height: 200px;
+  border-top: 3px solid $primaryPink;
+  border-bottom: 5px solid $primaryPink;
+  border-radius: 1em;
+  padding: 10px 40px;
+  background: rgba(0,0,0,0.8);
   & .tactical {
     transform: rotateX(15deg);
     z-index: 8;
@@ -31,7 +39,7 @@
   }
   & .selected {
     z-index: 200 !important;
-    transform: translate3d(0, -25px, 200px);
+    transform: translate3d(0, -25px, 100px);
     &:hover {
       @include selection;
     }
@@ -44,10 +52,10 @@
 #wingmen .tactical {
   margin: 0 -1.5em;
   border-radius: 7px;
-  margin-top: -90px;
+  margin-top: -60px;
   height: 120px;
   padding: 1em;
-  width: 80px;
+  width: 75px;
   font-size: .5em;
   z-index: 0;
   vertical-align: middle;

@@ -423,7 +423,11 @@ h3 {
 p {
   font-family: VT323, courier, monospace;
   color: limegreen;
-  font-size: 1.2em; }
+  font-size: 1.2em;
+  margin: 5px 0; }
+
+ul {
+  margin-left: -40px; }
 
 li p {
   padding: 0;
@@ -458,8 +462,7 @@ li p {
     display: inline-block;
     margin: 0 10px; }
   #wingmen .targeted {
-    z-index: 1000;
-    box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
+    z-index: 1000; }
 
 #player {
   position: absolute;
@@ -548,35 +551,44 @@ input {
   border-color: limegreen;
   box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
 
-#playerHand .tactical {
-  transform: rotateX(15deg);
-  z-index: 8; }
-  #playerHand .tactical:hover {
-    box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
-    z-index: 9 !important; }
-#playerHand .selected {
-  z-index: 200 !important;
-  transform: translate3d(0, -25px, 200px); }
-  #playerHand .selected:hover {
-    border-color: limegreen;
-    box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
-#playerHand .disabled {
-  z-index: 0;
-  background-color: rgba(30, 30, 30, 0.8);
-  border-color: #666;
-  box-shadow: none;
-  color: #888; }
-  #playerHand .disabled:hover {
+#playerHand {
+  padding-left: 0;
+  width: 328px;
+  height: 200px;
+  border-top: 3px solid magenta;
+  border-bottom: 5px solid magenta;
+  border-radius: 1em;
+  padding: 10px 40px;
+  background: rgba(0, 0, 0, 0.8); }
+  #playerHand .tactical {
+    transform: rotateX(15deg);
+    z-index: 8; }
+    #playerHand .tactical:hover {
+      box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
+      z-index: 9 !important; }
+  #playerHand .selected {
+    z-index: 200 !important;
+    transform: translate3d(0, -25px, 100px); }
+    #playerHand .selected:hover {
+      border-color: limegreen;
+      box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
+  #playerHand .disabled {
+    z-index: 0;
+    background-color: rgba(30, 30, 30, 0.8);
+    border-color: #666;
     box-shadow: none;
-    cursor: not-allowed; }
+    color: #888; }
+    #playerHand .disabled:hover {
+      box-shadow: none;
+      cursor: not-allowed; }
 
 #wingmen .tactical {
   margin: 0 -1.5em;
   border-radius: 7px;
-  margin-top: -90px;
+  margin-top: -60px;
   height: 120px;
   padding: 1em;
-  width: 80px;
+  width: 75px;
   font-size: .5em;
   z-index: 0;
   vertical-align: middle; }
@@ -593,8 +605,8 @@ input {
   vertical-align: middle;
   border: 2px solid crimson;
   border-radius: 8px;
-  height: 120px;
-  width: 75px;
+  height: 110px;
+  width: 70px;
   margin-top: -70px;
   z-index: 5; }
   .enemy.targeted {
@@ -643,7 +655,7 @@ input {
 #playerPursuers {
   text-align: center;
   display: block;
-  margin-bottom: -100px;
+  margin-bottom: -80px;
   perspective: 1200px; }
   #playerPursuers .enemy {
     z-index: -1; }
@@ -669,10 +681,8 @@ input {
 
 .FriendlyBase.targeted,
 #wingmen .targeted,
-#player .targeted {
-  z-index: 1000;
-  transform: translate3d(0, 0, 201px);
-  box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
+#userSummary .targeted {
+  z-index: 1000; }
 
 #FriendlyBase,
 #enemyBase {
@@ -682,7 +692,8 @@ input {
   width: 120px;
   padding: 5px;
   margin: 5px;
-  font-size: 0.9em; }
+  font-size: 0.9em;
+  z-index: -11; }
   #FriendlyBase p,
   #enemyBase p {
     font-size: 1.1rem; }
@@ -704,8 +715,7 @@ input {
   border-radius: 0 3em 3em 0;
   margin-left: 0px; }
   #FriendlyBase.targeted {
-    z-index: 1000;
-    box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
+    z-index: 1000; }
 
 #enemyBase {
   float: right;
@@ -751,6 +761,8 @@ input {
     #overlay .unavailable:hover {
       box-shadow: none;
       cursor: not-allowed; }
+  #overlay p {
+    padding-top: 1em; }
 
 .cost {
   position: absolute;
@@ -769,8 +781,14 @@ input {
 .playerSummary {
   text-align: left;
   padding: 5px 10px;
-  margin: 10px;
-  border-radius: 10px; }
+  margin-left: 10px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.9);
+  border-top: 3px solid steelblue;
+  border-bottom: 5px solid steelblue;
+  margin-top: 20px 0; }
+  .playerSummary h3 {
+    margin-top: 0.5em; }
 
 .playerSummary,
 #FriendlyBase {
@@ -779,11 +797,12 @@ input {
 #userSummary {
   position: absolute;
   display: inline-block;
-  z-index: 10;
-  margin-left: 40px;
+  z-index: -10;
+  margin-left: 10px;
+  margin-top: 40px;
   width: 100px; }
   #userSummary.bumped {
-    margin-left: 120px; }
+    margin-left: 98px; }
 
 #wingmen .playerSummary {
   font-size: 0.8em;
@@ -791,9 +810,9 @@ input {
   margin-top: 2em; }
 
 .assist {
-  border: 2px solid #019583; }
+  box-shadow: 3px 3px 4px steelblue, -2px -2px 3px steelblue; }
   .assist:hover {
-    box-shadow: 3px 3px 4px #8db3d3, -2px -2px 3px #8db3d3; }
+    box-shadow: 4px 4px 5px #8db3d3, -3px -3px 4px #8db3d3; }
 
 .pursued {
   color: crimson; }

@@ -12,7 +12,10 @@ $complementGreen: limegreen;
 $highlightGreen: lighten($complementGreen, $tint);
 $shadeGreen: darken($complementGreen, $tint);
 $darkGrey: #333;
+$mediumGrey: #666;
+$lightGrey: #888;
 $black: #000;
 $white: #FFF;
 
 $fontStack: VT323, courier, monospace;
+$perspective: 1200px;
