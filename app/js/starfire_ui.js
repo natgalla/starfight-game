@@ -211,6 +211,7 @@ const deselect = function() {
 
 const detarget = function() {
   $(".target").removeClass("target");
+  $(".enemy").off("click");
   $(".assist").removeClass("assist");
   $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");

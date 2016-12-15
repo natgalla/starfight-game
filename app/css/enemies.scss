@@ -1,6 +1,6 @@
 .enemy {
   @include cardBase;
-  border: 2px solid crimson;
+  border: 2px solid $secondaryOrange;
   border-radius: 8px;
   height: 120px;
   width: 75px;
@@ -26,8 +26,8 @@
 .target {
   z-index: 15;
   transition: 0.4s ease-out;
-  box-shadow: 1px 1px 3px $shadeOrange,
-              -1px -1px 4px $shadeOrange;
+  box-shadow: 1px 1px 4px $highlightOrange,
+              -1px -1px 5px $highlightOrange;
   &:hover {
     z-index: 16 !important;
     box-shadow: 2px 2px 5px $primaryPink,

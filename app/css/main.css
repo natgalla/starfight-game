@@ -600,7 +600,7 @@ input {
   .enemy.targeted {
     z-index: 1000;
     transform: translate3d(0, 0, 201px);
-    box-shadow: 2px 2px 5px #f16581, -2px -2px 7px #f16581; }
+    box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
 
 .invalidTarget {
   z-index: 0;
@@ -628,7 +628,7 @@ input {
 .target {
   z-index: 15;
   transition: 0.4s ease-out;
-  box-shadow: 1px 1px 3px #f16581, -1px -1px 4px #f16581; }
+  box-shadow: 1px 1px 4px #f16581, -1px -1px 5px #f16581; }
   .target:hover {
     z-index: 16 !important;
     box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta;
@@ -653,7 +653,7 @@ input {
   #playerPursuers .targeted {
     z-index: 1000;
     transform: translate3d(0, 0, 201px);
-    box-shadow: 2px 2px 5px #f16581, -2px -2px 7px #f16581; }
+    box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
   #playerPursuers .emptySpace {
     z-index: -2; }
 
@@ -672,7 +672,7 @@ input {
 #player .targeted {
   z-index: 1000;
   transform: translate3d(0, 0, 201px);
-  box-shadow: 2px 2px 5px #f16581, -2px -2px 7px #f16581; }
+  box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
 
 #FriendlyBase,
 #enemyBase {
@@ -694,7 +694,7 @@ input {
   #enemyBaseCard.targeted {
     z-index: 1000;
     transform: translate3d(0, 0, 201px);
-    box-shadow: 2px 2px 5px #f16581, -2px -2px 7px #f16581; }
+    box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
 
 #FriendlyBase {
   float: left;
@@ -741,7 +741,7 @@ input {
     margin-left: -40px;
     transform: rotateX(10deg); }
   #overlay .advTactical {
-    margin: 0.8em; }
+    margin: 0.6em; }
   #overlay .unavailable {
     z-index: 0;
     background-color: rgba(30, 30, 30, 0.8);
@@ -759,13 +759,12 @@ input {
   font-weight: bold;
   font-size: 1.3em; }
 
-.purchasable:hover {
-  box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
-  z-index: 9 !important; }
-
 .purchasing {
   border-color: limegreen;
   box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
+  .purchasing:hover {
+    box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
+    z-index: 9 !important; }
 
 .playerSummary {
   text-align: left;

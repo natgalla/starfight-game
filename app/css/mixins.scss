@@ -41,8 +41,8 @@
 @mixin enemyTargeted {
   z-index: 1000;
   transform: translate3d(0, 0, 201px);
-  box-shadow: 2px 2px 5px $highlightOrange,
-              -2px -2px 7px $highlightOrange;
+  box-shadow: 2px 2px 5px $primaryPink,
+              -2px -2px 7px $primaryPink;
 }
 
 @mixin friendlyTargeted {

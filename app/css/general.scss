@@ -22,7 +22,7 @@ h3 {
 }
 
 p {
-  font-family: VT323, courier, monospace;
+  font-family: $fontStack;
   color: $complementGreen;
   font-size: 1.2em;
 }
@@ -34,7 +34,7 @@ li p {
 }
 
 #status {
-  font-family: VT323, courier, monospace;
+  font-family: $fontStack;
   list-style: none;
   text-align: center;
   color: $complementGreen;

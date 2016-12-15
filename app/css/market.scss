@@ -18,7 +18,7 @@
     transform: rotateX(10deg);
   }
   & .advTactical {
-    margin: 0.8em;
+    margin: 0.6em;
   }
   & .unavailable {
     @include disabled;
@@ -33,10 +33,9 @@
   font-size: 1.3em;
 }
 
-.purchasable:hover {
-  @include selectable;
-}
-
 .purchasing {
-  @include selection
+  @include selection;
+  &:hover {
+    @include selectable;
+  }
 }
