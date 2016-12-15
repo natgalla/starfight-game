@@ -5,9 +5,9 @@
   border-radius: 10px;
   background-color: $darkTranslucent;
   border-top: 3px solid $secondaryBlue;
-  border-bottom: 5px solid $secondaryBlue;
+  border-bottom: 4px solid $secondaryBlue;
   & h3 {
-    margin-top: 0.5em;
+    margin: 0.5em 0;
   }
   margin-top: 20px 0;
 }
@@ -22,12 +22,15 @@
   display: inline-block;
   z-index: -10;
   margin-top: 40px;
+  &.bumped {
+    margin-left: 98px;
+  }
   width: 100px;
   @media (max-width: 1000px) {
     width: 80px;
-  }
-  &.bumped {
-    margin-left: 98px;
+    &.bumped {
+      margin-left: 75px;
+    }
   }
 }
 

@@ -1,0 +1,22 @@
+$step: 20%;
+$primaryPink: magenta;
+$highlightPink: lighten($primaryPink, $step);
+$shadePink: darken($primaryPink, $step);
+$secondaryBlue: steelblue;
+$highlightBlue: lighten($secondaryBlue, $step);
+$shadeBlue: darken($secondaryBlue, $step);
+$secondaryOrange: crimson;
+$highlightOrange: lighten($secondaryOrange, $step);
+$shadeOrange: lighten($secondaryOrange, $step);
+$complementGreen: limegreen;
+$highlightGreen: lighten($complementGreen, $step);
+$shadeGreen: darken($complementGreen, $step);
+$darkGrey: #333;
+$mediumGrey: #666;
+$lightGrey: #888;
+$black: #000;
+$white: #FFF;
+$darkTranslucent: rgba(0,0,0,0.8);
+
+$fontStack: VT323, courier, monospace;
+$perspective: 1000px;

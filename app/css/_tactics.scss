@@ -20,6 +20,7 @@
     width: 275px;
     height: 165px;
   }
+  transform: rotateX(10deg);
   border-top: 3px solid $primaryPink;
   border-bottom: 5px solid $primaryPink;
   border-radius: 1em;
@@ -45,9 +46,12 @@
 }
 
 #wingmen .tactical {
-  @include card(75px);
+  @include card(70px);
   margin: 0 -1.5em;
   margin-top: -60px;
+  @media (max-width: 1000px) {
+    margin-top: -45px;
+  }
   font-size: .5em;
   z-index: 0;
   vertical-align: middle;

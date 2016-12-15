@@ -415,10 +415,12 @@ body {
     font-size: 5.5em;
     padding-top: 5%;
     text-align: center;
-    text-shadow: 2px 2px 5px steelblue, -2px -2px 4px #8db3d3; }
+    text-shadow: 2px 2px 5px #8db3d3, -2px -2px 4px #294d6b; }
   @media (max-width: 1000px) {
     body {
-      font-size: 0.8em; } }
+      font-size: 0.8em; }
+      body button {
+        font-size: 1.4em; } }
 
 h3 {
   color: steelblue; }
@@ -507,7 +509,7 @@ button {
   button:focus {
     outline: none;
     box-shadow: none;
-    color: limegreen;
+    color: #28a428;
     border-color: #1e7b1e; }
 
 #buttons {
@@ -561,6 +563,7 @@ input {
   padding-left: 0;
   width: 328px;
   height: 200px;
+  transform: rotateX(10deg);
   border-top: 3px solid magenta;
   border-bottom: 5px solid magenta;
   border-radius: 1em;
@@ -592,12 +595,12 @@ input {
       box-shadow: none;
       cursor: not-allowed; }
     #playerHand .disabled h3 {
-      color: #5980a1; }
+      color: #5f809b; }
 
 #wingmen .tactical {
-  width: 75px;
-  height: 116.25px;
-  border-radius: 7.5px;
+  width: 70px;
+  height: 108.5px;
+  border-radius: 7px;
   transition: 0.5s ease-out;
   font-size: 0.7em;
   color: white;
@@ -614,9 +617,12 @@ input {
   vertical-align: middle; }
   @media (max-width: 1000px) {
     #wingmen .tactical {
-      width: 62.5px;
-      height: 96.875px;
-      border-radius: 6.25px; } }
+      width: 58.33333px;
+      height: 90.41667px;
+      border-radius: 5.83333px; } }
+  @media (max-width: 1000px) {
+    #wingmen .tactical {
+      margin-top: -45px; } }
 
 .enemy {
   width: 70px;
@@ -641,7 +647,7 @@ input {
       border-radius: 5.83333px; } }
   .enemy.targeted {
     z-index: 1000;
-    transform: translate3d(0, 0, 201px);
+    transform: translate3d(0, 10px, 150px);
     box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
   .enemy h3 {
     margin-top: 0.5em; }
@@ -656,7 +662,7 @@ input {
     box-shadow: none;
     cursor: not-allowed; }
   .invalidTarget h3 {
-    color: #5980a1; }
+    color: #5f809b; }
 
 .emptySpace {
   z-index: 0;
@@ -668,7 +674,7 @@ input {
     box-shadow: none;
     cursor: not-allowed; }
   .emptySpace h3 {
-    color: #5980a1; }
+    color: #5f809b; }
 
 .destroyed {
   display: none; }
@@ -700,7 +706,7 @@ input {
     margin-bottom: 120px; }
   #playerPursuers .targeted {
     z-index: 1000;
-    transform: translate3d(0, 0, 201px);
+    transform: translate3d(0, 10px, 150px);
     box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
   #playerPursuers .emptySpace {
     z-index: -2; }
@@ -740,6 +746,10 @@ input {
   #FriendlyBase p,
   #enemyBase p {
     font-size: 1.1rem; }
+    @media (max-width: 1000px) {
+      #FriendlyBase p,
+      #enemyBase p {
+        font-size: 1rem; } }
 
 #enemyBaseCard {
   font-size: 0.9rem;
@@ -747,7 +757,7 @@ input {
   font-size: 0.8rem; }
   #enemyBaseCard.targeted {
     z-index: 1000;
-    transform: translate3d(0, 0, 201px);
+    transform: translate3d(0, 10px, 150px);
     box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
 
 #FriendlyBase {
@@ -780,10 +790,10 @@ input {
 #overlay {
   width: 600px;
   height: 290px;
+  margin-left: -300px;
   position: absolute;
   bottom: 53px;
   left: 50%;
-  margin-left: -300px;
   text-align: center;
   background: rgba(0, 0, 0, 0.8);
   vertical-align: middle;
@@ -795,7 +805,8 @@ input {
   @media (max-width: 1000px) {
     #overlay {
       width: 500px;
-      height: 240px; } }
+      height: 240px;
+      margin-left: -250px; } }
   #overlay ul {
     margin-left: -40px;
     transform: rotateX(10deg); }
@@ -811,7 +822,7 @@ input {
       box-shadow: none;
       cursor: not-allowed; }
     #overlay .unavailable h3 {
-      color: #5980a1; }
+      color: #5f809b; }
   #overlay p {
     padding-top: 1em; }
 
@@ -836,10 +847,10 @@ input {
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.8);
   border-top: 3px solid steelblue;
-  border-bottom: 5px solid steelblue;
+  border-bottom: 4px solid steelblue;
   margin-top: 20px 0; }
   .playerSummary h3 {
-    margin-top: 0.5em; }
+    margin: 0.5em 0; }
 
 .playerSummary,
 #FriendlyBase {
@@ -851,11 +862,13 @@ input {
   z-index: -10;
   margin-top: 40px;
   width: 100px; }
-  @media (max-width: 1000px) {
-    #userSummary {
-      width: 80px; } }
   #userSummary.bumped {
     margin-left: 98px; }
+  @media (max-width: 1000px) {
+    #userSummary {
+      width: 80px; }
+      #userSummary.bumped {
+        margin-left: 75px; } }
 
 #wingmen .playerSummary {
   font-size: 0.8em;

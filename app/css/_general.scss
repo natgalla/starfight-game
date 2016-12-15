@@ -12,11 +12,14 @@ body {
     font-size: 5.5em;
     padding-top: 5%;
     text-align: center;
-    text-shadow: 2px 2px 5px $secondaryBlue,
-                -2px -2px 4px $highlightBlue;
+    text-shadow: 2px 2px 5px $highlightBlue,
+                -2px -2px 4px $shadeBlue;
   }
   @media (max-width: 1000px) {
     font-size: 0.8em;
+    button {
+      font-size: 1.4em;
+    }
   }
 }
 

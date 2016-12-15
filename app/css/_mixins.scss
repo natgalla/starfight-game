@@ -45,7 +45,7 @@
     cursor: not-allowed;
   }
   & h3 {
-    color: desaturate($secondaryBlue, 15%);
+    color: desaturate($secondaryBlue, 20%);
   }
 }
 
@@ -55,7 +55,7 @@
 
 @mixin enemyTargeted {
   z-index: 1000;
-  transform: translate3d(0, 0, 201px);
+  transform: translate3d(0, 10px, 150px);
   box-shadow: 2px 2px 5px $primaryPink,
               -2px -2px 7px $primaryPink;
 }
@@ -65,4 +65,8 @@
   background-color: $darkGrey;
   box-shadow: 2px 2px 5px $highlightGreen,
               -2px -2px 7px $highlightGreen;
+}
+
+@function shade($color, $factor: 1) {
+  @return darken($color, 20%*$factor);
 }

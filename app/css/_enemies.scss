@@ -73,8 +73,10 @@
   }
 }
 
-#wingmen-pursuers ul {
-  margin: 0 6%;
+#wingmen-pursuers {
+  & ul {
+    margin: 0 6%;
+  }
 }
 
 .FriendlyBase.targeted,
