@@ -14,11 +14,11 @@ let io = socketio(server);
 let waitingPlayer;
 
 let testPacket = {
-  game: "test1",
-  friendlyBase: "test2",
-  player1: "test3",
-  player2: "test4",
-  enemyBase: "test5"
+  game: "game",
+  FriendlyBase: "FriendlyBase",
+  Player1: "Player1",
+  Player2: "Player2",
+  enemyBase: "Player3"
 }
 
 io.on("connect", onConnection);
@@ -47,9 +47,9 @@ app.post("/", function(req, res) {
     //                                         specs.purchaseIndex);
     // }
     console.log(specs);
+    res.send("Server received the request containing" + specs);
     updateObjects();
   });
-  res.send("Server received the request");
 });
 
 function onConnection(socket) {
@@ -68,11 +68,11 @@ function onConnection(socket) {
 function notifyGameReady(...sockets) {
   sockets.forEach((socket) => {
     socket.emit("msg", "Game Ready");
-    // socket.emit("update", packet);
+    socket.emit("update", testPacket);
   });
 }
 
-function updateObjects(vars) {
+function updateObjects() {
   // let packet = {
   //   game: game,
   //   friendlyBase: FriendlyBase,
@@ -81,7 +81,6 @@ function updateObjects(vars) {
   //   enemyBase: enemyBase
   // }
   console.log("A card was played");
-  console.log(vars);
   testPacket = {
     game: "test1",
     FriendlyBase: "test2",
@@ -90,9 +89,7 @@ function updateObjects(vars) {
     Player3: "test5",
     enemyBase: "test6"
   }
-  sockets.forEach((socket) => {
-    socket.emit("update", testPacket);
-  });
+  io.sockets.emit("update", testPacket);
 }
 
 io.on("confirm", updateObjects);

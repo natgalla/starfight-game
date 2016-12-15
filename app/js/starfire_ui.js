@@ -1,4 +1,5 @@
 // whose cards will be shown & usable. Will be dynamically assigned by server
+// LOCAL VERSION
 let user = Player1;
 
 // globals changed throughout the game by player events, passed to back-end code
@@ -194,6 +195,7 @@ const update = function() {
   updateTacticalCards();
   updateSummaries();
   enableSelect();
+  console.log("Game updated.")
 }
 
 
@@ -479,6 +481,7 @@ const sendPacket = function() { //for server version: modify to send packet to s
   } else {
     getPlayer().discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
   }
+  // SERVER VERSION
   // $.post("/", JSON.stringify(packet), function(data) {
   //   console.log(data);
   // });
@@ -497,5 +500,6 @@ $confirmAdvButton.on("click", function() {
   sendPacket();
 });
 
+// LOCAL VERSION
 game.round();
 update();
