@@ -1,17 +1,8 @@
 .tactical,
 .advTactical {
-  @include cardBase;
-}
-
-.tactical,
-.advTactical {
+  @include card(105px);
   border: 2px solid $primaryPink;
-  border-radius: 10px;
-  height: 170px;
-  width: 105px;
   z-index: 2;
-  transition: 0.4s ease-out;
-  position: relative;
   &:hover {
     cursor: pointer;
   }
@@ -25,11 +16,15 @@
   @include undoListOffset;
   width: 328px;
   height: 200px;
+  @media (max-width: 1000px) {
+    width: 275px;
+    height: 165px;
+  }
   border-top: 3px solid $primaryPink;
   border-bottom: 5px solid $primaryPink;
   border-radius: 1em;
   padding: 10px 40px;
-  background: rgba(0,0,0,0.8);
+  background: $darkTranslucent;
   & .tactical {
     transform: rotateX(15deg);
     z-index: 8;
@@ -50,12 +45,9 @@
 }
 
 #wingmen .tactical {
+  @include card(75px);
   margin: 0 -1.5em;
-  border-radius: 7px;
   margin-top: -60px;
-  height: 120px;
-  padding: 1em;
-  width: 75px;
   font-size: .5em;
   z-index: 0;
   vertical-align: middle;

@@ -15,6 +15,9 @@ body {
     text-shadow: 2px 2px 5px $secondaryBlue,
                 -2px -2px 4px $highlightBlue;
   }
+  @media (max-width: 1000px) {
+    font-size: 0.8em;
+  }
 }
 
 h3 {

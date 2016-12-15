@@ -4,6 +4,10 @@
   background: $darkGrey;
   height: 300px;
   width: 120px;
+  @media (max-width: 1000px) {
+    height: 250px;
+    width: 95px;
+  }
   padding: 5px;
   margin: 5px;
   font-size: 0.9em;

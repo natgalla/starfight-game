@@ -213,6 +213,8 @@ const detarget = function() {
   $(".target").removeClass("target");
   $(".enemy").off("click");
   $(".assist").removeClass("assist");
+  $(".playerSummary").off("click");
+  $(".friendlyBase").off("click");
   $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");
 }

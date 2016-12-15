@@ -416,6 +416,9 @@ body {
     padding-top: 5%;
     text-align: center;
     text-shadow: 2px 2px 5px steelblue, -2px -2px 4px #8db3d3; }
+  @media (max-width: 1000px) {
+    body {
+      font-size: 0.8em; } }
 
 h3 {
   color: steelblue; }
@@ -462,7 +465,9 @@ li p {
     display: inline-block;
     margin: 0 10px; }
   #wingmen .targeted {
-    z-index: 1000; }
+    z-index: 1000;
+    background-color: #333;
+    box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
   position: absolute;
@@ -475,7 +480,7 @@ li p {
 #playerHand {
   display: inline-block;
   text-align: center;
-  perspective: 1200px;
+  perspective: 1000px;
   margin: 0; }
 
 #wingmen ul,
@@ -524,25 +529,26 @@ input {
 
 .tactical,
 .advTactical {
+  width: 105px;
+  height: 162.75px;
+  border-radius: 10.5px;
   transition: 0.5s ease-out;
-  font-size: .7em;
+  font-size: 0.7em;
   color: white;
   position: relative;
   background-color: #333;
   display: inline-block;
   padding: 1em;
   margin: 0 -1em;
-  vertical-align: middle; }
-
-.tactical,
-.advTactical {
+  vertical-align: middle;
   border: 2px solid magenta;
-  border-radius: 10px;
-  height: 170px;
-  width: 105px;
-  z-index: 2;
-  transition: 0.4s ease-out;
-  position: relative; }
+  z-index: 2; }
+  @media (max-width: 1000px) {
+    .tactical,
+    .advTactical {
+      width: 87.5px;
+      height: 135.625px;
+      border-radius: 8.75px; } }
   .tactical:hover,
   .advTactical:hover {
     cursor: pointer; }
@@ -560,6 +566,10 @@ input {
   border-radius: 1em;
   padding: 10px 40px;
   background: rgba(0, 0, 0, 0.8); }
+  @media (max-width: 1000px) {
+    #playerHand {
+      width: 275px;
+      height: 165px; } }
   #playerHand .tactical {
     transform: rotateX(15deg);
     z-index: 8; }
@@ -581,21 +591,39 @@ input {
     #playerHand .disabled:hover {
       box-shadow: none;
       cursor: not-allowed; }
+    #playerHand .disabled h3 {
+      color: #5980a1; }
 
 #wingmen .tactical {
-  margin: 0 -1.5em;
-  border-radius: 7px;
-  margin-top: -60px;
-  height: 120px;
-  padding: 1em;
   width: 75px;
+  height: 116.25px;
+  border-radius: 7.5px;
+  transition: 0.5s ease-out;
+  font-size: 0.7em;
+  color: white;
+  position: relative;
+  background-color: #333;
+  display: inline-block;
+  padding: 1em;
+  margin: 0 -1em;
+  vertical-align: middle;
+  margin: 0 -1.5em;
+  margin-top: -60px;
   font-size: .5em;
   z-index: 0;
   vertical-align: middle; }
+  @media (max-width: 1000px) {
+    #wingmen .tactical {
+      width: 62.5px;
+      height: 96.875px;
+      border-radius: 6.25px; } }
 
 .enemy {
+  width: 70px;
+  height: 108.5px;
+  border-radius: 7px;
   transition: 0.5s ease-out;
-  font-size: .7em;
+  font-size: 0.7em;
   color: white;
   position: relative;
   background-color: #333;
@@ -604,15 +632,19 @@ input {
   margin: 0 -1em;
   vertical-align: middle;
   border: 2px solid crimson;
-  border-radius: 8px;
-  height: 110px;
-  width: 70px;
   margin-top: -70px;
   z-index: 5; }
+  @media (max-width: 1000px) {
+    .enemy {
+      width: 58.33333px;
+      height: 90.41667px;
+      border-radius: 5.83333px; } }
   .enemy.targeted {
     z-index: 1000;
     transform: translate3d(0, 0, 201px);
     box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
+  .enemy h3 {
+    margin-top: 0.5em; }
 
 .invalidTarget {
   z-index: 0;
@@ -623,6 +655,8 @@ input {
   .invalidTarget:hover {
     box-shadow: none;
     cursor: not-allowed; }
+  .invalidTarget h3 {
+    color: #5980a1; }
 
 .emptySpace {
   z-index: 0;
@@ -633,6 +667,8 @@ input {
   .emptySpace:hover {
     box-shadow: none;
     cursor: not-allowed; }
+  .emptySpace h3 {
+    color: #5980a1; }
 
 .destroyed {
   display: none; }
@@ -650,18 +686,18 @@ input {
 #wingmen-pursuers {
   text-align: center;
   height: 100px;
-  perspective: 1200px; }
+  perspective: 1000px; }
 
 #playerPursuers {
   text-align: center;
   display: block;
-  margin-bottom: -80px;
-  perspective: 1200px; }
+  margin-bottom: -70px;
+  perspective: 1000px; }
   #playerPursuers .enemy {
     z-index: -1; }
   #playerPursuers .target, #playerPursuers .targeted {
     z-index: 15;
-    margin-bottom: 170px; }
+    margin-bottom: 120px; }
   #playerPursuers .targeted {
     z-index: 1000;
     transform: translate3d(0, 0, 201px);
@@ -682,7 +718,9 @@ input {
 .FriendlyBase.targeted,
 #wingmen .targeted,
 #userSummary .targeted {
-  z-index: 1000; }
+  z-index: 1000;
+  background-color: #333;
+  box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #FriendlyBase,
 #enemyBase {
@@ -694,6 +732,11 @@ input {
   margin: 5px;
   font-size: 0.9em;
   z-index: -11; }
+  @media (max-width: 1000px) {
+    #FriendlyBase,
+    #enemyBase {
+      height: 250px;
+      width: 95px; } }
   #FriendlyBase p,
   #enemyBase p {
     font-size: 1.1rem; }
@@ -715,7 +758,9 @@ input {
   border-radius: 0 3em 3em 0;
   margin-left: 0px; }
   #FriendlyBase.targeted {
-    z-index: 1000; }
+    z-index: 1000;
+    background-color: #333;
+    box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #enemyBase {
   float: right;
@@ -730,23 +775,27 @@ input {
 #wingmen-pursuers {
   text-align: center;
   height: 100px;
-  perspective: 1200px; }
+  perspective: 1000px; }
 
 #overlay {
   width: 600px;
   height: 290px;
   position: absolute;
-  bottom: 52px;
+  bottom: 53px;
   left: 50%;
   margin-left: -300px;
   text-align: center;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.8);
   vertical-align: middle;
   border-top: 3px solid magenta;
   border-bottom: 5px solid magenta;
   border-radius: 0.8em;
   z-index: 100;
   transform: rotateX(10deg); }
+  @media (max-width: 1000px) {
+    #overlay {
+      width: 500px;
+      height: 240px; } }
   #overlay ul {
     margin-left: -40px;
     transform: rotateX(10deg); }
@@ -761,6 +810,8 @@ input {
     #overlay .unavailable:hover {
       box-shadow: none;
       cursor: not-allowed; }
+    #overlay .unavailable h3 {
+      color: #5980a1; }
   #overlay p {
     padding-top: 1em; }
 
@@ -775,15 +826,15 @@ input {
   border-color: limegreen;
   box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
   .purchasing:hover {
-    box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
-    z-index: 9 !important; }
+    border-color: limegreen;
+    box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
 
 .playerSummary {
   text-align: left;
   padding: 5px 10px;
   margin-left: 10px;
   border-radius: 10px;
-  background-color: rgba(0, 0, 0, 0.9);
+  background-color: rgba(0, 0, 0, 0.8);
   border-top: 3px solid steelblue;
   border-bottom: 5px solid steelblue;
   margin-top: 20px 0; }
@@ -798,9 +849,11 @@ input {
   position: absolute;
   display: inline-block;
   z-index: -10;
-  margin-left: 10px;
   margin-top: 40px;
   width: 100px; }
+  @media (max-width: 1000px) {
+    #userSummary {
+      width: 80px; } }
   #userSummary.bumped {
     margin-left: 98px; }
 
@@ -810,9 +863,11 @@ input {
   margin-top: 2em; }
 
 .assist {
-  box-shadow: 3px 3px 4px steelblue, -2px -2px 3px steelblue; }
+  background-color: #333;
+  box-shadow: 0px 3px 4px #8db3d3, 0px -2px 3px #8db3d3; }
   .assist:hover {
-    box-shadow: 4px 4px 5px #8db3d3, -3px -3px 4px #8db3d3; }
+    border-color: #8db3d3;
+    box-shadow: 0px 3px 4px #8db3d3, 0px -2px 3px #8db3d3; }
 
 .pursued {
   color: crimson; }

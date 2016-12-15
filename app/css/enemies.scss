@@ -1,13 +1,13 @@
 .enemy {
-  @include cardBase;
+  @include card(70px);
   border: 2px solid $secondaryOrange;
-  border-radius: 8px;
-  height: 110px;
-  width: 70px;
   margin-top: -70px;
   z-index: 5;
   &.targeted {
     @include enemyTargeted;
+  }
+  & h3 {
+    margin-top: 0.5em;
   }
 }
 
@@ -46,7 +46,7 @@
 #playerPursuers {
   text-align: center;
   display: block;
-  margin-bottom: -80px;
+  margin-bottom: -70px;
   perspective: $perspective;
   & .enemy {
     z-index: -1;
@@ -54,7 +54,7 @@
   & .target,
   & .targeted {
     z-index: 15;
-    margin-bottom: 170px;
+    margin-bottom: 120px;
   }
   & .targeted {
     @include enemyTargeted;
