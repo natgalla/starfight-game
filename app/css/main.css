@@ -493,7 +493,7 @@ li p {
 
 button {
   font-family: VT323, courier, monospace;
-  font-size: 1.2em;
+  font-size: 1.3em;
   border: 1px solid limegreen;
   color: limegreen;
   padding: 0.5em;
@@ -645,6 +645,14 @@ input {
       width: 58.33333px;
       height: 90.41667px;
       border-radius: 5.83333px; } }
+  .enemy.target {
+    z-index: 15;
+    transition: 0.4s ease-out;
+    box-shadow: 1px 1px 4px #f16581, -1px -1px 5px #f16581; }
+    .enemy.target:hover {
+      z-index: 16 !important;
+      box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta;
+      cursor: crosshair; }
   .enemy.targeted {
     z-index: 1000;
     transform: translate3d(0, 10px, 150px);
@@ -670,15 +678,6 @@ input {
 .destroyed {
   display: none; }
 
-.target {
-  z-index: 15;
-  transition: 0.4s ease-out;
-  box-shadow: 1px 1px 4px #f16581, -1px -1px 5px #f16581; }
-  .target:hover {
-    z-index: 16 !important;
-    box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta;
-    cursor: crosshair; }
-
 #basePursuers,
 #wingmen-pursuers {
   text-align: center;
@@ -695,10 +694,6 @@ input {
   #playerPursuers .target, #playerPursuers .targeted {
     z-index: 15;
     margin-bottom: 120px; }
-  #playerPursuers .targeted {
-    z-index: 1000;
-    transform: translate3d(0, 10px, 150px);
-    box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
   #playerPursuers .emptySpace {
     z-index: -2; }
 

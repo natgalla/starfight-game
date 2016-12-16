@@ -3,6 +3,18 @@
   border: 2px solid $secondaryOrange;
   margin-top: -70px;
   z-index: 5;
+  &.target {
+    z-index: 15;
+    transition: 0.4s ease-out;
+    box-shadow: 1px 1px 4px $highlightOrange,
+                -1px -1px 5px $highlightOrange;
+    &:hover {
+      z-index: 16 !important;
+      box-shadow: 2px 2px 5px $primaryPink,
+                  -2px -2px 7px $primaryPink;
+      cursor: crosshair;
+    }
+  }
   &.targeted {
     @include enemyTargeted;
   }
@@ -18,19 +30,6 @@
 
 .destroyed {
   @include hide;
-}
-
-.target {
-  z-index: 15;
-  transition: 0.4s ease-out;
-  box-shadow: 1px 1px 4px $highlightOrange,
-              -1px -1px 5px $highlightOrange;
-  &:hover {
-    z-index: 16 !important;
-    box-shadow: 2px 2px 5px $primaryPink,
-                -2px -2px 7px $primaryPink;
-    cursor: crosshair;
-  }
 }
 
 #basePursuers,
@@ -52,9 +51,6 @@
   & .targeted {
     z-index: 15;
     margin-bottom: 120px;
-  }
-  & .targeted {
-    @include enemyTargeted;
   }
   & .emptySpace {
     z-index: -2;
