@@ -652,28 +652,19 @@ input {
   .enemy h3 {
     margin-top: 0.5em; }
 
+.emptySpace,
 .invalidTarget {
   z-index: 0;
   background-color: rgba(30, 30, 30, 0.8);
   border-color: #666;
   box-shadow: none;
   color: #888; }
+  .emptySpace:hover,
   .invalidTarget:hover {
     box-shadow: none;
     cursor: not-allowed; }
+  .emptySpace h3,
   .invalidTarget h3 {
-    color: #5f809b; }
-
-.emptySpace {
-  z-index: 0;
-  background-color: rgba(30, 30, 30, 0.8);
-  border-color: #666;
-  box-shadow: none;
-  color: #888; }
-  .emptySpace:hover {
-    box-shadow: none;
-    cursor: not-allowed; }
-  .emptySpace h3 {
     color: #5f809b; }
 
 .destroyed {
@@ -743,6 +734,9 @@ input {
     #enemyBase {
       height: 250px;
       width: 95px; } }
+  #FriendlyBase h3,
+  #enemyBase h3 {
+    margin: 1em 0; }
   #FriendlyBase p,
   #enemyBase p {
     font-size: 1.1rem; }
@@ -762,9 +756,9 @@ input {
 
 #FriendlyBase {
   float: left;
-  border-right: 2px solid steelblue;
+  border-right: 4px solid steelblue;
   border-top: 2px solid steelblue;
-  border-bottom: 2px solid steelblue;
+  border-bottom: 5px solid steelblue;
   border-radius: 0 3em 3em 0;
   margin-left: 0px; }
   #FriendlyBase.targeted {
@@ -775,9 +769,9 @@ input {
 #enemyBase {
   float: right;
   text-align: right;
-  border-left: 2px solid crimson;
+  border-left: 4px solid crimson;
   border-top: 2px solid crimson;
-  border-bottom: 2px solid crimson;
+  border-bottom: 5px solid crimson;
   border-radius: 3em 0 0 3em;
   margin-right: -2px; }
 

@@ -7,7 +7,7 @@ $highlightBlue: lighten($secondaryBlue, $step);
 $shadeBlue: darken($secondaryBlue, $step);
 $secondaryOrange: crimson;
 $highlightOrange: lighten($secondaryOrange, $step);
-$shadeOrange: lighten($secondaryOrange, $step);
+$shadeOrange: darken($secondaryOrange, $step);
 $complementGreen: limegreen;
 $highlightGreen: lighten($complementGreen, $step);
 $shadeGreen: darken($complementGreen, $step);

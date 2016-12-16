@@ -11,11 +11,8 @@
   }
 }
 
+.emptySpace,
 .invalidTarget {
-  @include disabled;
-}
-
-.emptySpace {
   @include disabled;
 }
 
