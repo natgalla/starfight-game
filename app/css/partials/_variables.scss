@@ -1,16 +1,21 @@
-$step: 20%;
+// base colors
 $primaryPink: magenta;
+$secondaryBlue: steelblue;
+$secondaryOrange: crimson;
+$complementGreen: limegreen;
+
+// tints and shades
+$step: 20%;
 $highlightPink: lighten($primaryPink, $step);
 $shadePink: darken($primaryPink, $step);
-$secondaryBlue: steelblue;
 $highlightBlue: lighten($secondaryBlue, $step);
 $shadeBlue: darken($secondaryBlue, $step);
-$secondaryOrange: crimson;
 $highlightOrange: lighten($secondaryOrange, $step);
 $shadeOrange: darken($secondaryOrange, $step);
-$complementGreen: limegreen;
 $highlightGreen: lighten($complementGreen, $step);
 $shadeGreen: darken($complementGreen, $step);
+
+// neutrals
 $darkGrey: #333;
 $mediumGrey: #666;
 $lightGrey: #888;
@@ -21,3 +26,5 @@ $invisible: rgba(0,0,0,0);
 
 $fontStack: VT323, courier, monospace;
 $perspective: 1000px;
+$breakWidth: 1000px;
+$breakHeight: 700px;

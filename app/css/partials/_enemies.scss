@@ -2,6 +2,9 @@
   @include card(65px);
   border: 2px solid $secondaryOrange;
   margin-top: -70px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    margin-top: -80px;
+  }
   z-index: 5;
   &.target {
     z-index: 15;

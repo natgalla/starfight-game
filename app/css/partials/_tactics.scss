@@ -16,7 +16,7 @@
   @include undoListOffset;
   width: 328px;
   height: 200px;
-  @media (max-width: 1000px) {
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
     width: 275px;
     height: 165px;
   }
@@ -54,7 +54,7 @@
   @include card(70px);
   margin: 0 -1.5em;
   margin-top: -60px;
-  @media (max-width: 1000px) {
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
     margin-top: -45px;
   }
   font-size: .5em;

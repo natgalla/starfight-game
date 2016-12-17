@@ -4,7 +4,7 @@
   background: $darkGrey;
   height: 300px;
   width: 120px;
-  @media (max-width: 1000px) {
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
     height: 250px;
     width: 95px;
   }
@@ -16,7 +16,7 @@
   }
   & p {
     font-size: 1.1rem;
-    @media (max-width: 1000px) {
+    @media (max-width: $breakWidth), (max-height: $breakHeight)  {
       font-size: 1rem;
     }
   }

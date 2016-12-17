@@ -416,7 +416,7 @@ body {
     padding-top: 5%;
     text-align: center;
     text-shadow: 2px 2px 5px #8db3d3, -2px -2px 4px #294d6b; }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     body {
       font-size: 0.8em; }
       body button {
@@ -472,12 +472,13 @@ li p {
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
-  position: fixed;
+  position: absolute;
   width: 50%;
   text-align: center;
   bottom: 0;
   left: 50%;
-  margin-left: -25%; }
+  margin-left: -25%;
+  clear: both; }
 
 #playerHand {
   display: inline-block;
@@ -545,7 +546,7 @@ input {
   vertical-align: middle;
   border: 2px solid magenta;
   z-index: 2; }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     .tactical,
     .advTactical {
       width: 87.5px;
@@ -569,7 +570,7 @@ input {
   border-radius: 1em;
   padding: 10px 40px;
   background: rgba(0, 0, 0, 0.8); }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     #playerHand {
       width: 275px;
       height: 165px; } }
@@ -620,13 +621,13 @@ input {
   font-size: .5em;
   z-index: 0;
   vertical-align: middle; }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     #wingmen .tactical,
     #wingmen .advTactical {
       width: 58.33333px;
       height: 90.41667px;
       border-radius: 5.83333px; } }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     #wingmen .tactical,
     #wingmen .advTactical {
       margin-top: -45px; } }
@@ -647,11 +648,14 @@ input {
   border: 2px solid crimson;
   margin-top: -70px;
   z-index: 5; }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     .enemy {
       width: 54.16667px;
       height: 83.95833px;
       border-radius: 5.41667px; } }
+  @media (max-width: 1000px), (max-height: 700px) {
+    .enemy {
+      margin-top: -80px; } }
   .enemy.target {
     z-index: 15;
     transition: 0.4s ease-out;
@@ -738,7 +742,7 @@ input {
   margin: 5px;
   font-size: 0.9em;
   z-index: -11; }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     #FriendlyBase,
     #enemyBase {
       height: 250px;
@@ -749,7 +753,7 @@ input {
   #FriendlyBase p,
   #enemyBase p {
     font-size: 1.1rem; }
-    @media (max-width: 1000px) {
+    @media (max-width: 1000px), (max-height: 700px) {
       #FriendlyBase p,
       #enemyBase p {
         font-size: 1rem; } }

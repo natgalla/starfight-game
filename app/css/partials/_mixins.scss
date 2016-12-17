@@ -27,7 +27,7 @@
   padding: 1em;
   margin: 0 -1em;
   vertical-align: middle;
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     width: $width/1.2;
     height: $width/1.2*1.55;
     border-radius: $width/1.2/10;
