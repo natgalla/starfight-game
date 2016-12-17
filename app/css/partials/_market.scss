@@ -24,6 +24,11 @@
   }
   & .advTactical {
     margin: 0.6em;
+    box-shadow: 0px 0px 100px $invisible;
+    &:hover {
+      cursor: pointer;
+      @include selectable;
+    }
   }
   & .unavailable {
     @include disabled;

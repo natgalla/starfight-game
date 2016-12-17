@@ -573,15 +573,19 @@ input {
     #playerHand {
       width: 275px;
       height: 165px; } }
-  #playerHand .tactical {
+  #playerHand .advTactical, #playerHand .tactical {
     transform: rotateX(15deg);
+    box-shadow: 0px 0px 100px transparent;
     z-index: 8; }
-    #playerHand .tactical:hover {
+    #playerHand .advTactical:hover, #playerHand .tactical:hover {
       box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
       z-index: 9 !important; }
   #playerHand .selected {
+    box-shadow: none;
     z-index: 200 !important;
-    transform: translate3d(0, -25px, 100px); }
+    transform: translate3d(0, -25px, 100px);
+    border-color: limegreen;
+    box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
     #playerHand .selected:hover {
       border-color: limegreen;
       box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
@@ -597,7 +601,8 @@ input {
     #playerHand .disabled h3 {
       color: #5f809b; }
 
-#wingmen .tactical {
+#wingmen .tactical,
+#wingmen .advTactical {
   width: 70px;
   height: 108.5px;
   border-radius: 7px;
@@ -616,12 +621,14 @@ input {
   z-index: 0;
   vertical-align: middle; }
   @media (max-width: 1000px) {
-    #wingmen .tactical {
+    #wingmen .tactical,
+    #wingmen .advTactical {
       width: 58.33333px;
       height: 90.41667px;
       border-radius: 5.83333px; } }
   @media (max-width: 1000px) {
-    #wingmen .tactical {
+    #wingmen .tactical,
+    #wingmen .advTactical {
       margin-top: -45px; } }
 
 .enemy {
@@ -648,15 +655,19 @@ input {
   .enemy.target {
     z-index: 15;
     transition: 0.4s ease-out;
-    box-shadow: 1px 1px 4px #f16581, -1px -1px 5px #f16581; }
+    box-shadow: 0px 0px 300px transparent, 1px 1px 4px #f16581, -1px -1px 5px #f16581; }
     .enemy.target:hover {
       z-index: 16 !important;
-      box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta;
+      box-shadow: 3px 3px 6px crimson, -2px -2px 7px crimson;
       cursor: crosshair; }
   .enemy.targeted {
     z-index: 1000;
     transform: translate3d(0, 10px, 150px);
     box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
+    .enemy.targeted:hover {
+      z-index: 1000;
+      transform: translate3d(0, 10px, 150px);
+      box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
   .enemy h3 {
     margin-top: 0.5em; }
 
@@ -691,8 +702,11 @@ input {
   perspective: 1000px; }
   #playerPursuers .enemy {
     z-index: -1; }
-  #playerPursuers .target, #playerPursuers .targeted {
-    z-index: 15;
+  #playerPursuers .target {
+    z-index: 14;
+    margin-bottom: 120px; }
+  #playerPursuers .targeted {
+    z-index: 17;
     margin-bottom: 120px; }
   #playerPursuers .emptySpace {
     z-index: -2; }
@@ -800,7 +814,12 @@ input {
     margin-left: -40px;
     transform: rotateX(10deg); }
   #overlay .advTactical {
-    margin: 0.6em; }
+    margin: 0.6em;
+    box-shadow: 0px 0px 100px transparent; }
+    #overlay .advTactical:hover {
+      cursor: pointer;
+      box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
+      z-index: 9 !important; }
   #overlay .unavailable {
     z-index: 0;
     background-color: rgba(30, 30, 30, 0.8);

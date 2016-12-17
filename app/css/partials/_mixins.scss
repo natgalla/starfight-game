@@ -66,7 +66,3 @@
   box-shadow: 2px 2px 5px $highlightGreen,
               -2px -2px 7px $highlightGreen;
 }
-
-@function shade($color, $factor: 1) {
-  @return darken($color, 20%*$factor);
-}
