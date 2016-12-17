@@ -472,7 +472,7 @@ li p {
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
-  position: absolute;
+  position: fixed;
   width: 50%;
   text-align: center;
   bottom: 0;
@@ -632,9 +632,9 @@ input {
       margin-top: -45px; } }
 
 .enemy {
-  width: 70px;
-  height: 108.5px;
-  border-radius: 7px;
+  width: 65px;
+  height: 100.75px;
+  border-radius: 6.5px;
   transition: 0.5s ease-out;
   font-size: 0.7em;
   color: white;
@@ -649,9 +649,9 @@ input {
   z-index: 5; }
   @media (max-width: 1000px) {
     .enemy {
-      width: 58.33333px;
-      height: 90.41667px;
-      border-radius: 5.83333px; } }
+      width: 54.16667px;
+      height: 83.95833px;
+      border-radius: 5.41667px; } }
   .enemy.target {
     z-index: 15;
     transition: 0.4s ease-out;

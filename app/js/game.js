@@ -257,7 +257,8 @@ Game.prototype.postRound = function() { //strange behavior removing placeholders
   enemyBase.updateSummary();
 }
 
-const game = new Game();
+//temporarily declared as var for safari
+var game = new Game();
 
 
 //build tactical deck

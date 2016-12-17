@@ -669,11 +669,13 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
   }
 }
 
-const FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-const Player1 = new Player("Player1", "Nathan");
-const Player2 = new Player("Player2", "Rudi");
-const Player3 = new Player("Player3", "Ruth");
-const Player4 = new Player("Player4", "Alan");
+
+//temporarily declared as var for Safari
+var FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+var Player1 = new Player("Player1", "Nathan");
+var Player2 = new Player("Player2", "Rudi");
+var Player3 = new Player("Player3", "Ruth");
+var Player4 = new Player("Player4", "Alan");
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.FriendlyBase = FriendlyBase;

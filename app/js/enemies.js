@@ -167,23 +167,24 @@ const EnemyBaseCard = function(name, cssClass, description) {
   this.card = "<p id='enemyBaseCard'>" + this.description + "</p>";
 }
 
+//temporarily declared as var for safari
 // define enemy types
-const ace = new Enemy("Ace","ace",6,4,5,4);
-const heavy = new Enemy("Heavy","heavy",5,3,3,3);
-const medium = new Enemy("Medium","medium",4,2,4,2);
-const light = new Enemy("Light","light",3,2,4,1);
-const empty = new Enemy("Empty space","emptySpace",0,0,0,0);
-const placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
+var ace = new Enemy("Ace","ace",6,4,5,4);
+var heavy = new Enemy("Heavy","heavy",5,3,3,3);
+var medium = new Enemy("Medium","medium",4,2,4,2);
+var light = new Enemy("Light","light",3,2,4,1);
+var empty = new Enemy("Empty space","emptySpace",0,0,0,0);
+var placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
 
 // define enemy base cards
-const fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Friendly base takes 3 damage");
-const fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly base takes 5 damage");
-const deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
-const repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
-const reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
+var fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Friendly base takes 3 damage");
+var fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly base takes 5 damage");
+var deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
+var repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
+var reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
 
 
-const enemyBase = new EnemyBase();
+var enemyBase = new EnemyBase();
 // IF MIGRATED TO SERVER SIDE
 // module.exports.EnemyBase = EnemyBase;
 // module.exports.Enemy = Enemy;

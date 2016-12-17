@@ -1,4 +1,4 @@
-let typeWord = function(location, text, element, begEnd, interval, cursor) {
+let typeWord = function($location, text, element, begEnd, interval, cursor) {
   if (element === undefined) {
     element = "p";
   }
@@ -13,9 +13,9 @@ let typeWord = function(location, text, element, begEnd, interval, cursor) {
   }
   let newText = document.createElement(element);
   if (begEnd === "prepend") {
-    location.prepend(newText);
+    $location.prepend(newText);
   } else {
-    location.append(newText);
+    $location.append(newText);
   }
   let i=0;
   let testInterval = setInterval(typeOut, interval);
@@ -62,7 +62,7 @@ $playArea.hide();
 $("#menu").prepend($setup);
 $setup.append($greet);
 // $setup.append("<h3> Welcome to " + gameName + "<h3>");
-typeWord($greet[0], "Welcome to " + gameName, "h3");
+typeWord($greet, "Welcome to " + gameName, "h3");
 $greet.append($play);
 $setup.append($server);
 // $startGame.append("<h3>Create a new game or join an existing one?</h3>");
@@ -82,7 +82,7 @@ $play.on("click", function() {
   $setup.append($startGame);
   $startGame.hide();
   $startGame.fadeIn();
-  typeWord($startGame[0], "Create a new game or join an existing one?", "h3");
+  typeWord($startGame, "Create a new game or join an existing one?", "h3");
 });
 
 $newGame.on("click", function() {
@@ -90,7 +90,7 @@ $newGame.on("click", function() {
   $setup.append($newSession);
   $newSession.hide();
   $newSession.fadeIn();
-  typeWord($newSession[0], "Please enter a name for your session.", "h3");
+  typeWord($newSession, "Please enter a name for your session.", "h3");
 });
 
 $joinGame.on("click", function() {
@@ -98,7 +98,7 @@ $joinGame.on("click", function() {
   $setup.append($joinSession);
   $joinSession.hide();
   $joinSession.fadeIn();
-  typeWord($joinSession[0], "Please enter the name of the session you would like to join", "h3");
+  typeWord($joinSession, "Please enter the name of the session you would like to join", "h3");
   $("#notActive").hide();
 });
 

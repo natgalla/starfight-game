@@ -1,5 +1,5 @@
 .enemy {
-  @include card(70px);
+  @include card(65px);
   border: 2px solid $secondaryOrange;
   margin-top: -70px;
   z-index: 5;

@@ -442,7 +442,7 @@ $cicButton.on("click", function() {
   $cancelButton.show();
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
   $overlay.append($marketList);
   FriendlyBase.market.forEach( function(card) {
     let advCard = card.generateCard(getPlayer());
