@@ -52,7 +52,13 @@
 #wingmen .tactical,
 #wingmen .advTactical {
   @include card(70px);
+  // LOCAL VERSION
   margin: 0 -1.5em;
+  // SERVER VERSION
+  // margin-left: -5em;
+  // &:first-child {
+  //   margin-left: -1.5em;
+  // }
   margin-top: -60px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
     margin-top: -45px;

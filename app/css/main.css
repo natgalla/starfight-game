@@ -876,7 +876,7 @@ input {
   width: 100px; }
   #userSummary.bumped {
     margin-left: 98px; }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     #userSummary {
       width: 80px; }
       #userSummary.bumped {

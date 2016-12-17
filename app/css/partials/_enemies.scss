@@ -44,6 +44,13 @@
   text-align: center;
   height: 100px;
   perspective: $perspective;
+  // CLOSER SPACING
+  // & .enemy {
+  //   margin-left: -4em;
+  //   &:first-child {
+  //     margin-left: -1em;
+  //   }
+  // }
 }
 
 #playerPursuers {
