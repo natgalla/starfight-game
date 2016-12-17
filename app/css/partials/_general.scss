@@ -81,13 +81,14 @@ li p {
 }
 
 #player { // need position fix for Safari
-  position: absolute;
+  // position: absolute;
+  // bottom: 0;
+  // left: 50%;
   width: 50%;
   text-align: center;
-  bottom: 0;
-  left: 50%;
   margin-left: -25%;
   clear: both;
+  margin: 0 auto;
 }
 
 #playerHand {
@@ -102,4 +103,10 @@ li p {
 #wingmen div,
 #playerHand div {
   display: inline-block;
+}
+
+.clearfix::after {
+  content: " ";
+  display: table;
+  clear: both;
 }

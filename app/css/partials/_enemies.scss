@@ -44,7 +44,6 @@
   text-align: center;
   height: 100px;
   perspective: $perspective;
-  // CLOSER SPACING
   // & .enemy {
   //   margin-left: -4em;
   //   &:first-child {
@@ -57,13 +56,22 @@
   text-align: center;
   display: block;
   margin-bottom: -70px;
+  @media (max-height: 700px) {
+    margin-bottom: -200px;
+  }
   perspective: $perspective;
   & .enemy {
     z-index: -1;
+    @media (max-height: 700px) {
+      margin-top: -380px;
+    }
   }
   & .target {
     z-index: 14;
-    margin-bottom: 120px;
+    margin-top: -120px;
+    @media (max-height: 700px) {
+      margin-top: -470px;
+    }
   }
   & .targeted {
     z-index: 17;

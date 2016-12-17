@@ -472,13 +472,11 @@ li p {
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
-  position: absolute;
   width: 50%;
   text-align: center;
-  bottom: 0;
-  left: 50%;
   margin-left: -25%;
-  clear: both; }
+  clear: both;
+  margin: 0 auto; }
 
 #playerHand {
   display: inline-block;
@@ -491,6 +489,11 @@ li p {
 #wingmen div,
 #playerHand div {
   display: inline-block; }
+
+.clearfix::after {
+  content: " ";
+  display: table;
+  clear: both; }
 
 button {
   font-family: VT323, courier, monospace;
@@ -704,11 +707,20 @@ input {
   display: block;
   margin-bottom: -70px;
   perspective: 1000px; }
+  @media (max-height: 700px) {
+    #playerPursuers {
+      margin-bottom: -200px; } }
   #playerPursuers .enemy {
     z-index: -1; }
+    @media (max-height: 700px) {
+      #playerPursuers .enemy {
+        margin-top: -380px; } }
   #playerPursuers .target {
     z-index: 14;
-    margin-bottom: 120px; }
+    margin-top: -120px; }
+    @media (max-height: 700px) {
+      #playerPursuers .target {
+        margin-top: -470px; } }
   #playerPursuers .targeted {
     z-index: 17;
     margin-bottom: 120px; }
