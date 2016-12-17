@@ -15,7 +15,7 @@ body {
     text-shadow: 2px 2px 5px $highlightBlue,
                 -2px -2px 4px $shadeBlue;
   }
-  @media (max-width: 1000px), (max-height: 700px) {
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
     font-size: 0.8em;
     button {
       font-size: 1.4em;
@@ -81,9 +81,6 @@ li p {
 }
 
 #player { // need position fix for Safari
-  // position: absolute;
-  // bottom: 0;
-  // left: 50%;
   width: 50%;
   text-align: center;
   margin-left: -25%;

@@ -569,7 +569,7 @@ input {
   height: 200px;
   transform: rotateX(10deg);
   border-top: 3px solid magenta;
-  border-bottom: 5px solid magenta;
+  border-bottom: 5px solid #ff66ff;
   border-radius: 1em;
   padding: 10px 40px;
   background: rgba(0, 0, 0, 0.8); }
@@ -709,16 +709,19 @@ input {
   perspective: 1000px; }
   @media (max-height: 700px) {
     #playerPursuers {
+      margin-bottom: -50px; } }
+  @media (max-height: 800px) {
+    #playerPursuers {
       margin-bottom: -200px; } }
   #playerPursuers .enemy {
     z-index: -1; }
-    @media (max-height: 700px) {
+    @media (max-height: 800px) {
       #playerPursuers .enemy {
         margin-top: -380px; } }
   #playerPursuers .target {
     z-index: 14;
     margin-top: -120px; }
-    @media (max-height: 700px) {
+    @media (max-height: 850px) {
       #playerPursuers .target {
         margin-top: -470px; } }
   #playerPursuers .targeted {
@@ -811,17 +814,17 @@ input {
   height: 290px;
   margin-left: -300px;
   position: absolute;
-  bottom: 53px;
+  bottom: 12%;
   left: 50%;
   text-align: center;
   background: rgba(0, 0, 0, 0.8);
   vertical-align: middle;
   border-top: 3px solid magenta;
-  border-bottom: 5px solid magenta;
+  border-bottom: 5px solid #ff66ff;
   border-radius: 0.8em;
   z-index: 100;
   transform: rotateX(10deg); }
-  @media (max-width: 1000px) {
+  @media (max-width: 1000px), (max-height: 700px) {
     #overlay {
       width: 500px;
       height: 240px;
