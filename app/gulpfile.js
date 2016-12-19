@@ -13,7 +13,9 @@ gulp.task("concatScripts", function() {
         'js/tactical.js',
         'js/enemies.js',
         'js/friendlies.js',
-        'js/game.js'
+        'js/game.js',
+        'js/starfire_menu.js',
+        'js/starfire_ui.js'
       ])
     .pipe(maps.init())
     .pipe(concat('app.js'))
@@ -52,7 +54,7 @@ gulp.task('clean', function() {
 })
 
 gulp.task("build", [/* 'minifyScripts', */ 'concatScripts', 'compileSass'], function() {
-  return gulp.src(["css/main.css", "js/app.min.js", "index.html"], { base: "./" })
+  return gulp.src(["css/main.css", "js/app.js", "index.html"], { base: "./" })
              .pipe(gulp.dest("dist"));
 });
 
