@@ -16,7 +16,8 @@ gulp.task("concatScripts", function() {
         'js/server/friendlies.js',
         'js/server/game.js',
         'js/client/starfire_menu.js',
-        'js/client/starfire_ui.js'
+        'js/client/starfire_ui.js',
+        'js/client/localstart.js'
       ])
     .pipe(maps.init())
     .pipe(concat('app.js'))

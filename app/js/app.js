@@ -1463,10 +1463,6 @@ $enterGameName.click(function() {
 // $("#info").hide();
 // $("#playArea").fadeIn();
 
-// whose cards will be shown & usable. Will be dynamically assigned by server
-// LOCAL VERSION
-let user = Player1;
-
 // globals changed throughout the game by player events, passed to back-end code
 let action;
 let buttonPressed;
@@ -1561,8 +1557,8 @@ const updateSummaries = function() {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
       $("#FriendlyBase").html(FriendlyBase.summary);
-    } else if (friendly === user) {
-      showSummary(friendly)
+    } else if (friendly.id === user.id) {
+      showSummary(friendly);
     } else {
       showSummary(friendly);
       wingman++
@@ -1634,7 +1630,7 @@ const updateEnemyCards = function() {
   const $playerPursuers = $("#playerPursuers");
   const $basePursuers = $("#basePursuers");
   game.friendlies.forEach( function(friendly) {
-    if (friendly.id === FriendlyBase.id) {
+    if (friendly.id === "FriendlyBase") {
       refreshPursuerList($basePursuers, friendly);
     } else if (friendly.id === user.id) {
       refreshPursuerList($playerPursuers, friendly);
@@ -1654,6 +1650,7 @@ const clearOverlay = function() {
 
 const update = function() {
   // update entire play area
+  // LOCAL VERSION
   game.update();
   clearButtons();
   detarget();
@@ -1944,6 +1941,7 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
+  // LOCAL VERSION
   if (packet.button === "use") {
     getPlayer().useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
   } else {
@@ -1968,7 +1966,7 @@ $confirmAdvButton.on("click", function() {
   sendPacket();
 });
 
-// LOCAL VERSION
+let user = Player1;
 game.round();
 update();
 

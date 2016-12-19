@@ -63,6 +63,7 @@ function notifyGameReady(...sockets) {
 }
 
 function updateObjects(vars) {
+  game.update();
   let packet = {
     game: game,
     FriendlyBase: FriendlyBase,
