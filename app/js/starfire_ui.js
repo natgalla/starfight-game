@@ -189,6 +189,7 @@ const clearOverlay = function() {
 
 const update = function() {
   // update entire play area
+  game.update();
   clearButtons();
   detarget();
   updateEnemyCards();
@@ -323,7 +324,8 @@ const showTargets = function(action) {
   let player = getPlayer();
   const selectTargets = function(...ids) {
     let enemies = Array.from($(".enemy"));
-    enemies.forEach((enemy) => {
+    for (let i=0; i<enemies.length; i++) {
+      let enemy = enemies[i];
       let classes = Array.from(enemy.classList);
       if (ids.includes(enemy.id) ||
         (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
@@ -339,7 +341,7 @@ const showTargets = function(action) {
       } else {
         enemy.className += " invalidTarget";
       }
-    });
+    };
   }
   if (action === "feint") {
     action = player.lastCardUsed.cssClass;
@@ -368,6 +370,7 @@ const showTargets = function(action) {
   } else { // for local playable version only
     selectTargets("playerPursuers", "basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
       "enemyBase")
+    // selectTargets();
   }
 }
 

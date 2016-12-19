@@ -23,13 +23,13 @@
   z-index: -10;
   margin-top: 40px;
   &.bumped {
-    margin-left: 98px;
+    margin-left: 70px;
   }
   width: 100px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
     width: 80px;
     &.bumped {
-      margin-left: 75px;
+      margin-left: 65px;
     }
   }
 }

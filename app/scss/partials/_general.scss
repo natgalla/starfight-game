@@ -81,11 +81,14 @@ li p {
 }
 
 #player { // need position fix for Safari
+  position: absolute;
   width: 50%;
   text-align: center;
   margin-left: -25%;
-  clear: both;
-  margin: 0 auto;
+  left: 50%;
+  bottom: 0;
+  // clear: both;
+  // margin: 0 auto;
 }
 
 #playerHand {

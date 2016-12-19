@@ -56,28 +56,28 @@
   text-align: center;
   display: block;
   margin-bottom: -70px;
-  @media (max-height: 700px) {
-    margin-bottom: -50px;
-  }
-  @media (max-height: 800px) {
-    margin-bottom: -200px;
-  }
+  // @media (max-height: 700px) {
+  //   margin-bottom: -50px;
+  // }
+  // @media (max-height: 800px) {
+  //   margin-bottom: -200px;
+  // }
   perspective: $perspective;
   & .enemy {
     z-index: -1;
     // @media (max-height: 700px) {
     //   margin-bottom: -230px;
     // }
-    @media (max-height: 800px) {
-      margin-top: -380px;
-    }
+    // @media (max-height: 800px) {
+    //   margin-top: -380px;
+    // }
   }
   & .target {
     z-index: 14;
-    margin-top: -120px;
-    @media (max-height: 850px) {
-      margin-top: -470px;
-    }
+    margin-bottom: 120px;
+    // @media (max-height: 850px) {
+    //   margin-top: -470px;
+    // }
   }
   & .targeted {
     z-index: 17;

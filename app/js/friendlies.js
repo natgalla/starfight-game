@@ -583,7 +583,7 @@ Player.prototype.hardSix = function() {
 }
 
 Player.prototype.snapshot = function(friendly, pursuerIndex) {
-  console.log(this.name + " destroys " + this.pursuers[pursuerIndex].name
+  console.log(this.name + " destroys " + friendly.pursuers[pursuerIndex].name
               + " pursuing " + friendly.name);
   game.moveCard(pursuerIndex, friendly.pursuers, enemyBase.enemyDeck.discard);
   this.insertPlaceholder(pursuerIndex);

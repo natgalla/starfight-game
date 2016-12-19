@@ -27,6 +27,9 @@
   padding: 1em;
   margin: 0 -1em;
   vertical-align: middle;
+  & h3 {
+    margin: 0.3em 0 0.8em 0;
+  }
   @media (max-width: 1000px), (max-height: 700px) {
     width: $width/1.2;
     height: $width/1.2*1.55;

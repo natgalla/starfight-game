@@ -1,14 +1,14 @@
 #overlay {
-  width: 600px;
-  height: 290px;
+  width: 550px;
+  height: 230px;
   margin-left: -300px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    width: 500px;
-    height: 240px;
-    margin-left: -250px;
+    width: 450px;
+    height: 190px;
+    margin-left: -225px;
   }
   position: absolute;
-  bottom: 12%;
+  bottom: 55px;
   left: 50%;
   text-align: center;
   background: $darkTranslucent;
@@ -32,9 +32,6 @@
   }
   & .unavailable {
     @include disabled;
-  }
-  & p {
-    padding-top: 1em;
   }
 }
 
