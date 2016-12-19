@@ -1558,7 +1558,7 @@ const updateSummaries = function() {
     if (friendly.id === FriendlyBase.id) {
       $("#FriendlyBase").html(FriendlyBase.summary);
     } else if (friendly.id === user.id) {
-      showSummary(friendly);
+      showSummary(friendly)
     } else {
       showSummary(friendly);
       wingman++
@@ -1575,11 +1575,10 @@ const updateTacticalCards = function() {
     let player = game.friendlies[i];
     if (player.id === "FriendlyBase") {
       continue;
-    }
-    else if (player.id === user.id) {
+    } else if (player.id === user.id) {
       $("#playerHand").empty();
-      for (let i = 0; i < user.hand.length; i++) {
-        let tCard = user.hand[i];
+      for (let i = 0; i < player.hand.length; i++) {
+        let tCard = player.hand[i];
         $("#playerHand").append("<li class='tactical " + tCard.cssClass + "'>"
                   + "<h3>" + tCard.name + "</h3>"
                   + "<p>" + tCard.description + "</p>"
@@ -1629,8 +1628,9 @@ const updateEnemyCards = function() {
   let wingman = 1;
   const $playerPursuers = $("#playerPursuers");
   const $basePursuers = $("#basePursuers");
-  game.friendlies.forEach( function(friendly) {
-    if (friendly.id === "FriendlyBase") {
+  for(let i=0; i<game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
     } else if (friendly.id === user.id) {
       refreshPursuerList($playerPursuers, friendly);
@@ -1639,7 +1639,7 @@ const updateEnemyCards = function() {
       refreshPursuerList($wingmanPursuers, friendly);
       wingman++;
     }
-  });
+  }
 }
 
 const clearOverlay = function() {
@@ -1650,15 +1650,12 @@ const clearOverlay = function() {
 
 const update = function() {
   // update entire play area
-  // LOCAL VERSION
-  game.update();
   clearButtons();
   detarget();
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
   enableSelect();
-  console.log("Game updated.")
 }
 
 
@@ -1786,8 +1783,7 @@ const showTargets = function(action) {
   let player = getPlayer();
   const selectTargets = function(...ids) {
     let enemies = Array.from($(".enemy"));
-    for (let i=0; i<enemies.length; i++) {
-      let enemy = enemies[i];
+    enemies.forEach((enemy) => {
       let classes = Array.from(enemy.classList);
       if (ids.includes(enemy.id) ||
         (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
@@ -1803,7 +1799,7 @@ const showTargets = function(action) {
       } else {
         enemy.className += " invalidTarget";
       }
-    };
+    });
   }
   if (action === "feint") {
     action = player.lastCardUsed.cssClass;
@@ -1832,7 +1828,6 @@ const showTargets = function(action) {
   } else { // for local playable version only
     selectTargets("playerPursuers", "basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
       "enemyBase")
-    // selectTargets();
   }
 }
 
@@ -1907,10 +1902,23 @@ $cicButton.on("click", function() {
   $cancelButton.show();
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
   $overlay.append($marketList);
   FriendlyBase.market.forEach( function(card) {
-    let advCard = card.generateCard(getPlayer());
+    let advCard;
+    if (player.merit >= card.cost) {
+      advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
+              + "<h3>" + card.name + "</h3>"
+              + "<p>" + card.description + "</p>"
+              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
+              + "</li>";
+    } else {
+      advCard = "<li class='advTactical " + card.cssClass + " unavailable'>"
+              + "<h3>" + card.name + "</h3>"
+              + "<p>" + card.description + "</p>"
+              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
+              + "</li>";
+    }
     $marketList.append(advCard);
   });
   $overlay.slideDown(600);
@@ -1933,24 +1941,27 @@ $cicButton.on("click", function() {
 });
 
 const sendPacket = function() { //for server version: modify to send packet to server
-  let packet = {
-    player: game.friendlies.indexOf(getPlayer()),
+  let turnInfo = {
+    player: getPlayer(),
     button: buttonPressed,
     cardIndex: $(".selected").index(),
-    friendly: game.friendlies.indexOf(getFriendly(".targeted")),
+    friendly: getFriendly(".targeted"),
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
+
   // LOCAL VERSION
-  if (packet.button === "use") {
-    getPlayer().useTactic(packet.cardIndex, game.friendlies[packet.friendly], packet.pursuerIndex); //server will run
+  if (turnInfo.button === "use") {
+    getPlayer().useTactic(turnInfo.cardIndex, turnInfo.friendly, turnInfo.pursuerIndex); //server will run
   } else {
-    getPlayer().discard(packet.cardIndex, packet.button, game.friendlies[packet.friendly], packet.pursuerIndex, packet.purchaseIndex); //server will run
+    getPlayer().discard(turnInfo.cardIndex, turnInfo.button, turnInfo.friendly, turnInfo.pursuerIndex, turnInfo.purchaseIndex); //server will run
   }
+
   // SERVER VERSION
-  // $.post("/", JSON.stringify(packet), function(data) {
-  //   console.log(data);
-  // });
+  // console.log("Sending packet to server");
+  // console.dir(turnInfo);
+  // sock.emit("turn", JSON.stringify(turnInfo));
+
   clearOverlay();
   detarget();
   clearButtons();
