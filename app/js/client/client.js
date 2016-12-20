@@ -33,10 +33,3 @@ function onMessage(text) {
   el.innerHTML = ">>  " + text;
   list.appendChild(el);
 }
-
-function addTurnListener(id) {
-    let button = document.getElementById(id);
-    button.addEventListener("click", () => {
-        socket.emit("turn", id);
-    });
-}

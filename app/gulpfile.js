@@ -69,12 +69,10 @@ gulp.task('compileSass', function() {
 gulp.task('watchFiles', function() {
   gulp.watch('scss/**/*.scss', ['compileSass']);
   gulp.watch([
-      'js/tactical.js',
-      'js/friendlies.js',
-      'js/enemies.js',
-      'js/game.js'
+      'js/server/*.js',
+      'js/client/*.js'
     ],
-    ["concatClientScripts", "concatServerScripts"]);
+    ["concatScripts", "concatClientScripts", "concatServerScripts"]);
 });
 
 gulp.task('clean', function() {
