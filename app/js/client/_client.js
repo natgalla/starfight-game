@@ -19,6 +19,7 @@ function getUpdate(packet) {
   Player2 = packet.Player2;
   FriendlyBase = packet.FriendlyBase;
   enemyBase = packet.enemyBase;
+  game.update();
   update();
 }
 

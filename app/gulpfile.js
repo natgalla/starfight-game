@@ -11,13 +11,13 @@ var gulp = require('gulp'),
 
 gulp.task("concatScripts", function() {
     return gulp.src([
-        'js/server/tactical.js',
-        'js/server/enemies.js',
-        'js/server/friendlies.js',
-        'js/server/game.js',
-        'js/client/starfire_menu.js',
-        'js/client/starfire_ui.js',
-        'js/client/localstart.js'
+        'js/server/_tactical.js',
+        'js/server/_enemies.js',
+        'js/server/_friendlies.js',
+        'js/server/_game.js',
+        'js/client/_starfire_menu.js',
+        'js/client/_starfire_ui.js',
+        'js/client/_localstart.js'
       ])
     .pipe(maps.init())
     .pipe(concat('app.js'))
@@ -27,11 +27,11 @@ gulp.task("concatScripts", function() {
 
 gulp.task("concatServerScripts", function() {
     return gulp.src([
-        'js/server/tactical.js',
-        'js/server/enemies.js',
-        'js/server/friendlies.js',
-        'js/server/game.js',
-        'js/server/server.js',
+        'js/server/_tactical.js',
+        'js/server/_enemies.js',
+        'js/server/_friendlies.js',
+        'js/server/_game.js',
+        'js/server/_server.js',
       ])
     .pipe(maps.init())
     .pipe(concat('server.js'))
@@ -41,9 +41,9 @@ gulp.task("concatServerScripts", function() {
 
 gulp.task("concatClientScripts", function() {
     return gulp.src([
-        'js/client/starfire_ui.js',
-        'js/client/starfire_menu.js',
-        'js/server/starfire_ui.js',
+        'js/client/_client.js',
+        'js/client/_starfire_menu.js',
+        'js/client/_starfire_ui.js'
       ])
     .pipe(maps.init())
     .pipe(concat('client.js'))
