@@ -116,7 +116,7 @@ $createGameName.on("click", function() {
     $("#title").hide();
     $("#info").hide();
     $playArea.fadeIn();
-    // $.post("/", "start");
+    $.post("/", "start");
   }
 });
 

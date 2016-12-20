@@ -1,10 +1,8 @@
-
 let root = __dirname;
 let port = 8080;
 let http = require('http');
 let express = require('express');
 let socketio = require('socket.io');
-// let game = require("./game");
 
 let app = express();
 let server = http.createServer(app);
@@ -36,6 +34,9 @@ app.post("/", function(req, res) {
   });
   req.on("end", function() {
     if (body === "start") {
+      waitingPlayer1 = null;
+      waitingPlayer2 = null;
+      waitingPlayer3 = null;
       //build tactical deck
       game.addToDeck(game.tacticalDeck, missile, 6);
       game.addToDeck(game.tacticalDeck, scatterShot, 4);
@@ -50,13 +51,8 @@ app.post("/", function(req, res) {
       game.shuffle(game.tacticalDeck);
 
       //build advanced tactical deck
-      // game.addToDeck(FriendlyBase.advTactics, medalOfHonor, 1);
-      // game.addToDeck(FriendlyBase.advTactics, daredevil, 1);
-      // game.addToDeck(FriendlyBase.advTactics, medic, 1);
-      // game.addToDeck(FriendlyBase.advTactics, sharpShooter, 1);
       game.addToDeck(FriendlyBase.advTactics, healthPack, 5);
       game.addToDeck(FriendlyBase.advTactics, heatSeeker, 6);
-      // game.addToDeck(FriendlyBase.advTactics, repairDrone, 7);
       game.addToDeck(FriendlyBase.advTactics, bomb, 3);
       game.addToDeck(FriendlyBase.advTactics, snapshot, 3);
       game.addToDeck(FriendlyBase.advTactics, guidedMissile, 3);
@@ -85,20 +81,12 @@ app.post("/", function(req, res) {
       game.shuffle(enemyBase.enemyDeck);
 
       game.buildEnemyBaseDeck();
-      // game.addToDeck(enemyBase.enemyBaseDeck, fireLight, 3);
-      // game.addToDeck(enemyBase.enemyBaseDeck, fireHeavy, 2);
-      // game.addToDeck(enemyBase.enemyBaseDeck, deploy, 2);
-      // game.addToDeck(enemyBase.enemyBaseDeck, repair, 3);
-      // game.addToDeck(enemyBase.enemyBaseDeck, reinforce, game.difficulty);
 
       enemyBase.enemyBaseDeck.size = enemyBase.enemyBaseDeck.cards.length;
 
-      // game.shuffle(enemyBase.enemyBaseDeck);
-
       enemyBase.startingEnemies = game.friendlies.length * 2;
       enemyBase.enemiesPerTurn = game.friendlies.length;
-      //IF MIGRATED TO SERVER SIDE
-      // module.exports.Game = Game;
+
       game.round();
       res.send("Game started.");
       updateObjects();
@@ -132,10 +120,12 @@ function onConnection(socket) {
     // waitingPlayer = null;
   } else {
     waitingPlayer1 = socket;
+    socket.emit("msg", "You initiated game as " + Player1.id);
     socket.emit("msg", "Waiting for second player...");
     socket.emit("assign", Player1)
     socket.on("turn", turn);
   }
+  console.log(game.friendlies);
 }
 
 function notifyGameReady(...sockets) {

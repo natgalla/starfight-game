@@ -484,18 +484,10 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-
-  // LOCAL VERSION
-  if (turnInfo.button === "use") {
-    getPlayer().useTactic(turnInfo.cardIndex, turnInfo.friendly, turnInfo.pursuerIndex); //server will run
-  } else {
-    getPlayer().discard(turnInfo.cardIndex, turnInfo.button, turnInfo.friendly, turnInfo.pursuerIndex, turnInfo.purchaseIndex); //server will run
-  }
-
   // SERVER VERSION
-  // console.log("Sending packet to server");
-  // console.dir(turnInfo);
-  // sock.emit("turn", JSON.stringify(turnInfo));
+  console.log("Sending packet to server");
+  console.dir(turnInfo);
+  sock.emit("turn", JSON.stringify(turnInfo));
 
   clearOverlay();
   detarget();
