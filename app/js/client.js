@@ -4,6 +4,8 @@ let user;
 let game;
 let Player1;
 let Player2;
+let Player3;
+let Player4;
 let FriendlyBase;
 let enemyBase;
 
@@ -19,7 +21,6 @@ function getUpdate(packet) {
   Player2 = packet.Player2;
   FriendlyBase = packet.FriendlyBase;
   enemyBase = packet.enemyBase;
-  game.update();
   update();
 }
 
@@ -153,6 +154,7 @@ $createGameName.on("click", function() {
     $("#title").hide();
     $("#info").hide();
     $playArea.fadeIn();
+    // $.post("/", "start");
   }
 });
 
@@ -666,16 +668,16 @@ const sendPacket = function() { //for server version: modify to send packet to s
   }
 
   // LOCAL VERSION
-  // if (turnInfo.button === "use") {
-  //   getPlayer().useTactic(turnInfo.cardIndex, turnInfo.friendly, turnInfo.pursuerIndex); //server will run
-  // } else {
-  //   getPlayer().discard(turnInfo.cardIndex, turnInfo.button, turnInfo.friendly, turnInfo.pursuerIndex, turnInfo.purchaseIndex); //server will run
-  // }
+  if (turnInfo.button === "use") {
+    getPlayer().useTactic(turnInfo.cardIndex, turnInfo.friendly, turnInfo.pursuerIndex); //server will run
+  } else {
+    getPlayer().discard(turnInfo.cardIndex, turnInfo.button, turnInfo.friendly, turnInfo.pursuerIndex, turnInfo.purchaseIndex); //server will run
+  }
 
   // SERVER VERSION
-  console.log("Sending packet to server");
-  console.dir(turnInfo);
-  sock.emit("turn", JSON.stringify(turnInfo));
+  // console.log("Sending packet to server");
+  // console.dir(turnInfo);
+  // sock.emit("turn", JSON.stringify(turnInfo));
 
   clearOverlay();
   detarget();

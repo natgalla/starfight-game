@@ -4,6 +4,8 @@ let user;
 let game;
 let Player1;
 let Player2;
+let Player3;
+let Player4;
 let FriendlyBase;
 let enemyBase;
 
@@ -19,7 +21,6 @@ function getUpdate(packet) {
   Player2 = packet.Player2;
   FriendlyBase = packet.FriendlyBase;
   enemyBase = packet.enemyBase;
-  game.update();
   update();
 }
 
