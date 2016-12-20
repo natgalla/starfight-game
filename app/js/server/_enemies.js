@@ -53,7 +53,7 @@ EnemyBase.prototype.takeDamage = function(damage) {
     this.currentArmor = 0;
   }
   if (this.currentArmor === 0) {
-    console.log(this.name + " destroyed! Players win.");
+    io.sockets.emit("msg", this.name + " destroyed! Players win.");
   }
   this.updateSummary();
 }
@@ -81,7 +81,7 @@ ENEMY BASE CARD FUNCTIONS
 *************************/
 
 EnemyBase.prototype.reinforce = function() {
-  console.log(this.name + " will launch one extra enemy card into play each round.");
+  io.sockets.emit("msg", this.name + " will launch one extra enemy card into play each round.");
   this.enemiesPerTurn += 1;
 }
 
@@ -90,22 +90,22 @@ EnemyBase.prototype.repair = function() {
   if (this.currentArmor > this.maxArmor) {
     this.currentArmor = this.maxArmor;
   }
-  console.log(this.name + " Repairs 5 damage. Current armor: "
+  io.sockets.emit("msg", this.name + " Repairs 5 damage. Current armor: "
               + this.currentArmor + "/" + this.maxArmor);
 }
 
 EnemyBase.prototype.fireHeavy = function() {
-  console.log(this.name + " fires heavy weapons.");
+  io.sockets.emit("msg", this.name + " fires heavy weapons.");
   FriendlyBase.takeDamage(5);
 }
 
 EnemyBase.prototype.fireLight = function() {
-  console.log(this.name + " fires light weapons.");
+  io.sockets.emit("msg", this.name + " fires light weapons.");
   FriendlyBase.takeDamage(3);
 }
 
 EnemyBase.prototype.deploy = function() {
-  console.log(this.name + " launches an extra fighter.");
+  io.sockets.emit("msg", this.name + " launches an extra fighter.");
   this.effects.deploy = true;
 }
 

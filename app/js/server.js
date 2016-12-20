@@ -125,7 +125,7 @@ EnemyBase.prototype.takeDamage = function(damage) {
     this.currentArmor = 0;
   }
   if (this.currentArmor === 0) {
-    console.log(this.name + " destroyed! Players win.");
+    io.sockets.emit("msg", this.name + " destroyed! Players win.");
   }
   this.updateSummary();
 }
@@ -153,7 +153,7 @@ ENEMY BASE CARD FUNCTIONS
 *************************/
 
 EnemyBase.prototype.reinforce = function() {
-  console.log(this.name + " will launch one extra enemy card into play each round.");
+  io.sockets.emit("msg", this.name + " will launch one extra enemy card into play each round.");
   this.enemiesPerTurn += 1;
 }
 
@@ -162,22 +162,22 @@ EnemyBase.prototype.repair = function() {
   if (this.currentArmor > this.maxArmor) {
     this.currentArmor = this.maxArmor;
   }
-  console.log(this.name + " Repairs 5 damage. Current armor: "
+  io.sockets.emit("msg", this.name + " Repairs 5 damage. Current armor: "
               + this.currentArmor + "/" + this.maxArmor);
 }
 
 EnemyBase.prototype.fireHeavy = function() {
-  console.log(this.name + " fires heavy weapons.");
+  io.sockets.emit("msg", this.name + " fires heavy weapons.");
   FriendlyBase.takeDamage(5);
 }
 
 EnemyBase.prototype.fireLight = function() {
-  console.log(this.name + " fires light weapons.");
+  io.sockets.emit("msg", this.name + " fires light weapons.");
   FriendlyBase.takeDamage(3);
 }
 
 EnemyBase.prototype.deploy = function() {
-  console.log(this.name + " launches an extra fighter.");
+  io.sockets.emit("msg", this.name + " launches an extra fighter.");
   this.effects.deploy = true;
 }
 
@@ -356,7 +356,7 @@ Friendly.prototype.checkShields = function(damage) {
       damage = 0;
       this.effects.divertShields = 0;
     }
-    console.log(this.name + "'s shields reduce damage to "
+    io.sockets.emit("msg", this.name + "'s shields reduce damage to "
                 + damage);
   }
   return damage;
@@ -364,7 +364,7 @@ Friendly.prototype.checkShields = function(damage) {
 
 Friendly.prototype.checkDamageNegation = function(damage) {
   if (this.effects.emp) {
-    console.log(this.name + " is protected by EMP.");
+    io.sockets.emit("msg", this.name + " is protected by EMP.");
     this.effects.emp = false;
     return 0;
   } else {
@@ -380,10 +380,10 @@ Friendly.prototype.takeDamage = function(damage) {
       this.currentArmor = 0;
     }
     if (this.currentArmor === 0) {
-      console.log(this.name + " has been destroyed. Players lose.")
+      io.sockets.emit("msg", this.name + " has been destroyed. Players lose.")
       //end game;
     } else {
-      console.log(this.name + " takes " + damage + " damage. Current armor: "
+      io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
     }
   }
@@ -485,7 +485,7 @@ Player.prototype.increaseMerit = function(amount) {
     merit += 1;
   }
   this.merit += merit;
-  console.log(this.name + " receives " + merit + " merit.");
+  io.sockets.emit("msg", this.name + " receives " + merit + " merit.");
 }
 
 // calculate damage // only returning 0
@@ -509,12 +509,12 @@ Player.prototype.calcDamage = function(dice) {
 Player.prototype.checkDeath = function() {
   // see if player is dead
   if (this.currentArmor <= 0) {
-    console.log(this.name + " has been destroyed.");
+    io.sockets.emit("msg", this.name + " has been destroyed.");
     game.distributeEnemies(this.pursuers);
     game.friendlies.splice(game.friendlies.indexOf(this), 1);
     game.friendlies.join();
     if (game.friendlies === [FriendlyBase]) {
-      console.log("All pilots destroyed. Players lose.");
+      io.sockets.emit("msg", "All pilots destroyed. Players lose.");
     }
   }
 }
@@ -522,21 +522,21 @@ Player.prototype.checkDeath = function() {
 Player.prototype.checkDamageNegation = function(damage) {
   if (damage > 0) {
     if (this.effects.emp) {
-      console.log(this.name + " is protected by EMP.");
+      io.sockets.emit("msg", this.name + " is protected by EMP.");
       this.effects.emp = false;
       return 0;
     } else {
       damage = this.checkShields(damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
-        console.log(this.name + " deploys countermeasures to avoid "
+        io.sockets.emit("msg", this.name + " deploys countermeasures to avoid "
                     + counterDamage + " damage.");
         damage -= counterDamage;
         this.effects.countermeasures = false;
       }
       if (damage < 0) {
         damage = 0;
-        console.log("All damage to " + this.name + " negated.");
+        io.sockets.emit("msg", "All damage to " + this.name + " negated.");
       } else {
         return damage;
       }
@@ -552,7 +552,7 @@ Player.prototype.takeDamage = function(damage) {
     if (this.currentArmor < 0) {
       this.currentArmor = 0;
     }
-    console.log(this.name + " takes " + damage + " damage. Current armor: "
+    io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                 + this.currentArmor + "/" + this.maxArmor);
   }
 }
@@ -560,7 +560,7 @@ Player.prototype.takeDamage = function(damage) {
 Player.prototype.checkKill = function(friendly, index) {
   // if kill: award merit, insert placeholder
   if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
-    console.log(friendly.pursuers[index].name + " pursuing " + friendly.name
+    io.sockets.emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
     this.increaseMerit(friendly.pursuers[index].merit);
     game.moveCard(index, friendly.pursuers, enemyBase.enemyDeck.discard);
@@ -579,7 +579,7 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   }
   if (friendly === enemyBase) {
     enemyBase.takeDamage(damage);
-    console.log(this.name + " deals " + damage + " damage to enemy base.");
+    io.sockets.emit("msg", this.name + " deals " + damage + " damage to enemy base.");
     this.increaseMerit(1);
   } else {
     if (friendly.pursuers[index] === empty
@@ -592,14 +592,14 @@ Player.prototype.doDamage = function(friendly, index, damage) {
         if (enemyArmor < 0) {
           enemyArmor = 0;
         }
-        console.log(this.name + " deals " + damage + " damage to "
+        io.sockets.emit("msg", this.name + " deals " + damage + " damage to "
                     + friendly.pursuers[index].name + " pursuing "
                     + friendly.name + ". Current armor: "
                     + enemyArmor
                     + "/" + friendly.pursuers[index].armor);
         this.checkKill(friendly, index);
       } else {
-        console.log("No damage to target.");
+        io.sockets.emit("msg", "No damage to target.");
       }
     }
   }
@@ -625,14 +625,14 @@ Player.prototype.evade = function(friendly, pursuerIndex) {
   let evadeRoll = Math.floor(Math.random() * 6) + 1;
   let pursuer = this.pursuers[pursuerIndex];
   if (evadeRoll >= pursuer.targeting) {
-    console.log(this.name + " shakes " + pursuer.name + " to friendly base.");
+    io.sockets.emit("msg", this.name + " shakes " + pursuer.name + " to friendly base.");
     game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
     game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
     this.adjustPursuerDamage();
     FriendlyBase.adjustPursuerDamage();
   } else {
-    console.log(this.name + " can't shake 'em!")
+    io.sockets.emit("msg", this.name + " can't shake 'em!")
   }
 }
 
@@ -713,7 +713,7 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
     if (this != friendly) {
       this.increaseMerit(meritReward);
     }
-    console.log(this.name + " repairs " + repairPoints + " damage on "
+    io.sockets.emit("msg", this.name + " repairs " + repairPoints + " damage on "
                 + friendly.name + ". Current armor: "
                 + friendly.currentArmor + "/" + friendly.maxArmor)
   } else {
@@ -723,7 +723,7 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
 
 Player.prototype.drawFire = function(friendly, index) {
   // choose an ally's pursuer and bring it to you
-  console.log(friendly.pursuers[index].name + " moves from " + friendly.name
+  io.sockets.emit("msg", friendly.pursuers[index].name + " moves from " + friendly.name
               + " to " + this.name + ".");
   this.increaseMerit(friendly.pursuers[index].merit);
   game.moveCard(index, friendly.pursuers, this.pursuers);
@@ -738,7 +738,7 @@ Player.prototype.feint = function(friendly, pursuerIndex) {
   if (this.lastCardUsed) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
-    console.log(this.name + " uses feint to play " + card.name)
+    io.sockets.emit("msg", this.name + " uses feint to play " + card.name)
     this[action](friendly, pursuerIndex);
   } else {
     console.error("No action to feint");
@@ -750,7 +750,7 @@ Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
     friendly = this;
   }
   // move pursuer at pursuerIndex to friendly base
-  console.log(this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
+  io.sockets.emit("msg", this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
               + FriendlyBase.name + ".");
   game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
   game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
@@ -778,23 +778,23 @@ PLAYER ADVANCED TACTICAL FUNCTIONS
 
 Player.prototype.medalOfHonor = function() {
   this.effects.medalOfHonor = true;
-  console.log(this.name + " will now receive +1 merit any time they are awarded merit.");
+  io.sockets.emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
 }
 
 Player.prototype.daredevil = function() {
   // allow player to attack enemy base if they have one or no pursuers
   this.effects.daredevil = true;
-  console.log(this.name + " can now attack the enemy base with one pursuer.");
+  io.sockets.emit("msg", this.name + " can now attack the enemy base with one pursuer.");
 }
 
 Player.prototype.medic = function() {
   this.effects.medic = true;
-  console.log(this.name + " can now repair 1 damage on a chosen ally each round.");
+  io.sockets.emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
 }
 
 Player.prototype.sharpShooter = function() {
   this.effects.sharpShooter = true;
-  console.log(this.name + " is now better at hurting things.");
+  io.sockets.emit("msg", this.name + " is now better at hurting things.");
 }
 
 Player.prototype.healthPack = function(friendly, index) {
@@ -806,33 +806,33 @@ Player.prototype.healthPack = function(friendly, index) {
 
 Player.prototype.intercept = function() {
   enemyBase.effects.intercepted = true;
-  console.log(intercept.description);
+  io.sockets.emit("msg", intercept.description);
 }
 
 Player.prototype.jammer = function() {
   enemyBase.effects.jammed = true;
-  console.log(jammer.description);
+  io.sockets.emit("msg", jammer.description);
 }
 
 Player.prototype.emp = function(friendly) {
   friendly.effects.emp = true;
-  console.log(this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
+  io.sockets.emit("msg", this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
               + friendly.name + " will not be damaged this round.");
 }
 
 Player.prototype.countermeasures = function() {
   this.effects.countermeasures = true;
-  console.log(this.name + " prepares countermeasures...")
+  io.sockets.emit("msg", this.name + " prepares countermeasures...")
 }
 
 Player.prototype.divertShields = function() {
   this.effects.divertShields = 5;
-  console.log(this.name + " powers up shields. Next 5 damage will be negated.")
+  io.sockets.emit("msg", this.name + " powers up shields. Next 5 damage will be negated.")
 }
 
 Player.prototype.jump = function() {
   // shake all pursuers
-  console.log(this.name + " shakes " + this.pursuers.length
+  io.sockets.emit("msg", this.name + " shakes " + this.pursuers.length
               + " pursuers to the friendly base.");
   for (let i = 0; i = this.pursuers.length; i++) {
     enemyBase.enemyDeck.discard.push(this.pursuers.pop());
@@ -840,25 +840,25 @@ Player.prototype.jump = function() {
 }
 
 Player.prototype.hardSix = function() {
-  console.log("Sometimes you gotta roll the hard six.");
+  io.sockets.emit("msg", "Sometimes you gotta roll the hard six.");
   this.missile(enemyBase, undefined);
   this.takeDamage(this.calcDamage(4));
 }
 
 Player.prototype.snapshot = function(friendly, pursuerIndex) {
-  console.log(this.name + " destroys " + friendly.pursuers[pursuerIndex].name
+  io.sockets.emit("msg", this.name + " destroys " + friendly.pursuers[pursuerIndex].name
               + " pursuing " + friendly.name);
   game.moveCard(pursuerIndex, friendly.pursuers, enemyBase.enemyDeck.discard);
   this.insertPlaceholder(pursuerIndex);
 }
 
 Player.prototype.guidedMissile = function() {
-  console.log(this.name + " fires a guided missile at " + enemyBase.name);
+  io.sockets.emit("msg", this.name + " fires a guided missile at " + enemyBase.name);
   enemyBase.takeDamage(6);
 }
 
 Player.prototype.incinerate = function() {
-  console.log(this.name + " prepares afterburner...");
+  io.sockets.emit("msg", this.name + " prepares afterburner...");
   this.effects.incinerator = true;
 }
 
@@ -881,7 +881,7 @@ Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
     this[action](friendly, pursuerIndex);
     FriendlyBase.removeAdvTactic(advTactic);
   } else {
-    console.log(this.name + " does not have enough merit.");
+    io.sockets.emit("msg", this.name + " does not have enough merit.");
   }
 }
 
@@ -897,7 +897,7 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   }
   let card = this.hand[cardIndex];
   let action = card.cssClass;
-  console.log(this.name + " uses " + card.name)
+  io.sockets.emit("msg", this.name + " uses " + card.name)
   this[action](friendly, pursuerIndex);
   if (action != "feint") {
     this.lastCardUsed = card;
@@ -909,6 +909,7 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
     this.updateSummary();
     friendly.updateSummary();
   }
+  game.update();
 }
 
 Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, advIndex) {
@@ -930,6 +931,7 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
     this.updateSummary();
     friendly.updateSummary();
   }
+  game.update();
 }
 
 
@@ -1252,16 +1254,66 @@ Game.prototype.newRound = function() {
   this.round();
 }
 
-//temporarily declared as var for safari
-var game = new Game();
+let game = new Game();
 
+let startGame = function(game) {
+  game.addToDeck(game.tacticalDeck, missile, 6);
+  game.addToDeck(game.tacticalDeck, scatterShot, 4);
+  game.addToDeck(game.tacticalDeck, drawFire, 3);
+  game.addToDeck(game.tacticalDeck, feint, 4);
+  game.addToDeck(game.tacticalDeck, barrelRoll, 2);
+  game.addToDeck(game.tacticalDeck, immelman, 3);
+  game.addToDeck(game.tacticalDeck, repairDrone, 2);
+
+  game.tacticalDeck.size = game.tacticalDeck.cards.length;
+
+  game.shuffle(game.tacticalDeck);
+
+  //build advanced tactical deck
+  game.addToDeck(FriendlyBase.advTactics, healthPack, 5);
+  game.addToDeck(FriendlyBase.advTactics, heatSeeker, 6);
+  game.addToDeck(FriendlyBase.advTactics, bomb, 3);
+  game.addToDeck(FriendlyBase.advTactics, snapshot, 3);
+  game.addToDeck(FriendlyBase.advTactics, guidedMissile, 3);
+  game.addToDeck(FriendlyBase.advTactics, incinerate, 3);
+  game.addToDeck(FriendlyBase.advTactics, jammer, 6);
+  game.addToDeck(FriendlyBase.advTactics, intercept, 3);
+  game.addToDeck(FriendlyBase.advTactics, emp, 2);
+  game.addToDeck(FriendlyBase.advTactics, countermeasures, 3);
+  game.addToDeck(FriendlyBase.advTactics, divertShields, 2);
+  game.addToDeck(FriendlyBase.advTactics, jump, 1);
+  game.addToDeck(FriendlyBase.advTactics, hardSix, 4);
+
+  FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
+
+  game.shuffle(FriendlyBase.advTactics);
+
+  //build enemy deck
+  game.addToDeck(enemyBase.enemyDeck, ace, 4);
+  game.addToDeck(enemyBase.enemyDeck, heavy, 9);
+  game.addToDeck(enemyBase.enemyDeck, medium, 12);
+  game.addToDeck(enemyBase.enemyDeck, light, 15);
+  game.addToDeck(enemyBase.enemyDeck, empty, game.setEmpties(8, 4, 0));
+
+  enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
+
+  game.shuffle(enemyBase.enemyDeck);
+
+  game.buildEnemyBaseDeck();
+
+  enemyBase.enemyBaseDeck.size = enemyBase.enemyBaseDeck.cards.length;
+
+  enemyBase.startingEnemies = game.friendlies.length * 2;
+  enemyBase.enemiesPerTurn = game.friendlies.length;
+
+  game.round();
+}
 
 let root = __dirname;
 let port = 8080;
 let http = require('http');
 let express = require('express');
 let socketio = require('socket.io');
-// let game = require("./game");
 
 let app = express();
 let server = http.createServer(app);
@@ -1296,62 +1348,17 @@ app.post("/", function(req, res) {
       waitingPlayer1 = null;
       waitingPlayer2 = null;
       waitingPlayer3 = null;
-      //build tactical deck
-      game.addToDeck(game.tacticalDeck, missile, 6);
-      game.addToDeck(game.tacticalDeck, scatterShot, 4);
-      game.addToDeck(game.tacticalDeck, drawFire, 3);
-      game.addToDeck(game.tacticalDeck, feint, 4);
-      game.addToDeck(game.tacticalDeck, barrelRoll, 2);
-      game.addToDeck(game.tacticalDeck, immelman, 3);
-      game.addToDeck(game.tacticalDeck, repairDrone, 2);
-
-      game.tacticalDeck.size = game.tacticalDeck.cards.length;
-
-      game.shuffle(game.tacticalDeck);
-
-      //build advanced tactical deck
-      game.addToDeck(FriendlyBase.advTactics, healthPack, 5);
-      game.addToDeck(FriendlyBase.advTactics, heatSeeker, 6);
-      game.addToDeck(FriendlyBase.advTactics, bomb, 3);
-      game.addToDeck(FriendlyBase.advTactics, snapshot, 3);
-      game.addToDeck(FriendlyBase.advTactics, guidedMissile, 3);
-      game.addToDeck(FriendlyBase.advTactics, incinerate, 3);
-      game.addToDeck(FriendlyBase.advTactics, jammer, 6);
-      game.addToDeck(FriendlyBase.advTactics, intercept, 3);
-      game.addToDeck(FriendlyBase.advTactics, emp, 2);
-      game.addToDeck(FriendlyBase.advTactics, countermeasures, 3);
-      game.addToDeck(FriendlyBase.advTactics, divertShields, 2);
-      game.addToDeck(FriendlyBase.advTactics, jump, 1);
-      game.addToDeck(FriendlyBase.advTactics, hardSix, 4);
-
-      FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
-
-      game.shuffle(FriendlyBase.advTactics);
-
-      //build enemy deck
-      game.addToDeck(enemyBase.enemyDeck, ace, 4);
-      game.addToDeck(enemyBase.enemyDeck, heavy, 9);
-      game.addToDeck(enemyBase.enemyDeck, medium, 12);
-      game.addToDeck(enemyBase.enemyDeck, light, 15);
-      game.addToDeck(enemyBase.enemyDeck, empty, game.setEmpties(8, 4, 0));
-
-      enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
-
-      game.shuffle(enemyBase.enemyDeck);
-
-      game.buildEnemyBaseDeck();
-
-      enemyBase.enemyBaseDeck.size = enemyBase.enemyBaseDeck.cards.length;
-
-      enemyBase.startingEnemies = game.friendlies.length * 2;
-      enemyBase.enemiesPerTurn = game.friendlies.length;
-
-      game.round();
+      startGame(game);
       res.send("Game started.");
       updateObjects();
     }
   });
 });
+
+function createGame(sessionName) {
+  let nsp = io.of('/' + sessionName);
+  nsp.on('connection', onConnection);
+}
 
 function onConnection(socket) {
   socket.emit("msg", "Connection established.");
@@ -1361,6 +1368,7 @@ function onConnection(socket) {
     socket.emit("assign", Player4);
     socket.on("turn", turn);
     io.sockets.emit("msg", Player4.name + " joined game as " + Player4.id);
+    io.sockets.emit("msg", "Game full");
     waitingPlayer1 = null;
     waitingPlayer2 = null;
     waitingPlayer3 = null;
@@ -1384,12 +1392,8 @@ function onConnection(socket) {
     socket.emit("assign", Player1)
     socket.on("turn", turn);
   }
-  console.log(game.friendlies);
-}
-
-function notifyGameReady(...sockets) {
-  sockets.forEach((socket) => {
-    socket.emit("msg", "Game Ready");
+  game.friendlies.forEach((friendly) => {
+    console.log(friendly.id);
   });
 }
 
@@ -1402,6 +1406,12 @@ function updateObjects(vars) {
     Player2: Player2,
     enemyBase: enemyBase
   }
+  if (game.friendlies.includes(Player4)) {
+    packet.Player4 = Player4;
+  }
+  if (game.friendlies.includes(Player3)) {
+    packet.Player3 = Player3;
+  }
   io.sockets.emit("update", packet);
 }
 
@@ -1413,6 +1423,10 @@ function turn(data) {
       return Player1;
     } else if (id === "Player2") {
       return Player2;
+    } else if (id === "Player3") {
+      return Player3;
+    } else if (id === "Player4") {
+      return Player4;
     } else if (id === "FriendlyBase") {
       return FriendlyBase;
     } else if (id === "enemyBase") {

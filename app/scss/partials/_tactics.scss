@@ -3,9 +3,6 @@
   @include card(90px);
   border: 2px solid $primaryPink;
   z-index: 2;
-  &:hover {
-    cursor: pointer;
-  }
 }
 
 .selected {
@@ -14,12 +11,6 @@
 
 #playerHand {
   @include undoListOffset;
-  width: 285px;
-  height: 170px;
-  @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    width: 240px;
-    height: 140px;
-  }
   transform: rotateX(10deg);
   border-top: 3px solid $primaryPink;
   border-bottom: 5px solid $highlightPink;

@@ -256,7 +256,7 @@ CARD BINDING
 
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
-  $(".tactical").on("click", function() {
+  $("#playerHand .tactical").on("click", function() {
     deselect();
     $(this).addClass("selected");
     let $selected = $(".selected");
@@ -484,7 +484,6 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  // SERVER VERSION
   console.log("Sending packet to server");
   console.dir(turnInfo);
   sock.emit("turn", JSON.stringify(turnInfo));

@@ -110,3 +110,29 @@ li p {
   display: table;
   clear: both;
 }
+
+#status {
+  width: 250px;
+  height: 70px;
+  overflow-y: scroll;
+  margin: 1em auto;
+  text-align: left;
+  padding-left: 0;
+  padding: 1em;
+  background: rgba(50,50,50,0.8);
+  border-radius: 3px;
+  box-shadow: inset 0px 0px 5px $complementGreen,
+              inset 0px 0px 5px $complementGreen,
+              inset -5px -8px 10px $darkTranslucent,
+              inset 5px 8px 10px $darkTranslucent;
+}
+
+#info {
+  &.messages {
+    position: fixed;
+    left: 5%;
+    bottom: 2%;
+  }
+}
+
+@include scrollbars(0.5em, darken($complementGreen, $step), $complementGreen);

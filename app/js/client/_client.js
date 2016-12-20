@@ -21,6 +21,12 @@ function getUpdate(packet) {
   Player2 = packet.Player2;
   FriendlyBase = packet.FriendlyBase;
   enemyBase = packet.enemyBase;
+  if (packet.Player3) {
+    Player3 = packet.Player3;
+  }
+  if (packet.Player4) {
+    Player4 = packet.Player4;
+  }
   update();
 }
 
@@ -30,8 +36,5 @@ function assignPlayer(player) {
 }
 
 function onMessage(text) {
-  var list = document.getElementById("status");
-  var el = document.createElement("li");
-  el.innerHTML = ">>  " + text;
-  list.appendChild(el);
+  typeWord($("#status"), ">>  " + text, "li");
 }

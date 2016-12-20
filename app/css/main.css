@@ -496,6 +496,37 @@ li p {
   display: table;
   clear: both; }
 
+#status {
+  width: 250px;
+  height: 70px;
+  overflow-y: scroll;
+  margin: 1em auto;
+  text-align: left;
+  padding-left: 0;
+  padding: 1em;
+  background: rgba(50, 50, 50, 0.8);
+  border-radius: 3px;
+  box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -5px -8px 10px rgba(0, 0, 0, 0.8), inset 5px 8px 10px rgba(0, 0, 0, 0.8); }
+
+#info.messages {
+  position: fixed;
+  left: 5%;
+  bottom: 2%; }
+
+::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.5em; }
+
+::-webkit-scrollbar-thumb {
+  background: #1e7b1e; }
+
+::-webkit-scrollbar-track {
+  background: limegreen; }
+
+body {
+  scrollbar-face-color: #1e7b1e;
+  scrollbar-track-color: limegreen; }
+
 button {
   font-family: VT323, courier, monospace;
   font-size: 1.3em;
@@ -559,28 +590,21 @@ input {
       width: 75px;
       height: 116.25px;
       border-radius: 7.5px; } }
-  .tactical:hover,
-  .advTactical:hover {
-    cursor: pointer; }
 
 .selected {
   border-color: limegreen;
   box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
+  .selected:hover {
+    cursor: pointer; }
 
 #playerHand {
   padding-left: 0;
-  width: 285px;
-  height: 170px;
   transform: rotateX(10deg);
   border-top: 3px solid magenta;
   border-bottom: 5px solid #ff66ff;
   border-radius: 1em;
   padding: 10px 40px;
   background: rgba(0, 0, 0, 0.8); }
-  @media (max-width: 1000px), (max-height: 700px) {
-    #playerHand {
-      width: 240px;
-      height: 140px; } }
   #playerHand .advTactical,
   #playerHand .tactical {
     transform: rotateX(15deg);
@@ -590,6 +614,9 @@ input {
     #playerHand .tactical:hover {
       box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
       z-index: 9 !important; }
+      #playerHand .advTactical:hover:hover,
+      #playerHand .tactical:hover:hover {
+        cursor: pointer; }
   #playerHand .selected {
     box-shadow: none;
     z-index: 200 !important;
@@ -597,8 +624,12 @@ input {
     border-color: limegreen;
     box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
     #playerHand .selected:hover {
+      cursor: pointer; }
+    #playerHand .selected:hover {
       border-color: limegreen;
       box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
+      #playerHand .selected:hover:hover {
+        cursor: pointer; }
   #playerHand .disabled {
     z-index: 0;
     background-color: rgba(30, 30, 30, 0.8);
@@ -625,7 +656,7 @@ input {
   padding: 1em;
   margin: 0 -1em;
   vertical-align: middle;
-  margin: 0 -1.5em;
+  margin-left: -5em;
   margin-top: -60px;
   font-size: .5em;
   z-index: 0;
@@ -639,10 +670,19 @@ input {
       width: 58.33333px;
       height: 90.41667px;
       border-radius: 5.83333px; } }
+  #wingmen .tactical:first-child,
+  #wingmen .advTactical:first-child {
+    margin-left: -1.5em; }
   @media (max-width: 1000px), (max-height: 700px) {
     #wingmen .tactical,
     #wingmen .advTactical {
       margin-top: -45px; } }
+  #wingmen .tactical h3,
+  #wingmen .advTactical h3 {
+    display: none; }
+  #wingmen .tactical p,
+  #wingmen .advTactical p {
+    display: none; }
 
 .enemy {
   width: 65px;
@@ -838,6 +878,8 @@ input {
       cursor: pointer;
       box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
       z-index: 9 !important; }
+      #overlay .advTactical:hover:hover {
+        cursor: pointer; }
   #overlay .unavailable {
     z-index: 0;
     background-color: rgba(30, 30, 30, 0.8);
@@ -861,8 +903,12 @@ input {
   border-color: limegreen;
   box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
   .purchasing:hover {
+    cursor: pointer; }
+  .purchasing:hover {
     border-color: limegreen;
     box-shadow: 2px 2px 3px #84e184, -2px -2px 5px #84e184; }
+    .purchasing:hover:hover {
+      cursor: pointer; }
 
 .playerSummary {
   text-align: left;

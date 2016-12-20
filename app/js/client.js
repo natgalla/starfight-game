@@ -21,6 +21,12 @@ function getUpdate(packet) {
   Player2 = packet.Player2;
   FriendlyBase = packet.FriendlyBase;
   enemyBase = packet.enemyBase;
+  if (packet.Player3) {
+    Player3 = packet.Player3;
+  }
+  if (packet.Player4) {
+    Player4 = packet.Player4;
+  }
   update();
 }
 
@@ -30,10 +36,7 @@ function assignPlayer(player) {
 }
 
 function onMessage(text) {
-  var list = document.getElementById("status");
-  var el = document.createElement("li");
-  el.innerHTML = ">>  " + text;
-  list.appendChild(el);
+  typeWord($("#status"), ">>  " + text, "li");
 }
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
@@ -152,7 +155,8 @@ $createGameName.on("click", function() {
   if (sessionName) {
     $newSession.hide();
     $("#title").hide();
-    $("#info").hide();
+    $("#copyright").hide();
+    $("#info").addClass("messages");
     $playArea.fadeIn();
     $.post("/", "start");
   }
@@ -162,7 +166,8 @@ $enterGameName.click(function() {
   if (sessionName === validSession) {
     $joinSession.hide();
     $("#title").hide();
-    $("#info").hide();
+    $("#copyright").hide();
+    $("#info").addClass("messages");
     $playArea.fadeIn();
   } else {
     $notActive.fadeIn(400, function() {
@@ -438,7 +443,7 @@ CARD BINDING
 
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
-  $(".tactical").on("click", function() {
+  $("#playerHand .tactical").on("click", function() {
     deselect();
     $(this).addClass("selected");
     let $selected = $(".selected");
@@ -666,7 +671,6 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  // SERVER VERSION
   console.log("Sending packet to server");
   console.dir(turnInfo);
   sock.emit("turn", JSON.stringify(turnInfo));
