@@ -31,6 +31,7 @@ gulp.task("concatServerScripts", function() {
         'js/server/_enemies.js',
         'js/server/_friendlies.js',
         'js/server/_game.js',
+        'js/server/_build.js',
         'js/server/_server.js',
       ])
     .pipe(maps.init())

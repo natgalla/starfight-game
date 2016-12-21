@@ -118,7 +118,7 @@ Friendly.prototype.takeDamage = function(damage) {
     }
     if (this.currentArmor === 0) {
       io.sockets.emit("msg", this.name + " has been destroyed. Players lose.")
-      //end game;
+      game.lose = true;
     } else {
       io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
@@ -243,19 +243,6 @@ Player.prototype.calcDamage = function(dice) {
     return damage;
 }
 
-Player.prototype.checkDeath = function() {
-  // see if player is dead
-  if (this.currentArmor <= 0) {
-    io.sockets.emit("msg", this.name + " has been destroyed.");
-    game.distributeEnemies(this.pursuers);
-    game.friendlies.splice(game.friendlies.indexOf(this), 1);
-    game.friendlies.join();
-    if (game.friendlies === [FriendlyBase]) {
-      io.sockets.emit("msg", "All pilots destroyed. Players lose.");
-    }
-  }
-}
-
 Player.prototype.checkDamageNegation = function(damage) {
   if (damage > 0) {
     if (this.effects.emp) {
@@ -288,9 +275,18 @@ Player.prototype.takeDamage = function(damage) {
     this.currentArmor -= damage;
     if (this.currentArmor < 0) {
       this.currentArmor = 0;
+      io.sockets.emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
+      game.distributeEnemies(this.pursuers);
+      game.friendlies.splice(game.friendlies.indexOf(this), 1);
+      game.friendlies.join();
+      if (game.friendlies === [FriendlyBase]) {
+        io.sockets.emit("msg", "All pilots destroyed. Players lose.");
+        game.lose = true;
+      }
+    } else {
+      io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
+                  + this.currentArmor + "/" + this.maxArmor);
     }
-    io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
-                + this.currentArmor + "/" + this.maxArmor);
   }
 }
 
@@ -315,9 +311,13 @@ Player.prototype.doDamage = function(friendly, index, damage) {
     index = 0;
   }
   if (friendly === enemyBase) {
-    enemyBase.takeDamage(damage);
-    io.sockets.emit("msg", this.name + " deals " + damage + " damage to enemy base.");
-    this.increaseMerit(1);
+    if (damage > 0) {
+      enemyBase.takeDamage(damage);
+      io.sockets.emit("msg", this.name + " deals " + damage + " damage to enemy base.");
+      this.increaseMerit(1);
+    } else {
+      io.sockets.emit("msg", "No damage to enemy base");
+    }
   } else {
     if (friendly.pursuers[index] === empty
       || friendly.pursuers[index] === placeHolder) {
@@ -670,15 +670,3 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
   }
   game.update();
 }
-
-
-//temporarily declared as var for Safari
-var FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-var Player1 = new Player("Player1", "Nathan");
-var Player2 = new Player("Player2", "Rudi");
-var Player3 = new Player("Player3", "Ruth");
-var Player4 = new Player("Player4", "Alan");
-
-// IF MIGRATED TO SERVER SIDE
-// module.exports.FriendlyBase = FriendlyBase;
-// module.exports.Player = Player;

@@ -50,7 +50,7 @@ let $createGameName = $("<button>", {id: "createGameName", text: "Create"});
 let $enterGameName = $("<button>", {id: "enterGameName", text: "Enter"});
 let $newGame = $("<button>", {id: "newGame", text: "Create"});
 let $joinGame = $("<button>", {id: "joinGame", text: "Join"});
-let $notActive = $("<p>", {id: "notActive", text: "Not an active session"})
+let $notActive = $("<p>", {id: "notActive", text: "Not an active session"});
 
 let $greet = $("<div>", {id: "greet"});
 let $startGame = $("<div>", {id: "startGame"});

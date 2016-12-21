@@ -14,10 +14,10 @@ let turn;
 sock.on("msg", onMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
+sock.on("win", victory);
+sock.on("lose", defeat);
 
 function getUpdate(packet) {
-  console.log("Server sent an update");
-  console.dir(packet);
   turn = packet.turn;
   game = packet.game;
   Player1 = packet.Player1;
@@ -40,4 +40,16 @@ function assignPlayer(player) {
 
 function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
+}
+
+function victory(text) {
+  disableSelect();
+  let $victory = $("<h1>", {id: "victory", text: text})
+  $("body").append($victory);
+}
+
+function defeat(text) {
+  disableSelect();
+  let $defeat = $("<h1>", {id: "defeat", text: text})
+  $("body").append($defeat);
 }

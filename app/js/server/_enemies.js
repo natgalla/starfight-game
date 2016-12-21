@@ -55,6 +55,7 @@ EnemyBase.prototype.takeDamage = function(damage) {
   }
   if (this.currentArmor === 0) {
     io.sockets.emit("msg", this.name + " destroyed! Players win.");
+    game.win = true;
   }
   this.updateSummary();
 }
@@ -133,22 +134,6 @@ const Enemy = function(name, cssClass, armor, power, targeting, merit) {
   }
 }
 
-// Enemy.prototype.updateCard = function(currentArmor) {
-//   if (this.cssClass === "emptySpace" || this.cssClass === "destroyed") {
-//     this.card = "<li class='enemy " + this.cssClass + "'>";
-//               + "<h3>" + this.name + "</h3>"
-//               + "</li>";
-//   } else {
-//     this.card = "<li class='enemy " + this.cssClass + "'>"
-//             + "<h3>" + this.name + "</h3>"
-//             + "<p>ARM: " + currentArmor + "/" + this.armor + "</p>"
-//             + "<p>PWR: " + this.power + "</p>"
-//             + "<p>TGT: " + this.targeting + "</p>"
-//             + "<p>MRT: " + this.merit + "</p>"
-//             + "</li>";
-//   }
-// }
-
 Enemy.prototype.takeDamage = function(damage) {
   this.currentArmor -= damage;
   if (this.currentArmor < 0) {
@@ -167,25 +152,3 @@ const EnemyBaseCard = function(name, cssClass, description) {
   this.description = description;
   this.card = "<p id='enemyBaseCard'>" + this.description + "</p>";
 }
-
-//temporarily declared as var for safari
-// define enemy types
-var ace = new Enemy("Ace","ace",6,4,5,4);
-var heavy = new Enemy("Heavy","heavy",5,3,3,3);
-var medium = new Enemy("Medium","medium",4,2,4,2);
-var light = new Enemy("Light","light",3,2,4,1);
-var empty = new Enemy("Empty space","emptySpace",0,0,0,0);
-var placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
-
-// define enemy base cards
-var fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Friendly base takes 3 damage");
-var fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly base takes 5 damage");
-var deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
-var repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
-var reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
-
-
-var enemyBase = new EnemyBase();
-// IF MIGRATED TO SERVER SIDE
-// module.exports.EnemyBase = EnemyBase;
-// module.exports.Enemy = Enemy;

@@ -484,8 +484,6 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  console.log("Sending packet to server");
-  console.dir(turnInfo);
   sock.emit("turn", JSON.stringify(turnInfo));
 
   clearOverlay();

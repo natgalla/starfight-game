@@ -14,10 +14,10 @@ let turn;
 sock.on("msg", onMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
+sock.on("win", victory);
+sock.on("lose", defeat);
 
 function getUpdate(packet) {
-  console.log("Server sent an update");
-  console.dir(packet);
   turn = packet.turn;
   game = packet.game;
   Player1 = packet.Player1;
@@ -40,6 +40,18 @@ function assignPlayer(player) {
 
 function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
+}
+
+function victory(text) {
+  disableSelect();
+  let $victory = $("<h1>", {id: "victory", text: text})
+  $("body").append($victory);
+}
+
+function defeat(text) {
+  disableSelect();
+  let $defeat = $("<h1>", {id: "defeat", text: text})
+  $("body").append($defeat);
 }
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
@@ -94,7 +106,7 @@ let $createGameName = $("<button>", {id: "createGameName", text: "Create"});
 let $enterGameName = $("<button>", {id: "enterGameName", text: "Enter"});
 let $newGame = $("<button>", {id: "newGame", text: "Create"});
 let $joinGame = $("<button>", {id: "joinGame", text: "Join"});
-let $notActive = $("<p>", {id: "notActive", text: "Not an active session"})
+let $notActive = $("<p>", {id: "notActive", text: "Not an active session"});
 
 let $greet = $("<div>", {id: "greet"});
 let $startGame = $("<div>", {id: "startGame"});
@@ -674,8 +686,6 @@ const sendPacket = function() { //for server version: modify to send packet to s
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  console.log("Sending packet to server");
-  console.dir(turnInfo);
   sock.emit("turn", JSON.stringify(turnInfo));
 
   clearOverlay();

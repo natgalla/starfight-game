@@ -25,6 +25,9 @@ let packet = {
 
 io.on("connect", onConnection);
 
+app.set("view engine", "pug");
+app.set("views", __dirname + "/views");
+
 app.use(express.static(root + "/.."));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
@@ -38,15 +41,19 @@ app.post("/", function(req, res) {
   req.on("end", function() {
     if (body === "start") {
       currentTurn = 1;
-      waitingPlayer1 = null;
-      waitingPlayer2 = null;
-      waitingPlayer3 = null;
+      clearSockets();
       startGame(game);
       res.send("Game started.");
       updateObjects();
     }
   });
 });
+
+function clearSockets() {
+  waitingPlayer1 = null;
+  waitingPlayer2 = null;
+  waitingPlayer3 = null;
+}
 
 function createGame(sessionName) {
   let nsp = io.of('/' + sessionName);
@@ -55,59 +62,59 @@ function createGame(sessionName) {
 
 function onConnection(socket) {
   socket.emit("msg", "Connection established.");
-  if(waitingPlayer3) {
-    waitingPlayer4 = socket;
-    game.friendlies.push(Player4);
-    socket.emit("assign", Player4);
+  let join = function(player) {
+    game.friendlies.push(player);
+    socket.emit("assign", player);
     socket.on("turn", turn);
-    io.sockets.emit("msg", Player4.name + " joined game as " + Player4.id);
+    io.sockets.emit("msg", player.name + " joined game as " + player.id);
+  }
+  if (waitingPlayer3) {
+    waitingPlayer4 = socket;
+    Player4 = new Player("Player4", "Alan");
+    join(Player4);
     io.sockets.emit("msg", "Game full");
-    waitingPlayer1 = null;
-    waitingPlayer2 = null;
-    waitingPlayer3 = null;
+    clearSockets();
   } else if (waitingPlayer2) {
     waitingPlayer3 = socket;
-    game.friendlies.push(Player3);
-    socket.emit("assign", Player3);
-    socket.on("turn", turn);
-    io.sockets.emit("msg", Player3.name + " joined game as " + Player3.id);
-  } else if(waitingPlayer1) {
+    Player3 = new Player("Player3", "Ruth");
+    join(Player3);
+  } else if (waitingPlayer1) {
     waitingPlayer2 = socket;
-    socket.emit("assign", Player2);
-    socket.on("turn", turn);
-    io.sockets.emit("msg", Player2.name + " joined game as " + Player2.id);
+    Player2 = new Player("Player2", "Rudi");
+    join(Player2);
     io.sockets.emit("msg", "Game ready");
-    // waitingPlayer = null;
   } else {
     waitingPlayer1 = socket;
-    socket.emit("msg", "You initiated game as " + Player1.id);
+    Player1 = new Player("Player1", "Nathan");
+    join(Player1);
     socket.emit("msg", "Waiting for second player...");
-    socket.emit("assign", Player1)
-    socket.on("turn", turn);
   }
 }
 
 function updateObjects() {
   game.update();
-  let packet = {
+  packet = {
     turn: currentTurn,
     game: game,
     FriendlyBase: FriendlyBase,
-    Player1: Player1,
-    Player2: Player2,
     enemyBase: enemyBase
   }
-  if (game.friendlies.includes(Player4)) {
-    packet.Player4 = Player4;
+  if (game.friendlies.includes(Player1)) {
+    packet.Player1 = Player1;
+  }
+  if (game.friendlies.includes(Player2)) {
+    packet.Player2 = Player2;
   }
   if (game.friendlies.includes(Player3)) {
     packet.Player3 = Player3;
+  }
+  if (game.friendlies.includes(Player4)) {
+    packet.Player4 = Player4;
   }
   io.sockets.emit("update", packet);
 }
 
 function turn(data) {
-  console.log("Confirm receipt of turn info");
   let specs = JSON.parse(data);
   let getPlayer = function(id) {
     if (id === "Player1") {
@@ -146,14 +153,28 @@ function turn(data) {
     game.postRound();
     game.round();
     currentTurn = 0;
+  } else {
+    currentTurn += 1;
   }
-
-  currentTurn += 1;
-  if (currentTurn === game.friendlies.length || (currentTurn === game.friendlies.length-1 && game.friendlies[currentTurn].id === "FriendlyBase")) {
+  if (currentTurn === game.friendlies.length
+    || (currentTurn === game.friendlies.length-1
+      && game.friendlies[currentTurn].id === "FriendlyBase")) {
     currentTurn = 0;
   }
   if (game.friendlies[currentTurn].id === "FriendlyBase") {
     currentTurn += 1;
   }
-  updateObjects();
+  if (game.win) {
+    console.log("Game won");
+    updateObjects();
+    io.sockets.emit("win", "Victory!");
+    reset();
+  } else if (game.lose) {
+    console.log("Game lost");
+    updateObjects();
+    io.sockets.emit("lose", "Defeat!");
+    reset();
+  } else {
+    updateObjects();
+  }
 }

@@ -495,7 +495,12 @@ li p {
   display: table;
   clear: both; }
 
-#status {
+#info.messages {
+  position: fixed;
+  left: 5%;
+  bottom: 2%; }
+
+#info #status {
   width: 250px;
   height: 70px;
   overflow-y: scroll;
@@ -504,13 +509,20 @@ li p {
   padding-left: 0;
   padding: 1em;
   background: rgba(50, 50, 50, 0.8);
-  border-radius: 3px;
+  border-radius: 5px;
   box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -5px -8px 10px rgba(0, 0, 0, 0.8), inset 5px 8px 10px rgba(0, 0, 0, 0.8); }
 
-#info.messages {
-  position: fixed;
-  left: 5%;
-  bottom: 2%; }
+#victory,
+#defeat {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  height: 300px;
+  text-align: center;
+  vertical-align: middle;
+  margin-left: -150px;
+  margin-top: -150px; }
 
 ::-webkit-scrollbar {
   width: 0.5em;
