@@ -1,5 +1,6 @@
 var sock = io();
 let user;
+let userTurn = false;
 
 let game;
 let Player1;
@@ -8,6 +9,7 @@ let Player3;
 let Player4;
 let FriendlyBase;
 let enemyBase;
+let turn;
 
 sock.on("msg", onMessage);
 sock.on("assign", assignPlayer);
@@ -16,6 +18,7 @@ sock.on("update", getUpdate);
 function getUpdate(packet) {
   console.log("Server sent an update");
   console.dir(packet);
+  turn = packet.turn;
   game = packet.game;
   Player1 = packet.Player1;
   Player2 = packet.Player2;

@@ -460,7 +460,6 @@ li p {
   color: steelblue; }
 
 #wingmen {
-  height: 200px;
   margin-top: -30px;
   text-align: center; }
   #wingmen ul {
@@ -698,7 +697,7 @@ input {
   margin: 0 -1em;
   vertical-align: middle;
   border: 2px solid crimson;
-  margin-top: -70px;
+  margin-top: -20px;
   z-index: 5; }
   .enemy h3 {
     margin: 0.3em 0 0.8em 0; }
@@ -709,7 +708,7 @@ input {
       border-radius: 5.41667px; } }
   @media (max-width: 1000px), (max-height: 700px) {
     .enemy {
-      margin-top: -80px; } }
+      margin-top: -30px; } }
   .enemy.target {
     z-index: 15;
     transition: 0.4s ease-out;
@@ -752,6 +751,12 @@ input {
   text-align: center;
   height: 100px;
   perspective: 1000px; }
+  #basePursuers .enemy,
+  #wingmen-pursuers .enemy {
+    margin-left: -4em; }
+    #basePursuers .enemy:first-child,
+    #wingmen-pursuers .enemy:first-child {
+      margin-left: -1em; }
 
 #playerPursuers {
   text-align: center;
@@ -788,6 +793,7 @@ input {
 
 #FriendlyBase,
 #enemyBase {
+  margin-top: -50px;
   position: relative;
   background: #333;
   height: 300px;

@@ -175,8 +175,6 @@ Game.prototype.turns = function() {
       } else {
         let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
         let cardChoice = player.hand(cardChoiceIndex);
-        // player[cardChoice.cssClass]();  // run the chosen card's function;
-        tacticalDiscard.push(tCard);
       }
     }
     this.turnNumber ++;

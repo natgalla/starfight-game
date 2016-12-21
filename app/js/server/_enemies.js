@@ -1,4 +1,5 @@
 const EnemyBase = function() {
+  this.id = "enemyBase";
   this.name = "Enemy Base";
   this.maxArmor = 30;
   this.currentArmor = 30;

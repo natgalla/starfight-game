@@ -71,6 +71,7 @@ var incinerate = new AdvTactical("Incinerate", "incinerate", "Destroy the first 
 // module.exports.Tactical = Tactical;
 
 const EnemyBase = function() {
+  this.id = "enemyBase";
   this.name = "Enemy Base";
   this.maxArmor = 30;
   this.currentArmor = 30;
@@ -1123,8 +1124,6 @@ Game.prototype.turns = function() {
       } else {
         let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
         let cardChoice = player.hand(cardChoiceIndex);
-        // player[cardChoice.cssClass]();  // run the chosen card's function;
-        tacticalDiscard.push(tCard);
       }
     }
     this.turnNumber ++;
@@ -1647,7 +1646,11 @@ const update = function() {
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
-  enableSelect();
+  if (game.friendlies[turn].id === user.id) {
+    enableSelect();
+  } else {
+    disableSelect();
+  }
 }
 
 
@@ -1718,8 +1721,8 @@ const enableSelect = function() {
     $(this).addClass("selected");
     let $selected = $(".selected");
     if ($selected.hasClass("feint")) {
-      if (user.lastCardUsed) {
-        $selected.html("<h3>Feint</h3><p>" + user.lastCardUsed.description + "</p>");
+      if (getPlayer().lastCardUsed) {
+        $selected.html("<h3>Feint</h3><p>" + getPlayer().lastCardUsed.description + "</p>");
         $useButton.show();
       } else {
         $useButton.hide();
@@ -1796,30 +1799,26 @@ const showTargets = function(action) {
   if (action === "feint") {
     action = player.lastCardUsed.cssClass;
   }
-  // SERVER VERSION SELECTION LOGIC, DISABLED FOR LOCAL VERSION
-  // if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
-  //   if (player.effects.status == "Free") {
-  //     selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-  //       "enemyBase");
-  //   } else {
-  //     selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-  //   }
-  // }
-  // if (["snapshot"].includes(action)) {
-  //   selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-  //     "enemyBase");
-  // }
-  // if (["drawFire", "emp"].includes(action)) {
-  //   selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-  // }
-  // if (["immelman", "evade", "barrelRoll"].includes(action)) {
-  //   selectTargets("playerPursuers");
-  // }
+  if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
+    if (player.effects.status == "Free") {
+      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+        "enemyBase");
+    } else {
+      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+    }
+  }
+  if (["snapshot"].includes(action)) {
+    selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
+      "enemyBase");
+  }
+  if (["drawFire", "emp"].includes(action)) {
+    selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+  }
+  if (["immelman", "evade", "barrelRoll"].includes(action)) {
+    selectTargets("playerPursuers");
+  }
   if (["repairDrone"].includes(action)) {
     selectAlly("all");
-  } else { // for local playable version only
-    selectTargets("playerPursuers", "basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-      "enemyBase")
   }
 }
 
@@ -1959,6 +1958,38 @@ $confirmTargetButton.on("click", function() {
 $confirmAdvButton.on("click", function() {
   sendPacket();
 });
+
+let turns = function() {
+  let turnNumber = 1;
+  while (true) {
+    // calculate amount of tactical cards left
+    let tacticalCards = 0;
+    for (let i = 0; i < this.friendlies.length; i++) {
+      let player = this.friendlies[i];
+      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
+                  + ": " + player.name);
+      if (player === friendlyBase) {
+        continue;
+      } else {
+        tacticalCards += player.hand.length;
+      }
+    }
+    // break loop if there are no tactical cards left
+    if (tacticalCards === 0) {
+      break;
+    }
+    for (let i = 0; i < this.friendlies.length; i++) {
+      let player = this.friendlies[i];
+      if (player === FriendlyBase) {
+        continue;
+      } else {
+        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
+        let cardChoice = player.hand(cardChoiceIndex);
+      }
+    }
+    this.turnNumber ++;
+  }
+}
 
 let user = Player1;
 game.round();

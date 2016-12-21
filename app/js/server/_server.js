@@ -12,7 +12,10 @@ let waitingPlayer1;
 let waitingPlayer2;
 let waitingPlayer3;
 
+let currentTurn;
+
 let packet = {
+  turn: currentTurn,
   game: game,
   FriendlyBase: FriendlyBase,
   Player1: Player1,
@@ -34,6 +37,7 @@ app.post("/", function(req, res) {
   });
   req.on("end", function() {
     if (body === "start") {
+      currentTurn = 1;
       waitingPlayer1 = null;
       waitingPlayer2 = null;
       waitingPlayer3 = null;
@@ -83,9 +87,10 @@ function onConnection(socket) {
   }
 }
 
-function updateObjects(vars) {
+function updateObjects() {
   game.update();
   let packet = {
+    turn: currentTurn,
     game: game,
     FriendlyBase: FriendlyBase,
     Player1: Player1,
@@ -128,10 +133,11 @@ function turn(data) {
                                           specs.pursuerIndex,
                                           specs.purchaseIndex);
   }
-  let cardsLeft;
+
+  let cardsLeft = 0;
   game.friendlies.forEach((friendly) => {
     if (friendly === FriendlyBase) {
-      return;
+      cardsLeft += 0;
     } else {
       cardsLeft += friendly.hand.length;
     }
@@ -139,6 +145,15 @@ function turn(data) {
   if (cardsLeft === 0) {
     game.postRound();
     game.round();
+    currentTurn = 0;
+  }
+
+  currentTurn += 1;
+  if (currentTurn === game.friendlies.length || (currentTurn === game.friendlies.length-1 && game.friendlies[currentTurn].id === "FriendlyBase")) {
+    currentTurn = 0;
+  }
+  if (game.friendlies[currentTurn].id === "FriendlyBase") {
+    currentTurn += 1;
   }
   updateObjects();
 }
