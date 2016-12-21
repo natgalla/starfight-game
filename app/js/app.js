@@ -1897,7 +1897,7 @@ $cicButton.on("click", function() {
   $overlay.append($marketList);
   FriendlyBase.market.forEach( function(card) {
     let advCard;
-    if (player.merit >= card.cost) {
+    if (getPlayer().merit >= card.cost) {
       advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
               + "<h3>" + card.name + "</h3>"
               + "<p>" + card.description + "</p>"
