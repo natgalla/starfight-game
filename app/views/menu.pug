@@ -1,0 +1,21 @@
+extends ./layout.pug
+
+block content
+  h1#title Starfire
+  .menu
+    h3 Create or join session
+    form(action='/menu' method='post')
+      .create
+        input(type='radio' name='createjoin')
+        label(for='create') New Game
+      .join
+        input(type='radio' name='createjoin')
+        label(for='create') Join Game
+      .session
+        label(for='text') Session name: 
+        input(type='text' name='sessionName' id='sessionName')
+      .submit
+        button(type='submit' value='confirm') Confirm
+        
+block js
+  include ./partials/_auth.pug

@@ -16,6 +16,13 @@ sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
 sock.on("win", victory);
 sock.on("lose", defeat);
+sock.on("chatMessage", onChat);
+
+$("#chat").submit(function() {
+  sock.emit("chat", user.name + ": " + $("#message").val());
+  $("#message").val("");
+  return false;
+})
 
 function getUpdate(packet) {
   turn = packet.turn;
@@ -40,6 +47,10 @@ function assignPlayer(player) {
 
 function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
+}
+
+function onChat(text) {
+  $("#status").prepend( "<li class='playerMessage'> >>  " + text + "<li>");
 }
 
 function victory(text) {

@@ -5,7 +5,7 @@ let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a fr
 let feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
 let barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself. It now pursues the friendly base");
 let scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 2 damage to a single target, and 1 damage to the target on either side of it");
-let immelman = new Tactical("Immelmann", "immelman", "Missile an enemy pursuing you");
+let immelman = new Tactical("Immelman", "immelman", "Missile an enemy pursuing you");
 
 // Advanced tactics
 // let medalOfHonor = new AdvTactical("Medal of Honor", "medalOfHonor", "Every enemy destroyed is worth 1 extra merit", 10);

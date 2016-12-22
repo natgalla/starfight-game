@@ -1,0 +1,27 @@
+extends ./layout.pug
+
+block content
+  h1#title Starfire
+  .menu
+    h3 New pilot registry
+    form(action='/register' method='post')
+      .callsign
+        label(for='createCallsign') Callsign: 
+        input(type='text' name='createCallsign' id='createCallsign')
+      .email
+        label(for='email') Email: 
+        input(type='email' name='userMail' id='userMail')
+      .password
+        label(for='passwordCreate') Password: 
+        input(type='password' name='passwordCreate' id='passwordCreate')
+      .confirm
+        label(for='passwordConfirm') Confirm: 
+        input(type='password' name='passwordConfirm' id='passwordConfirm')
+      .updates
+        input(type='checkbox' name='updates')
+        label(for='updates' id='updates') Keep me posted on Starfire's release
+      .submit
+        button(type='submit') Enlist
+        
+block js
+  include ./partials/_auth.pug

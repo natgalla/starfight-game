@@ -25,14 +25,11 @@ let packet = {
 
 io.on("connect", onConnection);
 
-app.set("view engine", "pug");
-app.set("views", __dirname + "/views");
-
 app.use(express.static(root + "/.."));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
-app.post("/", function(req, res) {
+app.post("/game", function(req, res) {
   console.log("POST request to home page");
   let body = "";
   req.on("data", function(data) {
@@ -48,6 +45,22 @@ app.post("/", function(req, res) {
     }
   });
 });
+
+function validateNormalCharacters(string) {
+  let valid = true;
+  for (let i=0; i < string.length; i++) {
+    let character = string[i];
+    if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".includes(character)) {
+      valid = false;
+    }
+  }
+  return valid;
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
 
 function clearSockets() {
   waitingPlayer1 = null;
@@ -66,6 +79,9 @@ function onConnection(socket) {
     game.friendlies.push(player);
     socket.emit("assign", player);
     socket.on("turn", turn);
+    socket.on("chat", function(message) {
+      io.sockets.emit("chatMessage", message);
+    });
     io.sockets.emit("msg", player.name + " joined game as " + player.id);
   }
   if (waitingPlayer3) {

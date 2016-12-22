@@ -1173,689 +1173,321 @@ Game.prototype.newRound = function() {
   this.round();
 }
 
-let typeWord = function($location, text, element, begEnd, interval, cursor) {
-  if (element === undefined) {
-    element = "p";
-  }
-  if (begEnd === undefined) {
-    begEnd = "prepend";
-  }
-  if (interval === undefined) {
-    interval = 40;
-  }
-  if (cursor === undefined) {
-    cursor = "|";
-  }
-  let newText = document.createElement(element);
-  if (begEnd === "prepend") {
-    $location.prepend(newText);
-  } else {
-    $location.append(newText);
-  }
-  let i=0;
-  let testInterval = setInterval(typeOut, interval);
-  function typeOut() {
-    if (i === text.length+1) {
-      clearInterval(testInterval);
-    } else {
-      if (i === 0) {
-        newText.textContent += text[i] + cursor;
-        i++;
-      } else if (i === text.length) {
-        newText.textContent = newText.textContent.slice(0, -1);
-        i++;
-      } else {
-        newText.textContent = newText.textContent.slice(0, -1);
-        newText.textContent += text[i] + cursor;
-        i++;
-      }
-    }
-  }
+// Tactical cards
+let repairDrone = new Tactical("Repair drone", "repairDrone", "Remove 3 damage from a friendly (any)");
+let missile = new Tactical("Missile", "missile", "Choose a target and roll 5 combat dice");
+let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a friendly (other) and bring it to you");
+let feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
+let barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself. It now pursues the friendly base");
+let scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 2 damage to a single target, and 1 damage to the target on either side of it");
+let immelman = new Tactical("Immelmann", "immelman", "Missile an enemy pursuing you");
+
+// Advanced tactics
+// let medalOfHonor = new AdvTactical("Medal of Honor", "medalOfHonor", "Every enemy destroyed is worth 1 extra merit", 10);
+// let daredevil = new AdvTactical("Daredevil", "daredevel", "Allows you to attack the EB with 1 pursuer", 10);
+// let medic = new AdvTactical("Medic", "medic", "Restore 1 armor to a friendly of your choice each round", 10);
+// let sharpShooter = new AdvTactical("Sharp Shooter", "sharpshooter", "Improve player accuracy rolls/add an extra die", 10);
+let bomb = new AdvTactical("Bomb", "bomb", "Deal 6 damage to a single target, and 2 damage to the target on either side of it", 8);
+let heatSeeker = new AdvTactical("Heat Seeker", "heatSeeker", "Deal 5 damage to a chosen enemy", 5);
+let healthPack = new AdvTactical("Health Pack", "healthPack", "Remove 5 damage from a friendly (all)", 4);
+let jammer = new AdvTactical("Jammer", "jammer", "Do not draw an enemy base card next round", 6);
+let intercept = new AdvTactical("Intercept", "intercept", "Draw one less enemy into play next round", 6);
+let emp = new AdvTactical("EMP", "emp", "Choose a friendly (other). Their pursuers cannot damage them this round", 5);
+let countermeasures = new AdvTactical("CNTRmeasures", "countermeasures", "Ignore x damage where x is the result of a standard combat roll", 2);
+let divertShields = new AdvTactical("Divert Shields", "divertShields", "Keep this card. It absorbs the next 5 damage you take", 3);
+let jump = new AdvTactical("Jump", "jump", "Shake all your pursuers this round to discard", 15);
+let hardSix = new AdvTactical("Roll the hard six", "hardSix", "If pursued, missile the enemy base and take damage of a standard combat roll", 6);
+let snapshot = new AdvTactical("Snapshot", "snapshot", "Remove an enemy from play (no merit awarded)", 7);
+let guidedMissile = new AdvTactical("Guided Missile", "guidedMissile", "Deal 6 damage to the enemy base regardless of pursuers", 10);
+let incinerate = new AdvTactical("Incinerate", "incinerate", "Destroy the first enemy drawn to you next round", 7);
+
+
+// define enemy types
+let ace = new Enemy("Ace","ace",6,4,5,4);
+let heavy = new Enemy("Heavy","heavy",5,3,3,3);
+let medium = new Enemy("Medium","medium",4,2,4,2);
+let light = new Enemy("Light","light",3,2,4,1);
+let empty = new Enemy("Empty space","emptySpace",0,0,0,0);
+let placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
+
+// define enemy base cards
+let fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Friendly base takes 3 damage");
+let fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly base takes 5 damage");
+let deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
+let repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
+let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
+
+let enemyBase = new EnemyBase();
+
+// define friendlies
+let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+let Player1;
+let Player2;
+let Player3;
+let Player4;
+
+let game = new Game();
+
+let reset = function() {
+  FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+  Player1 = null;
+  Player2 = null;
+  Player3 = null;
+  Player4 = null;
+
+  game = new Game();
 }
 
-let gameName = "Starfire";
-let sessionName;
-let validSession = "test1";
-let $setup = $("<div>", {id: "setup"});
-let $server = $("<ul>", {id: "server"});
-let $newSessionNameInput = $("<input>", {type: "text", id: "newSessionName"});
-let $joinSessionNameInput = $("<input>", {type: "text", id: "joinSessionName"});
-let $play = $("<button>", {id: "play", text: "Play"});
-let $createGameName = $("<button>", {id: "createGameName", text: "Create"});
-let $enterGameName = $("<button>", {id: "enterGameName", text: "Enter"});
-let $newGame = $("<button>", {id: "newGame", text: "Create"});
-let $joinGame = $("<button>", {id: "joinGame", text: "Join"});
-let $notActive = $("<p>", {id: "notActive", text: "Not an active session"});
+let startGame = function(game) {
+  // build tactical deck
+  game.addToDeck(game.tacticalDeck, missile, 6);
+  game.addToDeck(game.tacticalDeck, scatterShot, 4);
+  game.addToDeck(game.tacticalDeck, drawFire, 3);
+  game.addToDeck(game.tacticalDeck, feint, 4);
+  game.addToDeck(game.tacticalDeck, barrelRoll, 2);
+  game.addToDeck(game.tacticalDeck, immelman, 3);
+  game.addToDeck(game.tacticalDeck, repairDrone, 2);
 
-let $greet = $("<div>", {id: "greet"});
-let $startGame = $("<div>", {id: "startGame"});
-let $newSession = $("<div>", {id: "setup"});
-let $joinSession = $("<div>", {id: "joinSession"});
-let $playArea = $("#playArea");
+  game.tacticalDeck.size = game.tacticalDeck.cards.length;
 
-$playArea.hide();
-$("#menu").prepend($setup);
-$setup.append($greet);
-// $setup.append("<h3> Welcome to " + gameName + "<h3>");
-typeWord($greet, "Welcome to " + gameName, "h3");
-$greet.append($play);
-$setup.append($server);
-// $startGame.append("<h3>Create a new game or join an existing one?</h3>");
-$startGame.append($newGame);
-$startGame.append($joinGame);
-// $newSession.append("<h3>Please enter a name for your session.</h3>");
-$newSession.append($newSessionNameInput);
-$newSession.append($createGameName);
-// $joinSession.append("<h3>Please enter the name of the session you would like to join</h3>");
-$joinSession.append($joinSessionNameInput);
-$joinSession.append($enterGameName);
-$joinSession.append($notActive);
-$notActive.hide();
+  game.shuffle(game.tacticalDeck);
 
-$play.on("click", function() {
-  $greet.hide();
-  $setup.append($startGame);
-  $startGame.hide();
-  $startGame.fadeIn();
-  typeWord($startGame, "Create a new game or join an existing one?", "h3");
-});
+  // build advanced tactical deck
+  game.addToDeck(FriendlyBase.advTactics, healthPack, 5);
+  game.addToDeck(FriendlyBase.advTactics, heatSeeker, 6);
+  game.addToDeck(FriendlyBase.advTactics, bomb, 3);
+  game.addToDeck(FriendlyBase.advTactics, snapshot, 3);
+  game.addToDeck(FriendlyBase.advTactics, guidedMissile, 3);
+  game.addToDeck(FriendlyBase.advTactics, incinerate, 3);
+  game.addToDeck(FriendlyBase.advTactics, jammer, 6);
+  game.addToDeck(FriendlyBase.advTactics, intercept, 3);
+  game.addToDeck(FriendlyBase.advTactics, emp, 2);
+  game.addToDeck(FriendlyBase.advTactics, countermeasures, 3);
+  game.addToDeck(FriendlyBase.advTactics, divertShields, 2);
+  game.addToDeck(FriendlyBase.advTactics, jump, 1);
+  game.addToDeck(FriendlyBase.advTactics, hardSix, 4);
 
-$newGame.on("click", function() {
-  $startGame.hide();
-  $setup.append($newSession);
-  $newSession.hide();
-  $newSession.fadeIn();
-  typeWord($newSession, "Please enter a name for your session.", "h3");
-});
+  FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
 
-$joinGame.on("click", function() {
-  $startGame.hide();
-  $setup.append($joinSession);
-  $joinSession.hide();
-  $joinSession.fadeIn();
-  typeWord($joinSession, "Please enter the name of the session you would like to join", "h3");
-  $("#notActive").hide();
-});
+  game.shuffle(FriendlyBase.advTactics);
 
-$newSessionNameInput.on("keyup change", function() {
-  sessionName = $(this).val();
-});
-$joinSessionNameInput.on("keyup change", function() {
-  $notActive.hide();
-  sessionName = $(this).val();
-});
+  // build enemy deck
+  game.addToDeck(enemyBase.enemyDeck, ace, 4);
+  game.addToDeck(enemyBase.enemyDeck, heavy, 9);
+  game.addToDeck(enemyBase.enemyDeck, medium, 12);
+  game.addToDeck(enemyBase.enemyDeck, light, 15);
+  game.addToDeck(enemyBase.enemyDeck, empty, game.setEmpties(8, 4, 0));
 
-$createGameName.on("click", function() {
-  if (sessionName) {
-    $newSession.hide();
-    $("#title").hide();
-    $("#copyright").hide();
-    $("#info").addClass("messages");
-    $playArea.fadeIn();
-    $.post("/", "start");
-  }
-});
+  enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
 
-$enterGameName.click(function() {
-  if (sessionName === validSession) {
-    $joinSession.hide();
-    $("#title").hide();
-    $("#copyright").hide();
-    $("#info").addClass("messages");
-    $playArea.fadeIn();
-  } else {
-    $notActive.fadeIn(400, function() {
-      $notActive.fadeOut(300, function() {
-        $notActive.fadeIn(400)
-      })
-    })
-  }
-});
+  game.shuffle(enemyBase.enemyDeck);
 
+  // build enemy base deck
+  game.buildEnemyBaseDeck();
 
-//Quick start
-// $("#playArea").hide();
-// $("#title").hide();
-// $("#info").hide();
-// $("#playArea").fadeIn();
+  enemyBase.enemyBaseDeck.size = enemyBase.enemyBaseDeck.cards.length;
 
-// globals changed throughout the game by player events, passed to back-end code
-let action;
-let buttonPressed;
+  // set rules dependent on amount of players
+  enemyBase.startingEnemies = game.friendlies.length * 2;
+  enemyBase.enemiesPerTurn = game.friendlies.length;
 
-// lightbox to display "market" cards
-let $overlay = $("<div>", {
-  id: "overlay"
-});
-$("body").append($overlay);
-$overlay.hide();
-
-//establish buttons for card use
-let $buttons = $("#buttons");
-let $useButton = $("<button>", {
-  id: "use",
-  title: "Use the selected card",
-  text: "USE"
-});
-let $discardButton = $("<button>", {
-  id: "discard",
-  title: "Discard the selected card",
-  text: "DSC"
-});
-let $cancelButton = $("<button>", {
-  id: "cancel",
-  title: "Cancel this action",
-  text: "ESC"
-});
-let $fireButton = $("<button>", {
-  id: "fire",
-  title: "Fire at a valid target",
-  text: "ATK"
-});
-let $evadeButton = $("<button>", {
-  id: "Evade",
-  title: "Attempt to evade a pursuer",
-  text: "EVD"
-});
-let $cicButton = $("<button>", {
-  id: "cic",
-  title: "View advanced tactics",
-  text: "CIC"
-});
-let $confirmTargetButton = $("<button>", {
-  id: "confirmTarget",
-  title: "Confirm target",
-  text: "CFM"
-});
-let $confirmAdvButton = $("<button>", {
-  id: "confirmAdvTactic",
-  title: "Confirm choice",
-  text: "CFM"
-});
-
-$buttons.append($useButton);
-$buttons.append($discardButton);
-$buttons.append($fireButton);
-$buttons.append($evadeButton);
-$buttons.append($cicButton);
-$buttons.append($confirmTargetButton);
-$buttons.append($confirmAdvButton);
-$buttons.append($cancelButton);
-
-
-
-/********************
-UPDATE FUNCTIONS
-********************/
-
-const clearButtons = function() {
-  //clear all action buttons
-  $buttons.children().hide();
+  // start first round
+  game.round();
 }
 
+let root = __dirname;
+let port = 8080;
+let http = require('http');
+let express = require('express');
+let socketio = require('socket.io');
 
+let app = express();
+let server = http.createServer(app);
+let io = socketio(server);
 
-const updateSummaries = function() {
-  $("#enemyBase").html(enemyBase.summary);
-  let wingman = 1;
-  const showSummary = function(player) {
-    // show player summary
-    let summaryField;
-    if (player.id === user.id) {
-      summaryField = "#userSummary";
-    } else {
-      summaryField = "#wingman" + wingman + "-summary";
-    }
-    let $summary = $(summaryField);
-    $summary.html(player.summary).removeClass().addClass("playerSummary").addClass(player.id);
-  }
-  for (let i = 0; i < game.friendlies.length; i++) {
-    let friendly = game.friendlies[i];
-    if (friendly.id === FriendlyBase.id) {
-      $("#FriendlyBase").html(FriendlyBase.summary);
-    } else if (friendly.id === user.id) {
-      showSummary(friendly)
-    } else {
-      showSummary(friendly);
-      wingman++
-    }
-  }
+let waitingPlayer1;
+let waitingPlayer2;
+let waitingPlayer3;
+
+let currentTurn;
+
+let packet = {
+  turn: currentTurn,
+  game: game,
+  FriendlyBase: FriendlyBase,
+  Player1: Player1,
+  Player2: Player2,
+  enemyBase: enemyBase
 }
 
+io.on("connect", onConnection);
 
-const updateTacticalCards = function() {
-  // update and show all tactical hands
-  let wingman = 1;
-  for (let i = 0; i < game.friendlies.length; i++) {
-    let $wingmanHand = $("#wingman" + wingman + "-hand");
-    let player = game.friendlies[i];
-    if (player.id === "FriendlyBase") {
-      continue;
-    } else if (player.id === user.id) {
-      $("#playerHand").empty();
-      for (let i = 0; i < player.hand.length; i++) {
-        let tCard = player.hand[i];
-        $("#playerHand").append("<li class='tactical " + tCard.cssClass + "'>"
-                  + "<h3>" + tCard.name + "</h3>"
-                  + "<p>" + tCard.description + "</p>"
-                  + "</li>");
-      }
-    } else {
-      $wingmanHand.empty();
-      for (let i = 0; i < player.hand.length; i++) {
-        let tCard = player.hand[i];
-        if (tCard) {
-          $wingmanHand.append("<li class='tactical " + tCard.cssClass + "'>"
-                    + "<h3>" + tCard.name + "</h3>"
-                    + "<p>" + tCard.description + "</p>"
-                    + "</li>");
-        }
-      }
-      wingman += 1
-    }
-  }
-}
+app.set("view engine", "pug");
+app.set("views", __dirname + "/views");
 
+app.use(express.static(root + "/.."));
 
-const updateEnemyCards = function() {
-  // update and show current pursuers
-  const refreshPursuerList = function(location, friendly) {
-    location.empty();
-    location.removeClass();
-    location.addClass(friendly.id);
-    for (let i = 0; i < friendly.pursuers.length; i++) {
-      let eCard = friendly.pursuers[i];
-      if (eCard.cssClass === "emptySpace" || eCard.cssClass === "destroyed") {
-        location.append("<li class='enemy " + eCard.cssClass + "'>"
-                  + "<h3>" + eCard.name + "</h3>"
-                  + "</li>")
-      } else {
-        location.append("<li class='enemy " + eCard.cssClass + "'>"
-                + "<h3>" + eCard.name + "</h3>"
-                + "<p>ARM: " + (eCard.armor - friendly.pursuerDamage[i])
-                + "/" + eCard.armor + "</p>"
-                + "<p>PWR: " + eCard.power + "</p>"
-                + "<p>TGT: " + eCard.targeting + "</p>"
-                + "<p>MRT: " + eCard.merit + "</p>"
-                + "</li>")
-      }
-    }
-  }
-  let wingman = 1;
-  const $playerPursuers = $("#playerPursuers");
-  const $basePursuers = $("#basePursuers");
-  for(let i=0; i<game.friendlies.length; i++) {
-    let friendly = game.friendlies[i];
-    if (friendly.id === FriendlyBase.id) {
-      refreshPursuerList($basePursuers, friendly);
-    } else if (friendly.id === user.id) {
-      refreshPursuerList($playerPursuers, friendly);
-    } else {
-      let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
-      refreshPursuerList($wingmanPursuers, friendly);
-      wingman++;
-    }
-  }
-}
+server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
-const clearOverlay = function() {
-  $overlay.slideUp(400, function() {
-    $("#userSummary").removeClass("bumped");
+app.post("/", function(req, res) {
+  console.log("POST request to home page");
+  let body = "";
+  req.on("data", function(data) {
+    body += data;
   });
-}
-
-const update = function() {
-  // update entire play area
-  clearButtons();
-  detarget();
-  updateEnemyCards();
-  updateTacticalCards();
-  updateSummaries();
-  if (game.friendlies[turn].id === user.id) {
-    enableSelect();
-  } else {
-    disableSelect();
-  }
-}
-
-
-
-/********************
-CARD SELECTION
-********************/
-
-
-const deselect = function() {
-  // remove "selected" class from all cards when a card is clicked
-  $(".selected").removeClass("selected");
-}
-
-
-const detarget = function() {
-  $(".target").removeClass("target");
-  $(".enemy").off("click");
-  $(".assist").removeClass("assist");
-  $(".playerSummary").off("click");
-  $(".friendlyBase").off("click");
-  $(".invalidTarget").removeClass("invalidTarget");
-  $(".targeted").removeClass("targeted");
-}
-
-
-const getCardFunction = function(className) {
-  let card = document.querySelector(className);
-  return card.classList()[1]; // classlist will be .tactical .[action] ...
-}
-
-
-const getFriendly = function(className) {
-  // determine which Friendly holds the selected card
-  let $card = $(className);
-  let friendly = undefined;
-  if ($card) {
-    $friendly = $card.parent();
-  }
-  if ($card.hasClass("Player1") || $friendly.hasClass("Player1")) {
-    return Player1;
-  } else if ($card.hasClass("Player2") || $friendly.hasClass("Player2")) {
-    return Player2;
-  } else if ($card.hasClass("Player3") || $friendly.hasClass("Player3")) {
-    return Player3;
-  } else if ($card.hasClass("Player4") || $friendly.hasClass("Player4")) {
-    return Player4;
-  } else if ($card.hasClass("FriendlyBase") || $friendly.hasClass("FriendlyBase")) {
-    return FriendlyBase;
-  } else if ($card.attr("id") === "enemyBase") {
-    return enemyBase;
-  } else {
-    return undefined;
-  }
-}
-
-
-
-/********************
-CARD BINDING
-********************/
-
-
-const enableSelect = function() {
-  $(".disabled").removeClass("disabled");
-  $("#playerHand .tactical").on("click", function() {
-    deselect();
-    $(this).addClass("selected");
-    let $selected = $(".selected");
-    if ($selected.hasClass("feint")) {
-      if (getPlayer().lastCardUsed) {
-        $selected.html("<h3>Feint</h3><p>" + getPlayer().lastCardUsed.description + "</p>");
-        $useButton.show();
-      } else {
-        $useButton.hide();
-        $selected.html("<h3>Feint</h3><p>Nothing to feint</p>");
-      }
+  req.on("end", function() {
+    if (body === "start") {
+      currentTurn = 1;
+      clearSockets();
+      startGame(game);
+      res.send("Game started.");
+      updateObjects();
     } else {
-      $useButton.show();
+      console.log(typeof body);
+      io.sockets.emit("msg", body);
     }
-    $discardButton.show();
   });
+});
+
+function clearSockets() {
+  waitingPlayer1 = null;
+  waitingPlayer2 = null;
+  waitingPlayer3 = null;
 }
 
-
-const disableSelect = function() {
-  //disable clicking other cards while an action is being taken
-  $(".tactical").not(".selected").addClass("disabled");
-  $(".tactical").off("click");
+function createGame(sessionName) {
+  let nsp = io.of('/' + sessionName);
+  nsp.on('connection', onConnection);
 }
 
-
-const selectAlly = function(scope) {
-  if (scope === "all") {
-    $(".playerSummary").addClass("assist");
-  } else {
-    $(".playerSummary").not($("." + user.id)).addClass("assist");
-  }
-  $("#FriendlyBase").addClass("assist");
-  $(".assist").on("click", function() {
-    detarget();
-    clearButtons();
-    $(this).toggleClass("targeted");
-    $confirmTargetButton.show();
-    $cancelButton.show();
-  });
-}
-
-const getPlayer = function() { // for local playable version only
-  let $summary = $(".selected").parent().next();
-  if ($summary.hasClass("Player1")) {
-    return Player1;
-  } else if ($summary.hasClass("Player2")) {
-    return Player2;
-  } else if ($summary.hasClass("Player3")) {
-    return Player3;
-  } else if ($summary.hasClass("Player1")) {
-    return Player4;
-  } else {
-    return user;
-  }
-}
-
-const showTargets = function(action) {
-  let player = getPlayer();
-  const selectTargets = function(...ids) {
-    let enemies = Array.from($(".enemy"));
-    enemies.forEach((enemy) => {
-      let classes = Array.from(enemy.classList);
-      if (ids.includes(enemy.id) ||
-        (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
-            && !classes.includes("destroyed"))) {
-        enemy.className += " target";
-        $(".target").on("click", function() {
-          clearButtons();
-          $(this).addClass("targeted")
-          $(".targeted").not($(this)).removeClass("targeted");
-          $confirmTargetButton.show();
-          $cancelButton.show();
-        });
-      } else {
-        enemy.className += " invalidTarget";
-      }
+function onConnection(socket) {
+  socket.emit("msg", "Connection established.");
+  let join = function(player) {
+    game.friendlies.push(player);
+    socket.emit("assign", player);
+    socket.on("turn", turn);
+    socket.on("chat", function(message) {
+      io.sockets.emit("chatMessage", message);
     });
+    io.sockets.emit("msg", player.name + " joined game as " + player.id);
   }
-  if (action === "feint") {
-    action = player.lastCardUsed.cssClass;
+  if (waitingPlayer3) {
+    waitingPlayer4 = socket;
+    Player4 = new Player("Player4", "Alan");
+    join(Player4);
+    io.sockets.emit("msg", "Game full");
+    clearSockets();
+  } else if (waitingPlayer2) {
+    waitingPlayer3 = socket;
+    Player3 = new Player("Player3", "Ruth");
+    join(Player3);
+  } else if (waitingPlayer1) {
+    waitingPlayer2 = socket;
+    Player2 = new Player("Player2", "Rudi");
+    join(Player2);
+    io.sockets.emit("msg", "Game ready");
+  } else {
+    waitingPlayer1 = socket;
+    Player1 = new Player("Player1", "Nathan");
+    join(Player1);
+    socket.emit("msg", "Waiting for second player...");
   }
-  if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
-    if (player.effects.status == "Free") {
-      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-        "enemyBase");
+}
+
+function updateObjects() {
+  game.update();
+  packet = {
+    turn: currentTurn,
+    game: game,
+    FriendlyBase: FriendlyBase,
+    enemyBase: enemyBase
+  }
+  if (game.friendlies.includes(Player1)) {
+    packet.Player1 = Player1;
+  }
+  if (game.friendlies.includes(Player2)) {
+    packet.Player2 = Player2;
+  }
+  if (game.friendlies.includes(Player3)) {
+    packet.Player3 = Player3;
+  }
+  if (game.friendlies.includes(Player4)) {
+    packet.Player4 = Player4;
+  }
+  io.sockets.emit("update", packet);
+}
+
+function turn(data) {
+  let specs = JSON.parse(data);
+  let getPlayer = function(id) {
+    if (id === "Player1") {
+      return Player1;
+    } else if (id === "Player2") {
+      return Player2;
+    } else if (id === "Player3") {
+      return Player3;
+    } else if (id === "Player4") {
+      return Player4;
+    } else if (id === "FriendlyBase") {
+      return FriendlyBase;
+    } else if (id === "enemyBase") {
+      return enemyBase;
+    }
+  }
+  let player = getPlayer(specs.player.id);
+  let friendly = getPlayer(specs.friendly.id);
+  if (specs.button === "use") {
+    player.useTactic(specs.cardIndex, friendly, specs.pursuerIndex);
+  } else {
+    player.discard(specs.cardIndex, specs.button, friendly,
+                                          specs.pursuerIndex,
+                                          specs.purchaseIndex);
+  }
+
+  let cardsLeft = 0;
+  game.friendlies.forEach((friendly) => {
+    if (friendly === FriendlyBase) {
+      cardsLeft += 0;
     } else {
-      selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
+      cardsLeft += friendly.hand.length;
     }
-  }
-  if (["snapshot"].includes(action)) {
-    selectTargets("basePursuers", "playerPursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
-      "enemyBase");
-  }
-  if (["drawFire", "emp"].includes(action)) {
-    selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers");
-  }
-  if (["immelman", "evade", "barrelRoll"].includes(action)) {
-    selectTargets("playerPursuers");
-  }
-  if (["repairDrone"].includes(action)) {
-    selectAlly("all");
-  }
-}
-
-
-
-/********************
-BUTTON FUNCTIONS
-********************/
-
-
-$useButton.on("click", function() {
-  clearButtons();
-  buttonPressed = "use";
-  $cancelButton.show();
-  disableSelect();
-  action = $(".selected")[0].classList[1];
-  showTargets(action);
-});
-
-
-$discardButton.on("click", function() {
-  clearButtons();
-  buttonPressed = "discard";
-  $fireButton.show();
-  $evadeButton.show();
-  $cicButton.show();
-  $cancelButton.show();
-  disableSelect();
-});
-
-
-$fireButton.on("click", function() {
-  clearButtons();
-  $cancelButton.show();
-  disableSelect();
-  action = "fire";
-  buttonPressed = "fire";
-  showTargets(action);
-});
-
-$evadeButton.on("click", function() {
-  clearButtons();
-  $cancelButton.show();
-  disableSelect();
-  action = "evade";
-  buttonPressed = "evade";
-  showTargets(action);
-});
-
-const cancel = function() {
-  clearOverlay();
-  clearButtons();
-  deselect();
-  detarget();
-  action = "";
-  enableSelect();
-}
-
-$cancelButton.on("click", cancel);
-
-$(document).keyup(function(e) {
-  if (e.keyCode == 27) {
-    cancel();
-  }
-})
-
-$cicButton.on("click", function() {
-  action = "useAdvTactic";
-  buttonPressed = "useAdvTactic";
-  $("#userSummary").addClass("bumped");
-  clearButtons();
-  $cancelButton.show();
-  $overlay.empty();
-  let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
-  $overlay.append($marketList);
-  FriendlyBase.market.forEach( function(card) {
-    let advCard;
-    if (getPlayer().merit >= card.cost) {
-      advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
-              + "<h3>" + card.name + "</h3>"
-              + "<p>" + card.description + "</p>"
-              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
-              + "</li>";
-    } else {
-      advCard = "<li class='advTactical " + card.cssClass + " unavailable'>"
-              + "<h3>" + card.name + "</h3>"
-              + "<p>" + card.description + "</p>"
-              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
-              + "</li>";
-    }
-    $marketList.append(advCard);
   });
-  $overlay.slideDown(600);
-  $marketList.hide().fadeIn(1000);
-  $(".purchasable").on("click", function() {
-      clearButtons();
-      $cancelButton.show();
-      detarget();
-      $(this).siblings().removeClass("purchasing");
-      $(this).addClass("purchasing");
-      action = $(this)[0].classList[1]; // $(this).attr("class").split(" ")[1]
-      if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone"].includes(action)) {
-        $confirmAdvButton.hide();
-        showTargets(action);
-      } else {
-        detarget();
-        $confirmAdvButton.show();
-      }
-  });
-});
-
-const sendPacket = function() { //for server version: modify to send packet to server
-  let turnInfo = {
-    player: getPlayer(),
-    button: buttonPressed,
-    cardIndex: $(".selected").index(),
-    friendly: getFriendly(".targeted"),
-    pursuerIndex: $(".targeted").index(),
-    purchaseIndex: $(".purchasing").index(),
+  if (cardsLeft === 0) {
+    game.postRound();
+    game.round();
+    currentTurn = 0;
+  } else {
+    currentTurn += 1;
   }
-  sock.emit("turn", JSON.stringify(turnInfo));
-
-  clearOverlay();
-  detarget();
-  clearButtons();
-  update();
-}
-
-
-$confirmTargetButton.on("click", function() {
-  sendPacket();
-});
-
-$confirmAdvButton.on("click", function() {
-  sendPacket();
-});
-
-let turns = function() {
-  let turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player === FriendlyBase) {
-        continue;
-      } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
-        let cardChoice = player.hand(cardChoiceIndex);
-      }
-    }
-    this.turnNumber ++;
+  if (currentTurn === game.friendlies.length
+    || (currentTurn === game.friendlies.length-1
+      && game.friendlies[currentTurn].id === "FriendlyBase")) {
+    currentTurn = 0;
+  }
+  if (game.friendlies[currentTurn].id === "FriendlyBase") {
+    currentTurn += 1;
+  }
+  if (game.win) {
+    console.log("Game won");
+    updateObjects();
+    io.sockets.emit("win", "Victory!");
+    reset();
+  } else if (game.lose) {
+    console.log("Game lost");
+    updateObjects();
+    io.sockets.emit("lose", "Defeat!");
+    reset();
+  } else {
+    updateObjects();
   }
 }
 
-let user = Player1;
-game.round();
-update();
+app.get("/register", function(req, res) {
+  res.render('register');
+});
 
-//# sourceMappingURL=app.js.map
+app.get("/login", function(req, res) {
+  res.render('login');
+});
+
+//# sourceMappingURL=server.js.map

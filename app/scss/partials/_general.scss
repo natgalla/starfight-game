@@ -3,7 +3,7 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100vh;
   background-image: linear-gradient($black, rgba(0,0,0,0.3), $black),
-                    url(../../img/space.jpg);
+                    url(../img/space.jpg);
   perspective: 1200;
   h1 {
     color: $primaryPink;
@@ -25,6 +25,7 @@ body {
 
 h3 {
   color: $secondaryBlue;
+  font-family: "Orbitron", monospace, sans-serif;
 }
 
 p {
@@ -52,7 +53,7 @@ li p {
   margin-left: -2.5em;
 }
 
-#copyright {
+.copyright {
   font-family: sans-serif;
   color: $secondaryBlue;
   font-size: 0.8em;
@@ -130,6 +131,12 @@ li p {
                 inset 0px 0px 5px $complementGreen,
                 inset -5px -8px 10px $darkTranslucent,
                 inset 5px 8px 10px $darkTranslucent;
+    & li {
+      color: $complementGreen;
+      &.playerMessage {
+        color: $highlightBlue;
+      }
+    }
   }
 }
 
@@ -146,4 +153,4 @@ li p {
   margin-top: -150px;
 }
 
-@include scrollbars(0.5em, darken($complementGreen, $step), $complementGreen);
+@include scrollbars(0.3em, darken($complementGreen, $step), $complementGreen);

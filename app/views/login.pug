@@ -1,0 +1,18 @@
+extends ./layout.pug
+
+block content
+  h1#title Starfire
+  .menu
+    h3 Pilot log in
+    form(action='/login' method='post')
+      .callsign
+        label(for='callsign') Callsign: 
+        input(type='text' name='callsign' id='callsign')
+      .password
+        label(for='password') Password: 
+        input(type='password' name='password' id='password')
+      .submit
+        button(type='submit') Log In
+
+block js
+  include ./partials/_auth.pug

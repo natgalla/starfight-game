@@ -1180,7 +1180,7 @@ let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a fr
 let feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
 let barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself. It now pursues the friendly base");
 let scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 2 damage to a single target, and 1 damage to the target on either side of it");
-let immelman = new Tactical("Immelmann", "immelman", "Missile an enemy pursuing you");
+let immelman = new Tactical("Immelman", "immelman", "Missile an enemy pursuing you");
 
 // Advanced tactics
 // let medalOfHonor = new AdvTactical("Medal of Honor", "medalOfHonor", "Every enemy destroyed is worth 1 extra merit", 10);
@@ -1322,14 +1322,11 @@ let packet = {
 
 io.on("connect", onConnection);
 
-app.set("view engine", "pug");
-app.set("views", __dirname + "/views");
-
 app.use(express.static(root + "/.."));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
-app.post("/", function(req, res) {
+app.post("/game", function(req, res) {
   console.log("POST request to home page");
   let body = "";
   req.on("data", function(data) {
@@ -1345,6 +1342,22 @@ app.post("/", function(req, res) {
     }
   });
 });
+
+function validateNormalCharacters(string) {
+  let valid = true;
+  for (let i=0; i < string.length; i++) {
+    let character = string[i];
+    if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".includes(character)) {
+      valid = false;
+    }
+  }
+  return valid;
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
 
 function clearSockets() {
   waitingPlayer1 = null;
@@ -1363,6 +1376,9 @@ function onConnection(socket) {
     game.friendlies.push(player);
     socket.emit("assign", player);
     socket.on("turn", turn);
+    socket.on("chat", function(message) {
+      io.sockets.emit("chatMessage", message);
+    });
     io.sockets.emit("msg", player.name + " joined game as " + player.id);
   }
   if (waitingPlayer3) {
@@ -1475,5 +1491,24 @@ function turn(data) {
     updateObjects();
   }
 }
+
+app.set("view engine", "pug");
+app.set("views", __dirname + "/../views");
+
+app.get("/register", function(req, res) {
+  res.render('register');
+});
+
+app.get("/login", function(req, res) {
+  res.render('login');
+});
+
+app.get("/menu", function(req, res) {
+  res.render('menu');
+})
+
+app.get("/game", function(req, res) {
+  res.render('game');
+})
 
 //# sourceMappingURL=server.js.map

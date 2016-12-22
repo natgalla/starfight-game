@@ -16,6 +16,13 @@ sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
 sock.on("win", victory);
 sock.on("lose", defeat);
+sock.on("chatMessage", onChat);
+
+$("#chat").submit(function() {
+  sock.emit("chat", user.name + ": " + $("#message").val());
+  $("#message").val("");
+  return false;
+})
 
 function getUpdate(packet) {
   turn = packet.turn;
@@ -42,6 +49,10 @@ function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
 }
 
+function onChat(text) {
+  $("#status").prepend( "<li class='playerMessage'> >>  " + text + "<li>");
+}
+
 function victory(text) {
   disableSelect();
   let $victory = $("<h1>", {id: "victory", text: text})
@@ -53,6 +64,11 @@ function defeat(text) {
   let $defeat = $("<h1>", {id: "defeat", text: text})
   $("body").append($defeat);
 }
+
+$(".menu").hide();
+$(".menu").slideDown(500);
+$("form").hide();
+$("form").fadeIn(800);
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
   if (element === undefined) {
@@ -194,11 +210,69 @@ $enterGameName.click(function() {
 });
 
 
-//Quick start
-// $("#playArea").hide();
-// $("#title").hide();
-// $("#info").hide();
-// $("#playArea").fadeIn();
+
+/*************************************
+FRONT END FORM VALIDATION
+*************************************/
+
+function validateNormalCharacters(string) {
+  let valid = true;
+  for (let i=0; i < string.length; i++) {
+    let character = string[i];
+    if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".includes(character)) {
+      valid = false;
+    }
+  }
+  return valid;
+}
+
+$("#createCallsign").on("keyup change", function() {
+  if ( validateNormalCharacters($(this).val()) ) {
+    $(this).removeClass("invalidEntry");
+  } else {
+    $(this).addClass("invalidEntry");
+  }
+});
+
+$("#userMail").on("keyup change", function() {
+  function validateEmail(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+  }
+  let email = $(this).val();
+  if(validateEmail(email) || email.length === 0) {
+    $(this).removeClass("invalidEntry");
+  } else {
+    $(this).addClass("invalidEntry");
+  }
+});
+
+$("#passwordCreate").on("keyup change", function() {
+  if ( $(this).val().length > 0 && $(this).val().length < 8 ) {
+    $(this).addClass("invalidEntry");
+  } else {
+    $(this).removeClass("invalidEntry");
+  }
+  if ( $(this).val().length > 7 && $(this).val() === $("#passwordConfirm").val() ) {
+    $("#passwordConfirm").removeClass("invalidEntry");
+  }
+});
+
+$("#passwordConfirm").on("keyup change", function() {
+  if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $("#passwordCreate").val()){
+    $(this).addClass("invalidEntry");
+  } else {
+    $(this).removeClass("invalidEntry");
+  }
+});
+
+$("#sessionName").on("keyup change", function() {
+  if ( validateNormalCharacters($(this).val()) ) {
+    $(this).removeClass("invalidEntry");
+  } else {
+    $(this).addClass("invalidEntry");
+  }
+});
 
 // globals changed throughout the game by player events, passed to back-end code
 let action;

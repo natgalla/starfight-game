@@ -11,6 +11,10 @@
 
 #playerHand {
   @include undoListOffset;
+  height: 165px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    height: 140px;
+  }
   transform: rotateX(10deg);
   border-top: 3px solid $primaryPink;
   border-bottom: 5px solid $highlightPink;

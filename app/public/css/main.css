@@ -406,7 +406,7 @@ body {
   background-color: black;
   background-repeat: no-repeat;
   background-size: 100% 100vh;
-  background-image: linear-gradient(#000, rgba(0, 0, 0, 0.3), #000), url(../../img/space.jpg);
+  background-image: linear-gradient(#000, rgba(0, 0, 0, 0.3), #000), url(../img/space.jpg);
   perspective: 1200; }
   body h1 {
     color: magenta;
@@ -423,7 +423,8 @@ body {
         font-size: 1.4em; } }
 
 h3 {
-  color: steelblue; }
+  color: steelblue;
+  font-family: "Orbitron", monospace, sans-serif; }
 
 p {
   font-family: VT323, courier, monospace;
@@ -446,7 +447,7 @@ li p {
   color: limegreen;
   margin-left: -2.5em; }
 
-#copyright {
+.copyright {
   font-family: sans-serif;
   color: steelblue;
   font-size: 0.8em;
@@ -512,9 +513,9 @@ li p {
   border-radius: 5px;
   box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -5px -8px 10px rgba(0, 0, 0, 0.8), inset 5px 8px 10px rgba(0, 0, 0, 0.8); }
   #info #status li {
-    color: #28a428; }
+    color: limegreen; }
     #info #status li.playerMessage {
-      color: limegreen; }
+      color: #8db3d3; }
 
 #victory,
 #defeat {
@@ -529,8 +530,8 @@ li p {
   margin-top: -150px; }
 
 ::-webkit-scrollbar {
-  width: 0.5em;
-  height: 0.5em; }
+  width: 0.3em;
+  height: 0.3em; }
 
 ::-webkit-scrollbar-thumb {
   background: #1e7b1e; }
@@ -568,17 +569,85 @@ button {
   height: 50px;
   margin-top: 5px; }
 
-input {
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  transition: 0.5s;
   text-align: center;
   font-family: VT323, courier, monospace;
   font-size: 1.2em;
   padding-top: 10px;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   background-color: #333;
   border: none;
-  color: limegreen; }
-  input[type=text]:focus {
+  color: limegreen;
+  box-shadow: inset 0px 0px 5px #1e7b1e, inset 0px 0px 5px #1e7b1e; }
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus {
     outline: 2px solid limegreen; }
+
+input[type="checkbox"] {
+  background-color: #333; }
+  input[type="checkbox"]:focus {
+    outline: 2px solid limegreen; }
+
+.menu {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 0.5em 1em;
+  width: 30%;
+  min-width: 275px;
+  margin: 0 auto;
+  border-radius: 1em;
+  border-top: 3px solid magenta;
+  border-bottom: 5px solid magenta; }
+  .menu h3 {
+    text-align: center; }
+  .menu div {
+    display: flex;
+    justify-content: space-between; }
+    .menu div.create, .menu div.join {
+      width: 50%;
+      display: inline-block;
+      text-align: center;
+      margin: 2em 0; }
+      .menu div.create label, .menu div.join label {
+        margin-left: 1em; }
+    .menu div.session {
+      margin-bottom: 2em; }
+    .menu div.submit {
+      justify-content: space-around;
+      padding: 1em 0; }
+    .menu div.updates {
+      display: block;
+      text-align: center;
+      margin-top: 1em;
+      justify-content: space-around; }
+      .menu div.updates label {
+        margin-left: 1em; }
+  .menu input[type="text"],
+  .menu input[type="email"],
+  .menu input[type="password"] {
+    margin: 0.3em 0;
+    padding: 0.5em ease-out;
+    width: 60%; }
+    .menu input[type="text"].invalidEntry,
+    .menu input[type="email"].invalidEntry,
+    .menu input[type="password"].invalidEntry {
+      box-shadow: inset 0px 0px 5px crimson, inset 0px 0px 5px crimson;
+      color: crimson; }
+      .menu input[type="text"].invalidEntry:focus,
+      .menu input[type="email"].invalidEntry:focus,
+      .menu input[type="password"].invalidEntry:focus {
+        outline: 2px solid crimson; }
+  .menu label {
+    font-family: "Orbitron", monospace;
+    margin: auto 0;
+    color: steelblue;
+    font-size: 1em;
+    text-align: left; }
+    .menu label#updates {
+      font-size: 0.8em; }
 
 #messenger {
   width: 280px;
@@ -888,8 +957,9 @@ input {
   border-left: 4px solid crimson;
   border-top: 2px solid crimson;
   border-bottom: 5px solid crimson;
+  border-right: none;
   border-radius: 3em 0 0 3em;
-  margin-right: -2px; }
+  margin-right: 0; }
 
 #basePursuers,
 #wingmen-pursuers {

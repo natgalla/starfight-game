@@ -511,6 +511,10 @@ li p {
   background: rgba(50, 50, 50, 0.8);
   border-radius: 5px;
   box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -5px -8px 10px rgba(0, 0, 0, 0.8), inset 5px 8px 10px rgba(0, 0, 0, 0.8); }
+  #info #status li {
+    color: #28a428; }
+    #info #status li.playerMessage {
+      color: limegreen; }
 
 #victory,
 #defeat {
@@ -576,6 +580,29 @@ input {
   input[type=text]:focus {
     outline: 2px solid limegreen; }
 
+#messenger {
+  width: 280px;
+  margin: -1em auto 0 auto;
+  border-radius: 3px; }
+  #messenger input {
+    font-size: 1em;
+    text-align: left;
+    box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -3px -6px 8px rgba(0, 0, 0, 0.8), inset 3px 6px 8px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    height: 30px;
+    padding: 0 0 0 0.5em;
+    width: 73%; }
+    #messenger input:focus {
+      outline: none; }
+  #messenger button {
+    font-size: 0.9em;
+    height: 30px;
+    width: 22%;
+    margin: 0;
+    padding: 0 0.5em; }
+  #messenger #sendMessage {
+    margin: 0; }
+
 .tactical,
 .advTactical {
   width: 90px;
@@ -610,12 +637,16 @@ input {
 
 #playerHand {
   padding-left: 0;
+  height: 165px;
   transform: rotateX(10deg);
   border-top: 3px solid magenta;
   border-bottom: 5px solid #ff66ff;
   border-radius: 1em;
   padding: 10px 40px;
   background: rgba(0, 0, 0, 0.8); }
+  @media (max-width: 1000px), (max-height: 700px) {
+    #playerHand {
+      height: 140px; } }
   #playerHand .advTactical,
   #playerHand .tactical {
     transform: rotateX(15deg);
