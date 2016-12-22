@@ -6,22 +6,25 @@ block content
     h3 New pilot registry
     form(action='/register' method='post')
       .callsign
-        label(for='createCallsign') Callsign: 
-        input(type='text' name='createCallsign' id='createCallsign')
+        label(for='createCallsign' title='This will be your username') Callsign: 
+        input(type='text' name='createCallsign' id='createCallsign' title='This will be your username')
       .email
         label(for='email') Email: 
         input(type='email' name='userMail' id='userMail')
       .password
-        label(for='passwordCreate') Password: 
-        input(type='password' name='passwordCreate' id='passwordCreate')
+        label(for='passwordCreate' title='Must be at least 8 characters long') Password: 
+        input(type='password' name='passwordCreate' id='passwordCreate' title='Must be at least 8 characters long')
       .confirm
-        label(for='passwordConfirm') Confirm: 
-        input(type='password' name='passwordConfirm' id='passwordConfirm')
+        label(for='passwordConfirm' title='Must match password') Confirm: 
+        input(type='password' name='passwordConfirm' id='passwordConfirm' title='Must match password')
       .updates
         input(type='checkbox' name='updates')
-        label(for='updates' id='updates') Keep me posted on Starfire's release
+        label(for='updates' id='updates' title='Only major updates. We promise not to spam you') Keep me posted on Starfire's release
       .submit
         button(type='submit') Enlist
+    .createAccount
+      p 
+        a(href='/login') Already registered?
         
 block js
   include ./partials/_auth.pug

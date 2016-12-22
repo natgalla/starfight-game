@@ -119,7 +119,7 @@ $createGameName.on("click", function() {
   if (sessionName) {
     $newSession.hide();
     $("#title").hide();
-    $("#copyright").hide();
+    $(".copyright").hide();
     $("#info").addClass("messages");
     $playArea.fadeIn();
     $.post("/", "start");
@@ -130,7 +130,7 @@ $enterGameName.click(function() {
   if (sessionName === validSession) {
     $joinSession.hide();
     $("#title").hide();
-    $("#copyright").hide();
+    $(".copyright").hide();
     $("#info").addClass("messages");
     $playArea.fadeIn();
   } else {

@@ -95,6 +95,11 @@ input[type="checkbox"] {
         margin-left: 1em;
       }
     }
+    &.createAccount {
+      display: block;
+      text-align: center;
+      margin: 1em 1em 2em 1em;
+    }
   }
   input[type="text"],
   input[type="email"],
@@ -115,7 +120,7 @@ input[type="checkbox"] {
     font-family: "Orbitron", monospace;
     margin: auto 0;
     color: $secondaryBlue;
-    font-size: 1em;
+    font-size: 1.3em;
     text-align: left;
     &#updates {
       font-size: 0.8em;

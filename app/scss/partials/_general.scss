@@ -56,11 +56,15 @@ li p {
 .copyright {
   font-family: sans-serif;
   color: $secondaryBlue;
-  font-size: 0.8em;
-  position: fixed;
-  bottom: 10px;
+  font-size: 0.7em;
   text-align: center;
+  position: absolute;
+  bottom: 0;
+  margin-top: 2%;
   width: 100%;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    font-size: 0.9em;
+  }
 }
 
 #setup {
@@ -105,7 +109,7 @@ li p {
   display: inline-block;
 }
 
-.clearfix::after {
+.clearfix::before {
   content: " ";
   display: table;
   clear: both;
@@ -151,6 +155,17 @@ li p {
   vertical-align: middle;
   margin-left: -150px;
   margin-top: -150px;
+}
+
+a {
+  transition: 0.5s ease-out;
+  text-decoration: none;
+  color: $shadeGreen;
+  padding: 0.7em 1em;
+  margin-top: 0.5em;
+  &:hover {
+    color: $primaryPink;
+  }
 }
 
 @include scrollbars(0.3em, darken($complementGreen, $step), $complementGreen);

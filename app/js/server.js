@@ -1326,7 +1326,7 @@ app.use(express.static(root + "/.."));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
-app.post("/game", function(req, res) {
+app.post("/", function(req, res) {
   console.log("POST request to home page");
   let body = "";
   req.on("data", function(data) {
