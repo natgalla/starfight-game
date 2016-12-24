@@ -1387,13 +1387,13 @@ function onConnection(socket) {
     socket.emit("msg", "Waiting for second player...");
     socket.emit("firstPlayer");
     socket.on("startGame", function() {
-      io.sockets.emit("start");
-    });
-    socket.on("initiate", function() {
+      if (game.friendlies.includes(Player2)) { //protects from premature game start
+        io.sockets.emit("start");
         currentTurn = 1;
         clearSockets();
         startGame(game);
         updateObjects();
+      }
     });
   }
 }

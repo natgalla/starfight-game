@@ -68,7 +68,6 @@ function onFirst() {
   $("#room").append($play);
   $play.on("click", function() {
     if($(this).hasClass("enabled")) {
-      sock.emit("initiate");
       sock.emit("startGame");
     }
   });
