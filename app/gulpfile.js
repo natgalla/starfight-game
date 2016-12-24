@@ -44,7 +44,8 @@ gulp.task("concatServerScripts", function() {
 gulp.task("concatClientScripts", function() {
     return gulp.src([
         'public/js/client/_client.js',
-        'public/js/client/_starfire_menu.js',
+        'public/js/client/_typeWord.js',
+        'public/js/client/_room.js',
         'public/js/client/_starfire_ui.js'
       ])
     .pipe(maps.init())

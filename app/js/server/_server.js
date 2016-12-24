@@ -14,7 +14,7 @@ let waitingPlayer3;
 
 let currentTurn;
 
-let packet = {
+let session = {
   turn: currentTurn,
   game: game,
   FriendlyBase: FriendlyBase,
@@ -28,23 +28,6 @@ io.on("connect", onConnection);
 app.use(express.static(root + "/.."));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
-
-app.post("/", function(req, res) {
-  console.log("POST request to home page");
-  let body = "";
-  req.on("data", function(data) {
-    body += data;
-  });
-  req.on("end", function() {
-    if (body === "start") {
-      currentTurn = 1;
-      clearSockets();
-      startGame(game);
-      res.send("Game started.");
-      updateObjects();
-    }
-  });
-});
 
 function validateNormalCharacters(string) {
   let valid = true;
@@ -99,35 +82,46 @@ function onConnection(socket) {
     Player2 = new Player("Player2", "Rudi");
     join(Player2);
     io.sockets.emit("msg", "Game ready");
+    io.sockets.emit("openGame");
   } else {
     waitingPlayer1 = socket;
     Player1 = new Player("Player1", "Nathan");
     join(Player1);
     socket.emit("msg", "Waiting for second player...");
+    socket.emit("firstPlayer");
+    socket.on("startGame", function() {
+      io.sockets.emit("start");
+    });
+    socket.on("initiate", function() {
+        currentTurn = 1;
+        clearSockets();
+        startGame(game);
+        updateObjects();
+    });
   }
 }
 
 function updateObjects() {
   game.update();
-  packet = {
+  session = {
     turn: currentTurn,
     game: game,
     FriendlyBase: FriendlyBase,
     enemyBase: enemyBase
   }
   if (game.friendlies.includes(Player1)) {
-    packet.Player1 = Player1;
+    session.Player1 = Player1;
   }
   if (game.friendlies.includes(Player2)) {
-    packet.Player2 = Player2;
+    session.Player2 = Player2;
   }
   if (game.friendlies.includes(Player3)) {
-    packet.Player3 = Player3;
+    session.Player3 = Player3;
   }
   if (game.friendlies.includes(Player4)) {
-    packet.Player4 = Player4;
+    session.Player4 = Player4;
   }
-  io.sockets.emit("update", packet);
+  io.sockets.emit("update", session);
 }
 
 function turn(data) {

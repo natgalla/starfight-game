@@ -1,15 +1,15 @@
 var sock = io();
-let user;
-let userTurn = false;
+var user;
+var userTurn = false;
 
-let game;
-let Player1;
-let Player2;
-let Player3;
-let Player4;
-let FriendlyBase;
-let enemyBase;
-let turn;
+var game;
+var Player1;
+var Player2;
+var Player3;
+var Player4;
+var FriendlyBase;
+var enemyBase;
+var turn;
 
 sock.on("msg", onMessage);
 sock.on("assign", assignPlayer);
@@ -17,6 +17,9 @@ sock.on("update", getUpdate);
 sock.on("win", victory);
 sock.on("lose", defeat);
 sock.on("chatMessage", onChat);
+sock.on("openGame", onOpen);
+sock.on("firstPlayer", onFirst);
+sock.on("start", onStart);
 
 $("#chat").submit(function() {
   sock.emit("chat", user.name + ": " + $("#message").val());
@@ -49,8 +52,34 @@ function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
 }
 
+function onOpen() {
+  $("#play").removeClass("disabled");
+  $("#play").addClass("enabled");
+  $("#info").removeClass("menu");
+  $("#play").text("Launch");
+}
+
 function onChat(text) {
   $("#status").prepend( "<li class='playerMessage'> >>  " + text + "<li>");
+}
+
+function onFirst() {
+  let $play = $("<button>", {id: "play", text: "Standby", class: "disabled"});
+  $("#room").append($play);
+  $play.on("click", function() {
+    if($(this).hasClass("enabled")) {
+      sock.emit("initiate");
+      sock.emit("startGame");
+    }
+  });
+}
+
+function onStart() {
+  $("#room").hide();
+  $("#title").hide();
+  $(".copyright").hide();
+  $("#info").addClass("messages");
+  $("#playArea").fadeIn();
 }
 
 function victory(text) {

@@ -50,8 +50,15 @@
   box-shadow: none;
   color: $lightGrey;
   &:hover {
+    color: $lightGrey;
     box-shadow: none;
     cursor: not-allowed;
+  }
+  &:focus {
+    color: $lightGrey;
+    box-shadow: none;
+    cursor: not-allowed;
+    border-color: $mediumGrey;
   }
   & h3 {
     color: desaturate($secondaryBlue, 20%);

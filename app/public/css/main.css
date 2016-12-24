@@ -447,6 +447,24 @@ li p {
   color: limegreen;
   margin-left: -2.5em; }
 
+.disabled {
+  z-index: 0;
+  background-color: rgba(30, 30, 30, 0.8);
+  border-color: #666;
+  box-shadow: none;
+  color: #888; }
+  .disabled:hover {
+    color: #888;
+    box-shadow: none;
+    cursor: not-allowed; }
+  .disabled:focus {
+    color: #888;
+    box-shadow: none;
+    cursor: not-allowed;
+    border-color: #666; }
+  .disabled h3 {
+    color: #5f809b; }
+
 .copyright {
   font-family: sans-serif;
   color: steelblue;
@@ -476,7 +494,7 @@ li p {
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
-  position: absolute;
+  position: fixed;
   width: 50%;
   text-align: center;
   margin-left: -25%;
@@ -521,6 +539,13 @@ li p {
     #info #status li.playerMessage {
       color: #8db3d3; }
 
+#room {
+  text-align: center; }
+  #room h3 {
+    margin: 2em; }
+  #room button {
+    margin-bottom: 2em; }
+
 #victory,
 #defeat {
   position: absolute;
@@ -536,7 +561,7 @@ li p {
 a {
   transition: 0.5s ease-out;
   text-decoration: none;
-  color: #1e7b1e;
+  color: #990099;
   padding: 0.7em 1em;
   margin-top: 0.5em; }
   a:hover {
@@ -765,8 +790,14 @@ input[type="checkbox"] {
     box-shadow: none;
     color: #888; }
     #playerHand .disabled:hover {
+      color: #888;
       box-shadow: none;
       cursor: not-allowed; }
+    #playerHand .disabled:focus {
+      color: #888;
+      box-shadow: none;
+      cursor: not-allowed;
+      border-color: #666; }
     #playerHand .disabled h3 {
       color: #5f809b; }
 
@@ -785,7 +816,7 @@ input[type="checkbox"] {
   margin: 0 -1em;
   vertical-align: middle;
   margin-left: -5em;
-  margin-top: -60px;
+  margin-top: -6em;
   font-size: .5em;
   z-index: 0;
   vertical-align: middle; }
@@ -804,7 +835,7 @@ input[type="checkbox"] {
   @media (max-width: 1000px), (max-height: 700px) {
     #wingmen .tactical,
     #wingmen .advTactical {
-      margin-top: -45px; } }
+      margin-top: -4.5em; } }
   #wingmen .tactical h3,
   #wingmen .advTactical h3 {
     display: none; }
@@ -866,8 +897,15 @@ input[type="checkbox"] {
   color: #888; }
   .emptySpace:hover,
   .invalidTarget:hover {
+    color: #888;
     box-shadow: none;
     cursor: not-allowed; }
+  .emptySpace:focus,
+  .invalidTarget:focus {
+    color: #888;
+    box-shadow: none;
+    cursor: not-allowed;
+    border-color: #666; }
   .emptySpace h3,
   .invalidTarget h3 {
     color: #5f809b; }
@@ -908,7 +946,7 @@ input[type="checkbox"] {
   transform: rotate(-90deg);
   margin-top: 180px; }
   #basePursuers .enemy {
-    margin-top: -90px; }
+    margin-top: -3em; }
 
 #wingmen-pursuers ul {
   margin: 0 6%; }
@@ -1023,8 +1061,14 @@ input[type="checkbox"] {
     box-shadow: none;
     color: #888; }
     #overlay .unavailable:hover {
+      color: #888;
       box-shadow: none;
       cursor: not-allowed; }
+    #overlay .unavailable:focus {
+      color: #888;
+      box-shadow: none;
+      cursor: not-allowed;
+      border-color: #666; }
     #overlay .unavailable h3 {
       color: #5f809b; }
 
@@ -1079,7 +1123,7 @@ input[type="checkbox"] {
 #wingmen .playerSummary {
   font-size: 0.8em;
   display: inline-block;
-  margin-top: 2em; }
+  margin-top: 4em; }
 
 .assist {
   background-color: #333;

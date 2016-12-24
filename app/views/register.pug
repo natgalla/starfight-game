@@ -2,8 +2,8 @@ extends ./layout.pug
 
 block content
   h1#title Starfire
-  .menu
-    h3 New pilot registry
+  .menu#register
+    h3.formHeader New pilot registry
     form(action='/register' method='post')
       .callsign
         label(for='createCallsign' title='This will be your username') Callsign: 

@@ -1,6 +1,15 @@
 extends ./layout.pug
 
 block content
+  h1#title Starfire
+  #room.menu
+  #info
+    ul#status
+    #messenger
+      form#chat
+        input(type="text", name="message", id="message")
+        button(type="submit", id="sendMessage") Send
+    p.copyright Starfire &copy; 2016 Nathan Gallagher and Rudi Vanzin. Design by Nathan Gallagher.
   #playArea
     #wingmen
       ul.wingman-hand#wingman1-hand
@@ -22,3 +31,7 @@ block content
       ul#playerHand
       #userSummary
       #buttons
+
+block js   
+  script(src="/socket.io/socket.io.js")
+  script(type="text/javascript" src="js/client.js")

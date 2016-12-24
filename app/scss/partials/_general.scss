@@ -53,6 +53,10 @@ li p {
   margin-left: -2.5em;
 }
 
+.disabled {
+  @include disabled;
+}
+
 .copyright {
   font-family: sans-serif;
   color: $secondaryBlue;
@@ -85,7 +89,7 @@ li p {
 }
 
 #player { // need position fix for Safari
-  position: absolute;
+  position: fixed;
   width: 50%;
   text-align: center;
   margin-left: -25%;
@@ -144,6 +148,16 @@ li p {
   }
 }
 
+#room {
+  text-align: center;
+  & h3 {
+    margin: 2em;
+  }
+  & button {
+    margin-bottom: 2em;
+  }
+}
+
 #victory,
 #defeat {
   position: absolute;
@@ -160,7 +174,7 @@ li p {
 a {
   transition: 0.5s ease-out;
   text-decoration: none;
-  color: $shadeGreen;
+  color: $shadePink;
   padding: 0.7em 1em;
   margin-top: 0.5em;
   &:hover {

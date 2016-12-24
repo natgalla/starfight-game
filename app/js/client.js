@@ -1,15 +1,15 @@
 var sock = io();
-let user;
-let userTurn = false;
+var user;
+var userTurn = false;
 
-let game;
-let Player1;
-let Player2;
-let Player3;
-let Player4;
-let FriendlyBase;
-let enemyBase;
-let turn;
+var game;
+var Player1;
+var Player2;
+var Player3;
+var Player4;
+var FriendlyBase;
+var enemyBase;
+var turn;
 
 sock.on("msg", onMessage);
 sock.on("assign", assignPlayer);
@@ -17,6 +17,9 @@ sock.on("update", getUpdate);
 sock.on("win", victory);
 sock.on("lose", defeat);
 sock.on("chatMessage", onChat);
+sock.on("openGame", onOpen);
+sock.on("firstPlayer", onFirst);
+sock.on("start", onStart);
 
 $("#chat").submit(function() {
   sock.emit("chat", user.name + ": " + $("#message").val());
@@ -49,8 +52,34 @@ function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
 }
 
+function onOpen() {
+  $("#play").removeClass("disabled");
+  $("#play").addClass("enabled");
+  $("#info").removeClass("menu");
+  $("#play").text("Launch");
+}
+
 function onChat(text) {
   $("#status").prepend( "<li class='playerMessage'> >>  " + text + "<li>");
+}
+
+function onFirst() {
+  let $play = $("<button>", {id: "play", text: "Standby", class: "disabled"});
+  $("#room").append($play);
+  $play.on("click", function() {
+    if($(this).hasClass("enabled")) {
+      sock.emit("initiate");
+      sock.emit("startGame");
+    }
+  });
+}
+
+function onStart() {
+  $("#room").hide();
+  $("#title").hide();
+  $(".copyright").hide();
+  $("#info").addClass("messages");
+  $("#playArea").fadeIn();
 }
 
 function victory(text) {
@@ -64,11 +93,6 @@ function defeat(text) {
   let $defeat = $("<h1>", {id: "defeat", text: text})
   $("body").append($defeat);
 }
-
-$(".menu").hide();
-$(".menu").slideDown(500);
-$("form").hide();
-$("form").fadeIn(800);
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
   if (element === undefined) {
@@ -110,169 +134,12 @@ let typeWord = function($location, text, element, begEnd, interval, cursor) {
   }
 }
 
-let gameName = "Starfire";
-let sessionName;
-let validSession = "test1";
 let $setup = $("<div>", {id: "setup"});
 let $server = $("<ul>", {id: "server"});
-let $newSessionNameInput = $("<input>", {type: "text", id: "newSessionName"});
-let $joinSessionNameInput = $("<input>", {type: "text", id: "joinSessionName"});
-let $play = $("<button>", {id: "play", text: "Play"});
-let $createGameName = $("<button>", {id: "createGameName", text: "Create"});
-let $enterGameName = $("<button>", {id: "enterGameName", text: "Enter"});
-let $newGame = $("<button>", {id: "newGame", text: "Create"});
-let $joinGame = $("<button>", {id: "joinGame", text: "Join"});
-let $notActive = $("<p>", {id: "notActive", text: "Not an active session"});
 
-let $greet = $("<div>", {id: "greet"});
-let $startGame = $("<div>", {id: "startGame"});
-let $newSession = $("<div>", {id: "setup"});
-let $joinSession = $("<div>", {id: "joinSession"});
-let $playArea = $("#playArea");
+$("#playArea").hide();
 
-$playArea.hide();
-$("#menu").prepend($setup);
-$setup.append($greet);
-// $setup.append("<h3> Welcome to " + gameName + "<h3>");
-typeWord($greet, "Welcome to " + gameName, "h3");
-$greet.append($play);
-$setup.append($server);
-// $startGame.append("<h3>Create a new game or join an existing one?</h3>");
-$startGame.append($newGame);
-$startGame.append($joinGame);
-// $newSession.append("<h3>Please enter a name for your session.</h3>");
-$newSession.append($newSessionNameInput);
-$newSession.append($createGameName);
-// $joinSession.append("<h3>Please enter the name of the session you would like to join</h3>");
-$joinSession.append($joinSessionNameInput);
-$joinSession.append($enterGameName);
-$joinSession.append($notActive);
-$notActive.hide();
-
-$play.on("click", function() {
-  $greet.hide();
-  $setup.append($startGame);
-  $startGame.hide();
-  $startGame.fadeIn();
-  typeWord($startGame, "Create a new game or join an existing one?", "h3");
-});
-
-$newGame.on("click", function() {
-  $startGame.hide();
-  $setup.append($newSession);
-  $newSession.hide();
-  $newSession.fadeIn();
-  typeWord($newSession, "Please enter a name for your session.", "h3");
-});
-
-$joinGame.on("click", function() {
-  $startGame.hide();
-  $setup.append($joinSession);
-  $joinSession.hide();
-  $joinSession.fadeIn();
-  typeWord($joinSession, "Please enter the name of the session you would like to join", "h3");
-  $("#notActive").hide();
-});
-
-$newSessionNameInput.on("keyup change", function() {
-  sessionName = $(this).val();
-});
-$joinSessionNameInput.on("keyup change", function() {
-  $notActive.hide();
-  sessionName = $(this).val();
-});
-
-$createGameName.on("click", function() {
-  if (sessionName) {
-    $newSession.hide();
-    $("#title").hide();
-    $(".copyright").hide();
-    $("#info").addClass("messages");
-    $playArea.fadeIn();
-    $.post("/", "start");
-  }
-});
-
-$enterGameName.click(function() {
-  if (sessionName === validSession) {
-    $joinSession.hide();
-    $("#title").hide();
-    $(".copyright").hide();
-    $("#info").addClass("messages");
-    $playArea.fadeIn();
-  } else {
-    $notActive.fadeIn(400, function() {
-      $notActive.fadeOut(300, function() {
-        $notActive.fadeIn(400)
-      })
-    })
-  }
-});
-
-
-
-/*************************************
-FRONT END FORM VALIDATION
-*************************************/
-
-function validateNormalCharacters(string) {
-  let valid = true;
-  for (let i=0; i < string.length; i++) {
-    let character = string[i];
-    if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".includes(character)) {
-      valid = false;
-    }
-  }
-  return valid;
-}
-
-$("#createCallsign").on("keyup change", function() {
-  if ( validateNormalCharacters($(this).val()) ) {
-    $(this).removeClass("invalidEntry");
-  } else {
-    $(this).addClass("invalidEntry");
-  }
-});
-
-$("#userMail").on("keyup change", function() {
-  function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  }
-  let email = $(this).val();
-  if(validateEmail(email) || email.length === 0) {
-    $(this).removeClass("invalidEntry");
-  } else {
-    $(this).addClass("invalidEntry");
-  }
-});
-
-$("#passwordCreate").on("keyup change", function() {
-  if ( $(this).val().length > 0 && $(this).val().length < 8 ) {
-    $(this).addClass("invalidEntry");
-  } else {
-    $(this).removeClass("invalidEntry");
-  }
-  if ( $(this).val().length > 7 && $(this).val() === $("#passwordConfirm").val() ) {
-    $("#passwordConfirm").removeClass("invalidEntry");
-  }
-});
-
-$("#passwordConfirm").on("keyup change", function() {
-  if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $("#passwordCreate").val()){
-    $(this).addClass("invalidEntry");
-  } else {
-    $(this).removeClass("invalidEntry");
-  }
-});
-
-$("#sessionName").on("keyup change", function() {
-  if ( validateNormalCharacters($(this).val()) ) {
-    $(this).removeClass("invalidEntry");
-  } else {
-    $(this).addClass("invalidEntry");
-  }
-});
+typeWord($("#room"), "Standing by...", "h3");
 
 // globals changed throughout the game by player events, passed to back-end code
 let action;

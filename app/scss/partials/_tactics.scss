@@ -51,9 +51,9 @@
   &:first-child {
     margin-left: -1.5em;
   }
-  margin-top: -60px;
+  margin-top: -6em;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    margin-top: -45px;
+    margin-top: -4.5em;
   }
   font-size: .5em;
   z-index: 0;
