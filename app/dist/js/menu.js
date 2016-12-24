@@ -50,6 +50,7 @@ $(".formHeader").hide();
 typeWord($('#login'), "Pilot log in", "h3");
 typeWord($('#register'), "New Pilot Registry", "h3");
 typeWord($('#gameMenu'), "Enter or join session", "h3");
+typeWord($("#room"), "Standing by...", "h3");
 
 /*************************************
 FRONT END FORM VALIDATION
@@ -113,5 +114,10 @@ $("#sessionName").on("keyup change", function() {
     $(this).addClass("invalidEntry");
   }
 });
+
+let $setup = $("<div>", {id: "setup"});
+let $server = $("<ul>", {id: "server"});
+
+$("#playArea").hide();
 
 //# sourceMappingURL=menu.js.map

@@ -618,8 +618,7 @@ input[type="password"] {
   padding-bottom: 10px;
   background-color: #333;
   border: none;
-  color: limegreen;
-  box-shadow: inset 0px 0px 5px #1e7b1e, inset 0px 0px 5px #1e7b1e; }
+  color: limegreen; }
   input[type="text"]:focus,
   input[type="email"]:focus,
   input[type="password"]:focus {

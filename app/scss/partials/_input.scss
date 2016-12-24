@@ -40,8 +40,6 @@ input[type="password"] {
   background-color: $darkGrey;
   border: none;
   color: $complementGreen;
-  box-shadow: inset 0px 0px 5px $shadeGreen,
-              inset 0px 0px 5px $shadeGreen;
   &:focus {
     outline: 2px solid $complementGreen;
   }

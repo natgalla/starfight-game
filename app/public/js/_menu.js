@@ -2,14 +2,19 @@
 Effects
 ********************/
 
+let header = $(".formHeader").text();
+
 $(".menu").hide();
 $(".menu").slideDown(500);
 $("form").hide();
 $("form").fadeIn(800);
 $(".formHeader").hide();
-typeWord($('#login'), "Pilot log in", "h3");
-typeWord($('#register'), "New Pilot Registry", "h3");
-typeWord($('#gameMenu'), "Enter or join session", "h3");
+
+typeWord($('#login'), header, "h3");
+typeWord($('#register'), header, "h3");
+typeWord($('#gameMenu'), header, "h3");
+typeWord($("#room"), header, "h3");
+
 
 /*************************************
 FRONT END FORM VALIDATION
@@ -24,6 +29,16 @@ function validateNormalCharacters(string) {
     }
   }
   return valid;
+}
+
+function validateCompletion($input, validity) {
+  if ($input.val().length > 0 && valid) {
+    $(".submit").addClass("enabled");
+    $(".submit").removeClass("disabled");
+  } else {
+    $(".submit").addClass("disabled");
+    $(".submit").removeClass("enabled");
+  }
 }
 
 $("#createCallsign").on("keyup change", function() {
@@ -73,3 +88,13 @@ $("#sessionName").on("keyup change", function() {
     $(this).addClass("invalidEntry");
   }
 });
+
+
+/*****************************
+Specific to waiting room view
+*****************************/
+
+let $setup = $("<div>", {id: "setup"});
+let $server = $("<ul>", {id: "server"});
+
+$("#playArea").hide();

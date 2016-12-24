@@ -1,12 +1,27 @@
 app.set("view engine", "pug");
 app.set("views", __dirname + "/views");
 
+function parseReq(req) {
+
+}
+
 app.get("/", function(req, res) {
   res.redirect("/login");
 });
 
 app.get("/register", function(req, res) {
   res.render('register');
+});
+
+app.post("/register", function(req, res) {
+  let body;
+  req.on("data", function(chunk) {
+    body += chunk;
+  });
+  req.on("end", function() {
+    console.log(body);
+    res.render('registered');
+  });
 });
 
 app.get("/login", function(req, res) {
