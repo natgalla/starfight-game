@@ -1,5 +1,5 @@
 app.set("view engine", "pug");
-app.set("views", __dirname + "/../views");
+app.set("views", __dirname + "/views");
 
 app.get("/", function(req, res) {
   res.redirect("/login");

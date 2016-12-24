@@ -1311,7 +1311,7 @@ let waitingPlayer3;
 
 let currentTurn;
 
-let packet = {
+let session = {
   turn: currentTurn,
   game: game,
   FriendlyBase: FriendlyBase,
@@ -1322,26 +1322,9 @@ let packet = {
 
 io.on("connect", onConnection);
 
-app.use(express.static(root + "/.."));
+app.use(express.static(root));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
-
-app.post("/", function(req, res) {
-  console.log("POST request to home page");
-  let body = "";
-  req.on("data", function(data) {
-    body += data;
-  });
-  req.on("end", function() {
-    if (body === "start") {
-      currentTurn = 1;
-      clearSockets();
-      startGame(game);
-      res.send("Game started.");
-      updateObjects();
-    }
-  });
-});
 
 function validateNormalCharacters(string) {
   let valid = true;
@@ -1402,30 +1385,40 @@ function onConnection(socket) {
     Player1 = new Player("Player1", "Nathan");
     join(Player1);
     socket.emit("msg", "Waiting for second player...");
+    socket.emit("firstPlayer");
+    socket.on("startGame", function() {
+      if (game.friendlies.includes(Player2)) { //protects from premature game start
+        io.sockets.emit("start");
+        currentTurn = 1;
+        clearSockets();
+        startGame(game);
+        updateObjects();
+      }
+    });
   }
 }
 
 function updateObjects() {
   game.update();
-  packet = {
+  session = {
     turn: currentTurn,
     game: game,
     FriendlyBase: FriendlyBase,
     enemyBase: enemyBase
   }
   if (game.friendlies.includes(Player1)) {
-    packet.Player1 = Player1;
+    session.Player1 = Player1;
   }
   if (game.friendlies.includes(Player2)) {
-    packet.Player2 = Player2;
+    session.Player2 = Player2;
   }
   if (game.friendlies.includes(Player3)) {
-    packet.Player3 = Player3;
+    session.Player3 = Player3;
   }
   if (game.friendlies.includes(Player4)) {
-    packet.Player4 = Player4;
+    session.Player4 = Player4;
   }
-  io.sockets.emit("update", packet);
+  io.sockets.emit("update", session);
 }
 
 function turn(data) {
@@ -1494,7 +1487,11 @@ function turn(data) {
 }
 
 app.set("view engine", "pug");
-app.set("views", __dirname + "/../views");
+app.set("views", __dirname + "/views");
+
+app.get("/", function(req, res) {
+  res.redirect("/login");
+});
 
 app.get("/register", function(req, res) {
   res.render('register');
@@ -1504,12 +1501,20 @@ app.get("/login", function(req, res) {
   res.render('login');
 });
 
+app.post("/login", function(req, res) {
+  res.redirect("/menu");
+});
+
 app.get("/menu", function(req, res) {
   res.render('menu');
+});
+
+app.post("/menu", function(req, res) {
+  res.redirect("/game");
 });
 
 app.get("/game", function(req, res) {
   res.render('game');
 });
 
-//# sourceMappingURL=server.js.map
+//# sourceMappingURL=app.js.map

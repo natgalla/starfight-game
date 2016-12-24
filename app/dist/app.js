@@ -1322,7 +1322,7 @@ let session = {
 
 io.on("connect", onConnection);
 
-app.use(express.static(root + "/.."));
+app.use(express.static(root));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
@@ -1487,7 +1487,7 @@ function turn(data) {
 }
 
 app.set("view engine", "pug");
-app.set("views", __dirname + "/../views");
+app.set("views", __dirname + "/views");
 
 app.get("/", function(req, res) {
   res.redirect("/login");
@@ -1517,4 +1517,4 @@ app.get("/game", function(req, res) {
   res.render('game');
 });
 
-//# sourceMappingURL=server.js.map
+//# sourceMappingURL=app.js.map

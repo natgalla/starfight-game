@@ -25,7 +25,7 @@ let session = {
 
 io.on("connect", onConnection);
 
-app.use(express.static(root + "/.."));
+app.use(express.static(root));
 
 server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 

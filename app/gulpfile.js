@@ -36,12 +36,12 @@ gulp.task("concatServerScripts", function() {
         'js/server/_router.js'
       ])
     .pipe(maps.init())
-    .pipe(concat('server.js'))
+    .pipe(concat('app.js'))
     .pipe(maps.write('./'))
-    .pipe(gulp.dest('js'));
+    .pipe(gulp.dest(__dirname));
 });
 
-gulp.task("concatClientScripts", function() {
+gulp.task("concatGameScripts", function() {
     return gulp.src([
         'public/js/client/_client.js',
         'public/js/client/_typeWord.js',
@@ -49,12 +49,23 @@ gulp.task("concatClientScripts", function() {
         'public/js/client/_starfire_ui.js'
       ])
     .pipe(maps.init())
-    .pipe(concat('client.js'))
+    .pipe(concat('game.js'))
     .pipe(maps.write('./'))
     .pipe(gulp.dest('js'));
 });
 
-gulp.task("minifyScripts", ["concatClientScripts", "concatServerScripts"], function() {
+gulp.task("concatMenuScripts", function() {
+    return gulp.src([
+        'public/js/client/_typeWord.js',
+        'public/js/client/_starfire_menu.js',
+      ])
+    .pipe(maps.init())
+    .pipe(concat('menu.js'))
+    .pipe(maps.write('./'))
+    .pipe(gulp.dest('js'));
+});
+
+gulp.task("minifyScripts", ["concatGameScripts", "concatMenuScripts", "concatServerScripts"], function() {
   return gulp.src("js/app.js")
     .pipe(uglify())
     .pipe(rename('app.min.js'))
@@ -75,17 +86,17 @@ gulp.task('watchFiles', function() {
       'js/server/*.js',
       'public/js/client/*.js'
     ],
-    ["concatClientScripts", "concatServerScripts"]);
+    ["concatGameScripts", "concatMenuScripts", "concatServerScripts"]);
 });
 
 gulp.task('clean', function() {
-  return del(['dist', 'public/css/main.css*', 'public/js/client*.js*', 'js/server*.js*']);
+  return del(['dist', 'public/css/main.css*', 'js/game*.js*', 'js/menu*.js*', 'server*.js*']);
 })
 
 gulp.task("build", [/* 'minifyScripts', */ 'concatServerScripts',
-                    'concatClientScripts', 'compileSass'],
+                    'concatGameScripts', 'concatMenuScripts', 'compileSass'],
   function() {
-    return gulp.src(["css/main.css", "public/js/client.js", "public/js/img.js", "js/server.js", "index.html"], { base: "./" })
+    return gulp.src(["css/main.css", "js/game.js", "js/menu.js", "public/img", "app.js", "index.html"], { base: "./" })
                .pipe(gulp.dest("dist"));
 });
 
