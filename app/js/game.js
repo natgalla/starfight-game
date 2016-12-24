@@ -74,8 +74,9 @@ function onFirst() {
 }
 
 function onStart() {
-  $("#room").hide();
-  $("#title").hide();
+  $("body").prepend($("#info"));
+  $("#room").remove();
+  $("#title").remove();
   $(".copyright").hide();
   $("#info").addClass("messages");
   $("#playArea").fadeIn();

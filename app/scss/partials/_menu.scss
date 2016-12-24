@@ -1,0 +1,81 @@
+.menu {
+  background: $lightTranslucent;
+  padding: 0.5em 1em;
+  width: 30%;
+  min-width: 275px;
+  margin: 0 auto;
+  border-radius: 1em;
+  border-top: 3px solid $primaryPink;
+  border-bottom: 5px solid $primaryPink;
+  & h3 {
+    text-align: center;
+  }
+  & div {
+    display: flex;
+    justify-content: space-between;
+    &.create,
+    &.join {
+      width: 50%;
+      display: inline-block;
+      text-align: center;
+      margin: 2em 0;
+      & label {
+        margin-left: 1em;
+      }
+    }
+    &.session {
+      margin-bottom: 2em;
+    }
+    &.submit {
+      justify-content: space-around;
+      padding: 1em 0;
+    }
+    &.updates {
+      display: block;
+      text-align: center;
+      margin-top: 1em;
+      justify-content: space-around;
+      & label {
+        margin-left: 1em;
+      }
+    }
+    &.createAccount {
+      display: block;
+      text-align: center;
+      margin: 1em 1em 2em 1em;
+    }
+    &#info {
+      display: block;
+      margin-bottom: 2em;
+    }
+    #messenger {
+      display: block;
+      max-width: 280px;
+    }
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    margin: 0.3em 0;
+    padding: 0.5em ease-out;
+    width: 60%;
+    &.invalidEntry {
+      box-shadow: inset 0px 0px 5px $secondaryOrange,
+                  inset 0px 0px 5px $secondaryOrange;
+      color: $secondaryOrange;
+      &:focus {
+        outline: 2px solid $secondaryOrange;
+      }
+    }
+  }
+  label {
+    font-family: "Orbitron", monospace;
+    margin: auto 0;
+    color: $secondaryBlue;
+    font-size: 1.3em;
+    text-align: left;
+    &#updates {
+      font-size: 0.8em;
+    }
+  }
+}

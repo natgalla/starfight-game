@@ -43,10 +43,10 @@ gulp.task("concatServerScripts", function() {
 
 gulp.task("concatGameScripts", function() {
     return gulp.src([
-        'public/js/client/_client.js',
-        'public/js/client/_typeWord.js',
-        'public/js/client/_room.js',
-        'public/js/client/_starfire_ui.js'
+        'public/js/_client.js',
+        'public/js/_typeWord.js',
+        'public/js/_room.js',
+        'public/js/_starfire_ui.js'
       ])
     .pipe(maps.init())
     .pipe(concat('game.js'))
@@ -56,8 +56,8 @@ gulp.task("concatGameScripts", function() {
 
 gulp.task("concatMenuScripts", function() {
     return gulp.src([
-        'public/js/client/_typeWord.js',
-        'public/js/client/_starfire_menu.js',
+        'public/js/_typeWord.js',
+        'public/js/_starfire_menu.js',
       ])
     .pipe(maps.init())
     .pipe(concat('menu.js'))
@@ -84,7 +84,7 @@ gulp.task('watchFiles', function() {
   gulp.watch('scss/**/*.scss', ['compileSass']);
   gulp.watch([
       'js/server/*.js',
-      'public/js/client/*.js'
+      'public/js/*.js'
     ],
     ["concatGameScripts", "concatMenuScripts", "concatServerScripts"]);
 });

@@ -630,6 +630,29 @@ input[type="checkbox"] {
   input[type="checkbox"]:focus {
     outline: 2px solid limegreen; }
 
+#messenger {
+  width: 280px;
+  margin: -1em auto 0 auto;
+  border-radius: 3px; }
+  #messenger input {
+    font-size: 1em;
+    text-align: left;
+    box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -3px -6px 8px rgba(0, 0, 0, 0.8), inset 3px 6px 8px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    height: 30px;
+    padding: 0 0 0 0.5em;
+    width: 73%; }
+    #messenger input:focus {
+      outline: none; }
+  #messenger button {
+    font-size: 0.9em;
+    height: 30px;
+    width: 22%;
+    margin: 0;
+    padding: 0 0.5em; }
+  #messenger #sendMessage {
+    margin: 0; }
+
 .menu {
   background: rgba(0, 0, 0, 0.5);
   padding: 0.5em 1em;
@@ -667,6 +690,12 @@ input[type="checkbox"] {
       display: block;
       text-align: center;
       margin: 1em 1em 2em 1em; }
+    .menu div#info {
+      display: block;
+      margin-bottom: 2em; }
+    .menu div #messenger {
+      display: block;
+      max-width: 280px; }
   .menu input[type="text"],
   .menu input[type="email"],
   .menu input[type="password"] {
@@ -690,29 +719,6 @@ input[type="checkbox"] {
     text-align: left; }
     .menu label#updates {
       font-size: 0.8em; }
-
-#messenger {
-  width: 280px;
-  margin: -1em auto 0 auto;
-  border-radius: 3px; }
-  #messenger input {
-    font-size: 1em;
-    text-align: left;
-    box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -3px -6px 8px rgba(0, 0, 0, 0.8), inset 3px 6px 8px rgba(0, 0, 0, 0.8);
-    margin: 0;
-    height: 30px;
-    padding: 0 0 0 0.5em;
-    width: 73%; }
-    #messenger input:focus {
-      outline: none; }
-  #messenger button {
-    font-size: 0.9em;
-    height: 30px;
-    width: 22%;
-    margin: 0;
-    padding: 0 0.5em; }
-  #messenger #sendMessage {
-    margin: 0; }
 
 .tactical,
 .advTactical {

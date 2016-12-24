@@ -74,6 +74,7 @@ function onFirst() {
 }
 
 function onStart() {
+  $("body").prepend("#info");
   $("#room").hide();
   $("#title").hide();
   $(".copyright").hide();
