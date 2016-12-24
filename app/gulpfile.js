@@ -96,7 +96,7 @@ gulp.task('clean', function() {
 gulp.task("build", [/* 'minifyScripts', */ 'concatServerScripts',
                     'concatGameScripts', 'concatMenuScripts', 'compileSass'],
   function() {
-    return gulp.src(["css/main.css", "js/game.js", "js/menu.js", "public/img", "app.js", "index.html"], { base: "./" })
+    return gulp.src(["js/game.js", "js/menu.js", "public/img/**", "public/css/**", "views/**", "app.js", "index.html"], { base: "./" })
                .pipe(gulp.dest("dist"));
 });
 
