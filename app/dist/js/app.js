@@ -935,10 +935,10 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
 
 //temporarily declared as var for Safari
 var FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-var Player1 = new Player("Player1", "Nathan");
-var Player2 = new Player("Player2", "Rudi");
-var Player3 = new Player("Player3", "Ruth");
-var Player4 = new Player("Player4", "Alan");
+var Player1 = new Player("Player1", "Player 1");
+var Player2 = new Player("Player2", "Player 2");
+var Player3 = new Player("Player3", "Player 3");
+var Player4 = new Player("Player4", "Player 4");
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.FriendlyBase = FriendlyBase;
@@ -1092,40 +1092,6 @@ Game.prototype.distributeEnemies = function(source) {
         break;
       }
     }
-  }
-}
-
-Game.prototype.turns = function() {
-  this.turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player === FriendlyBase) {
-        continue;
-      } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
-        let cardChoice = player.hand(cardChoiceIndex);
-        // player[cardChoice.cssClass]();  // run the chosen card's function;
-        tacticalDiscard.push(tCard);
-      }
-    }
-    this.turnNumber ++;
   }
 }
 
@@ -1320,150 +1286,6 @@ enemyBase.enemiesPerTurn = game.friendlies.length;
 //IF MIGRATED TO SERVER SIDE
 // module.exports.Game = Game;
 
-let typeWord = function($location, text, element, begEnd, interval, cursor) {
-  if (element === undefined) {
-    element = "p";
-  }
-  if (begEnd === undefined) {
-    begEnd = "prepend";
-  }
-  if (interval === undefined) {
-    interval = 40;
-  }
-  if (cursor === undefined) {
-    cursor = "|";
-  }
-  let newText = document.createElement(element);
-  if (begEnd === "prepend") {
-    $location.prepend(newText);
-  } else {
-    $location.append(newText);
-  }
-  let i=0;
-  let testInterval = setInterval(typeOut, interval);
-  function typeOut() {
-    if (i === text.length+1) {
-      clearInterval(testInterval);
-    } else {
-      if (i === 0) {
-        newText.textContent += text[i] + cursor;
-        i++;
-      } else if (i === text.length) {
-        newText.textContent = newText.textContent.slice(0, -1);
-        i++;
-      } else {
-        newText.textContent = newText.textContent.slice(0, -1);
-        newText.textContent += text[i] + cursor;
-        i++;
-      }
-    }
-  }
-}
-
-let gameName = "Starfire";
-let sessionName;
-let validSession = "test1";
-let $setup = $("<div>", {id: "setup"});
-let $server = $("<ul>", {id: "server"});
-let $newSessionNameInput = $("<input>", {type: "text", id: "newSessionName"});
-let $joinSessionNameInput = $("<input>", {type: "text", id: "joinSessionName"});
-let $play = $("<button>", {id: "play", text: "Play"});
-let $createGameName = $("<button>", {id: "createGameName", text: "Create"});
-let $enterGameName = $("<button>", {id: "enterGameName", text: "Enter"});
-let $newGame = $("<button>", {id: "newGame", text: "Create"});
-let $joinGame = $("<button>", {id: "joinGame", text: "Join"});
-let $notActive = $("<p>", {id: "notActive", text: "Not an active session"})
-
-let $greet = $("<div>", {id: "greet"});
-let $startGame = $("<div>", {id: "startGame"});
-let $newSession = $("<div>", {id: "setup"});
-let $joinSession = $("<div>", {id: "joinSession"});
-let $playArea = $("#playArea");
-
-$playArea.hide();
-$("#menu").prepend($setup);
-$setup.append($greet);
-// $setup.append("<h3> Welcome to " + gameName + "<h3>");
-typeWord($greet, "Welcome to " + gameName, "h3");
-$greet.append($play);
-$setup.append($server);
-// $startGame.append("<h3>Create a new game or join an existing one?</h3>");
-$startGame.append($newGame);
-$startGame.append($joinGame);
-// $newSession.append("<h3>Please enter a name for your session.</h3>");
-$newSession.append($newSessionNameInput);
-$newSession.append($createGameName);
-// $joinSession.append("<h3>Please enter the name of the session you would like to join</h3>");
-$joinSession.append($joinSessionNameInput);
-$joinSession.append($enterGameName);
-$joinSession.append($notActive);
-$notActive.hide();
-
-$play.on("click", function() {
-  $greet.hide();
-  $setup.append($startGame);
-  $startGame.hide();
-  $startGame.fadeIn();
-  typeWord($startGame, "Create a new game or join an existing one?", "h3");
-});
-
-$newGame.on("click", function() {
-  $startGame.hide();
-  $setup.append($newSession);
-  $newSession.hide();
-  $newSession.fadeIn();
-  typeWord($newSession, "Please enter a name for your session.", "h3");
-});
-
-$joinGame.on("click", function() {
-  $startGame.hide();
-  $setup.append($joinSession);
-  $joinSession.hide();
-  $joinSession.fadeIn();
-  typeWord($joinSession, "Please enter the name of the session you would like to join", "h3");
-  $("#notActive").hide();
-});
-
-$newSessionNameInput.on("keyup change", function() {
-  sessionName = $(this).val();
-});
-$joinSessionNameInput.on("keyup change", function() {
-  $notActive.hide();
-  sessionName = $(this).val();
-});
-
-$createGameName.on("click", function() {
-  if (sessionName) {
-    $newSession.hide();
-    $("#title").hide();
-    $("#info").hide();
-    $playArea.fadeIn();
-    // $.post("/", "start");
-  }
-});
-
-$enterGameName.click(function() {
-  if (sessionName === validSession) {
-    $joinSession.hide();
-    $("#title").hide();
-    $("#info").hide();
-    $playArea.fadeIn();
-  } else {
-    $notActive.fadeIn(400, function() {
-      $notActive.fadeOut(300, function() {
-        $notActive.fadeIn(400)
-      })
-    })
-  }
-});
-
-
-//Quick start
-// $("#playArea").hide();
-// $("#title").hide();
-// $("#info").hide();
-// $("#playArea").fadeIn();
-
 // globals changed throughout the game by player events, passed to back-end code
 let action;
 let buttonPressed;
@@ -1650,7 +1472,26 @@ const clearOverlay = function() {
 }
 
 const update = function() {
+  let tacticalCards = 0;
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let player = game.friendlies[i];
+    if (player === FriendlyBase) {
+      continue;
+    } else {
+      tacticalCards += player.hand.length;
+    }
+  }
+  // break loop if there are no tactical cards left
+  if (tacticalCards === 0) {
+    game.newRound();
+  }
   // update entire play area
+  enemyBase.updateSummary();
+  for (var i = 0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    friendly.adjustPursuerDamage();
+    friendly.updateSummary();
+  }
   clearButtons();
   detarget();
   updateEnemyCards();
@@ -1979,6 +1820,12 @@ $confirmAdvButton.on("click", function() {
 });
 
 let user = Player1;
+
+$("#playArea").hide();
+$("#title").hide();
+$("#info").hide();
+$("#playArea").fadeIn();
+
 game.round();
 update();
 

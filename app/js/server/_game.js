@@ -149,40 +149,6 @@ Game.prototype.distributeEnemies = function(source) {
   }
 }
 
-Game.prototype.turns = function() {
-  this.turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player === FriendlyBase) {
-        continue;
-      } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
-        let cardChoice = player.hand(cardChoiceIndex);
-        // player[cardChoice.cssClass]();  // run the chosen card's function;
-        tacticalDiscard.push(tCard);
-      }
-    }
-    this.turnNumber ++;
-  }
-}
-
 //build enemy base deck
 Game.prototype.buildEnemyBaseDeck = function() {
   this.addToDeck(enemyBase.enemyBaseDeck, fireLight, 3);

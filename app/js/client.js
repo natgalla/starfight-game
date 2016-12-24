@@ -173,13 +173,6 @@ $enterGameName.click(function() {
   }
 });
 
-
-//Quick start
-// $("#playArea").hide();
-// $("#title").hide();
-// $("#info").hide();
-// $("#playArea").fadeIn();
-
 // globals changed throughout the game by player events, passed to back-end code
 let action;
 let buttonPressed;
@@ -366,7 +359,26 @@ const clearOverlay = function() {
 }
 
 const update = function() {
+  let tacticalCards = 0;
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let player = game.friendlies[i];
+    if (player === FriendlyBase) {
+      continue;
+    } else {
+      tacticalCards += player.hand.length;
+    }
+  }
+  // break loop if there are no tactical cards left
+  if (tacticalCards === 0) {
+    game.newRound();
+  }
   // update entire play area
+  enemyBase.updateSummary();
+  for (var i = 0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    friendly.adjustPursuerDamage();
+    friendly.updateSummary();
+  }
   clearButtons();
   detarget();
   updateEnemyCards();

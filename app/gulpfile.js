@@ -15,7 +15,6 @@ gulp.task("concatScripts", function() {
         'js/server/_enemies.js',
         'js/server/_friendlies.js',
         'js/server/_game.js',
-        'js/client/_starfire_menu.js',
         'js/client/_starfire_ui.js',
         'js/client/_localstart.js'
       ])

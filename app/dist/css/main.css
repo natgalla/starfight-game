@@ -897,7 +897,7 @@ input {
 #wingmen .playerSummary {
   font-size: 0.8em;
   display: inline-block;
-  margin-top: 2em; }
+  margin-top: 4em; }
 
 .assist {
   background-color: #333;

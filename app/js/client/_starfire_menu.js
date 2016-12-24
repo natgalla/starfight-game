@@ -134,10 +134,3 @@ $enterGameName.click(function() {
     })
   }
 });
-
-
-//Quick start
-// $("#playArea").hide();
-// $("#title").hide();
-// $("#info").hide();
-// $("#playArea").fadeIn();

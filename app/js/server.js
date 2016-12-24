@@ -935,10 +935,10 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
 
 //temporarily declared as var for Safari
 var FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-var Player1 = new Player("Player1", "Nathan");
-var Player2 = new Player("Player2", "Rudi");
-var Player3 = new Player("Player3", "Ruth");
-var Player4 = new Player("Player4", "Alan");
+var Player1 = new Player("Player1", "Player 1");
+var Player2 = new Player("Player2", "Player 2");
+var Player3 = new Player("Player3", "Player 3");
+var Player4 = new Player("Player4", "Player 4");
 
 // IF MIGRATED TO SERVER SIDE
 // module.exports.FriendlyBase = FriendlyBase;
@@ -1092,40 +1092,6 @@ Game.prototype.distributeEnemies = function(source) {
         break;
       }
     }
-  }
-}
-
-Game.prototype.turns = function() {
-  this.turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player === FriendlyBase) {
-        continue;
-      } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
-        let cardChoice = player.hand(cardChoiceIndex);
-        // player[cardChoice.cssClass]();  // run the chosen card's function;
-        tacticalDiscard.push(tCard);
-      }
-    }
-    this.turnNumber ++;
   }
 }
 
