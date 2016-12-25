@@ -124,21 +124,24 @@ li p {
     position: fixed;
     left: 5%;
     bottom: 2%;
+    #chat {
+      margin-left: 4px;
+    }
   }
   & #status {
-    width: 250px;
+    width: 247px;
     height: 70px;
     overflow-y: scroll;
     margin: 1em auto;
     text-align: left;
     padding-left: 0;
     padding: 1em;
-    background: rgba(50,50,50,0.8);
-    border-radius: 5px;
+    background: $darkGrey;
+    border-radius: 5px 5px 0 0;
     box-shadow: inset 0px 0px 5px $complementGreen,
                 inset 0px 0px 5px $complementGreen,
-                inset -5px -8px 10px $darkTranslucent,
-                inset 5px 8px 10px $darkTranslucent;
+                inset -2px -4px 8px $darkTranslucent,
+                inset 2px 4px 8px $darkTranslucent;
     & li {
       color: $complementGreen;
       &.playerMessage {

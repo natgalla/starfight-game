@@ -56,7 +56,7 @@ function onOpen() {
   $("#play").removeClass("disabled");
   $("#play").addClass("enabled");
   $("#info").removeClass("menu");
-  $("#play").text("Launch");
+  $("#play").text("LAUNCH");
 }
 
 function onChat(text) {
@@ -64,7 +64,7 @@ function onChat(text) {
 }
 
 function onFirst() {
-  let $play = $("<button>", {id: "play", text: "Standby", class: "disabled"});
+  let $play = $("<button>", {id: "play", text: "STANDBY", class: "disabled"});
   $("#room").append($play);
   $play.on("click", function() {
     if($(this).hasClass("enabled")) {
@@ -78,6 +78,7 @@ function onStart() {
   $("#room").remove();
   $("#title").remove();
   $(".copyright").hide();
+  $("h3").hide();
   $("#info").addClass("messages");
   $("#playArea").fadeIn();
 }

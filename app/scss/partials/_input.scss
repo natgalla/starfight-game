@@ -61,12 +61,12 @@ input[type="checkbox"] {
     text-align: left;
     box-shadow: inset 0px 0px 5px $complementGreen,
                 inset 0px 0px 5px $complementGreen,
-                inset -3px -6px 8px $darkTranslucent,
-                inset 3px 6px 8px $darkTranslucent;
+                inset -1px -4px 6px $darkTranslucent,
+                inset 1px 4px 6px $darkTranslucent;
     margin: 0;
     height: 30px;
     padding: 0 0 0 0.5em;
-    width: 73%;
+    width: 72%;
     &:focus {
       outline: none;
     }
@@ -74,7 +74,7 @@ input[type="checkbox"] {
   & button {
     font-size: 0.9em;
     height: 30px;
-    width: 22%;
+    width: 23%;
     margin: 0;
     padding: 0 0.5em;
   }
