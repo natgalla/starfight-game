@@ -48,7 +48,11 @@
     &.createAccount {
       display: block;
       text-align: center;
-      margin: 1em 1em 1em 1em;
+      margin: 1em;
+    }
+    &.difficulty {
+      margin: 1em 0 2em;
+      font-size: 0.8em;
     }
     &#info {
       display: block;

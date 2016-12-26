@@ -4,7 +4,7 @@ block content
   h1#title Starfire
   .menu#login
     h3.formHeader Pilot login
-    form(action='/login' method='post')
+    form(action='/login' method='post' onsubmit='return validateForm();')
       .callsign
         label(for='callsign') Callsign: 
         input.enterCallsign#callsign(type='text' name='callsign')

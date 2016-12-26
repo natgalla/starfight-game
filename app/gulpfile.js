@@ -43,6 +43,7 @@ gulp.task("concatServerScripts", function() {
 
 gulp.task("concatGameScripts", function() {
     return gulp.src([
+        'public/js/jquery.min.js',
         'public/js/_client.js',
         'public/js/_typeWord.js',
         'public/js/_menu.js',
@@ -56,6 +57,7 @@ gulp.task("concatGameScripts", function() {
 
 gulp.task("concatMenuScripts", function() {
     return gulp.src([
+        'public/js/jquery.min.js',
         'public/js/_typeWord.js',
         'public/js/_menu.js',
       ])

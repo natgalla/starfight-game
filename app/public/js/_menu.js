@@ -16,12 +16,28 @@ typeWord($('#gameMenu'), header, "h3");
 typeWord($("#room"), header, "h3");
 typeWord($("#error"), header, "h3");
 
-
 /*************************************
 FRONT END FORM VALIDATION
 *************************************/
 
-function validateNormalCharacters(string) {
+let validateForm = function() {
+  let $form = $("form");
+  let $inputs = $form.find("input").not("input[type=radio]");
+  let $submit = $("button[type=submit]");
+  let valid = true;
+  $.each( $inputs, function(key, value) {
+    if (!Array.from(value.classList).includes("valid")) {
+      valid = false;
+    }
+  });
+  if (valid) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+let validateNormalCharacters = function(string) {
   let valid = true;
   for (let i=0; i < string.length; i++) {
     let character = string[i];
@@ -32,15 +48,28 @@ function validateNormalCharacters(string) {
   return valid;
 }
 
+let disableForm = function() {
+  let $form = $("form");
+  let $submit = $form.find("button[type=submit]");
+  if ( $submit.hasClass("disabled") ) {
+    $form.on("submit", function() {
+      $submit.off("click");
+      $(this).preventDefault();
+    });
+  }
+}
+
 let validateCompletion = function() {
-  $("input[type=text]").on("keyup change", function() {
-    let $form = $("form").find("input");
-    let $submit = $("form").find("button[type=submit]");
+  $("input").on("keyup change", function() {
+    let $form = $("form");
+    let $inputs = $form.find("input").not("input[type=radio]");
+    let $submit = $("button[type=submit]");
     let valid = true;
-    $.each( $form, function(key, value) {
+    $.each( $inputs, function(key, value) {
       if (!Array.from(value.classList).includes("valid")) {
         valid = false;
       }
+    });
     if (valid) {
       $submit.removeClass("disabled");
       $submit.addClass("enabled");
@@ -48,7 +77,6 @@ let validateCompletion = function() {
       $submit.removeClass("enabled");
       $submit.addClass("disabled");
     }
-    });
   });
 }
 
@@ -67,7 +95,7 @@ $(".enterCallsign").on("keyup change", function() {
   validateCompletion();
 });
 
-$("#userMail").on("keyup change", function() {
+$("#email").on("keyup change", function() {
   function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
@@ -130,20 +158,24 @@ $("#sessionName").on("keyup change", function() {
     $(this).removeClass("valid");
     $(this).addClass("invalidEntry");
   }
+  validateCompletion()
   // if new
     // valid if val > 0 && normal characters
   // if join
     // valid if session name exists
 });
 
-$('.session').click(function() {
-   if($("#createSession").is(':checked') || $("#joinSession").is(':checked')) {
-     $(this).addClass("valid");
-   } else {
-     $(this).removeClass("valid");
-   }
-});
 
+/*****************************
+Specific to menu view
+*****************************/
+$(".difficulty").hide();
+$("#createSession").on("click", function() {
+  $(".difficulty").show();
+});
+$("#joinSession").on("click", function() {
+  $(".difficulty").hide();
+});
 
 /*****************************
 Specific to waiting room view

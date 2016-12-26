@@ -4,13 +4,22 @@ block content
   h1#title Starfire
   .menu#gameMenu
     h3.formHeader Create or join session
-    form(action='/menu' method='post')
+    form(action='/menu' method='post' onsubmit='return validateForm();')
       .create
-        input.session.valid(type='radio' name='session' id='createSession')
+        input.session(type='radio' name='session' id='createSession')
         label(for='createSession') New Game
       .join
-        input.session.valid(type='radio' name='session' id='joinSession')
+        input.session(type='radio' name='session' id='joinSession')
         label(for='joinSession') Join Game
+      .difficulty
+        input.difficultyChoice(type='radio' name='difficulty' id="two")
+        label(for="two") Easy
+        input.difficultyChoice(type='radio' name='difficulty' id="three")
+        label(for="three") Medium
+        input.difficultyChoice(type='radio' name='difficulty' id="four")
+        label(for="four") Hard
+        input.difficultyChoice(type='radio' name='difficulty' id="five")
+        label(for="five") Brutal
       .session
         label(for='sessionName') Session name: 
         input#sessionName(type='text' name='sessionName')

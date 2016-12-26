@@ -663,6 +663,10 @@ input[type="checkbox"] {
   border-radius: 1em;
   border-top: 3px solid magenta;
   border-bottom: 5px solid magenta; }
+  .menu#error {
+    text-align: center; }
+    .menu#error p {
+      margin: 1em 0; }
   .menu h3 {
     text-align: center; }
   .menu div {
@@ -690,7 +694,7 @@ input[type="checkbox"] {
     .menu div.createAccount {
       display: block;
       text-align: center;
-      margin: 1em 1em 2em 1em; }
+      margin: 1em 1em 1em 1em; }
     .menu div#info {
       display: block;
       margin-bottom: 2em; }
@@ -706,12 +710,21 @@ input[type="checkbox"] {
     .menu input[type="text"].invalidEntry,
     .menu input[type="email"].invalidEntry,
     .menu input[type="password"].invalidEntry {
-      box-shadow: inset 0px 0px 5px crimson, inset 0px 0px 5px crimson;
+      box-shadow: inset 0px 0px 7px crimson;
       color: crimson; }
       .menu input[type="text"].invalidEntry:focus,
       .menu input[type="email"].invalidEntry:focus,
       .menu input[type="password"].invalidEntry:focus {
         outline: 2px solid crimson; }
+    .menu input[type="text"].valid,
+    .menu input[type="email"].valid,
+    .menu input[type="password"].valid {
+      box-shadow: inset 0px 0px 6px steelblue;
+      color: steelblue; }
+      .menu input[type="text"].valid:focus,
+      .menu input[type="email"].valid:focus,
+      .menu input[type="password"].valid:focus {
+        outline: 2px solid steelblue; }
   .menu label {
     font-family: "Orbitron", monospace;
     margin: auto 0;

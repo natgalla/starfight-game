@@ -694,7 +694,10 @@ input[type="checkbox"] {
     .menu div.createAccount {
       display: block;
       text-align: center;
-      margin: 1em 1em 1em 1em; }
+      margin: 1em; }
+    .menu div.difficulty {
+      margin: 1em 0 2em;
+      font-size: 0.8em; }
     .menu div#info {
       display: block;
       margin-bottom: 2em; }
