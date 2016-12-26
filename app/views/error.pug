@@ -1,0 +1,14 @@
+extends ./layout.pug
+
+block content
+  h1#title Starfire
+  .menu#error
+    h3.formHeader ERROR
+    p There was an error processing your request
+    p [Status Code]: [Status Message]
+    .createAccount
+      p
+        a(href='/login') Back to login
+
+block js
+  include ./partials/_auth.pug

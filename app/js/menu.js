@@ -54,6 +54,7 @@ typeWord($('#login'), header, "h3");
 typeWord($('#register'), header, "h3");
 typeWord($('#gameMenu'), header, "h3");
 typeWord($("#room"), header, "h3");
+typeWord($("#error"), header, "h3");
 
 
 /*************************************

@@ -7,6 +7,12 @@
   border-radius: 1em;
   border-top: 3px solid $primaryPink;
   border-bottom: 5px solid $primaryPink;
+  &#error {
+    text-align: center;
+    p {
+      margin: 2em 0;
+    }
+  }
   & h3 {
     text-align: center;
   }
@@ -42,7 +48,7 @@
     &.createAccount {
       display: block;
       text-align: center;
-      margin: 1em 1em 2em 1em;
+      margin: 1em 1em 1em 1em;
     }
     &#info {
       display: block;

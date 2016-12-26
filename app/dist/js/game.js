@@ -56,7 +56,7 @@ function onOpen() {
   $("#play").removeClass("disabled");
   $("#play").addClass("enabled");
   $("#info").removeClass("menu");
-  $("#play").text("Launch");
+  $("#play").text("LAUNCH");
 }
 
 function onChat(text) {
@@ -64,7 +64,7 @@ function onChat(text) {
 }
 
 function onFirst() {
-  let $play = $("<button>", {id: "play", text: "Standby", class: "disabled"});
+  let $play = $("<button>", {id: "play", text: "STANDBY", class: "disabled"});
   $("#room").append($play);
   $play.on("click", function() {
     if($(this).hasClass("enabled")) {
@@ -78,6 +78,7 @@ function onStart() {
   $("#room").remove();
   $("#title").remove();
   $(".copyright").hide();
+  $("h3").hide();
   $("#info").addClass("messages");
   $("#playArea").fadeIn();
 }
@@ -138,15 +139,19 @@ let typeWord = function($location, text, element, begEnd, interval, cursor) {
 Effects
 ********************/
 
+let header = $(".formHeader").text();
+
 $(".menu").hide();
 $(".menu").slideDown(500);
 $("form").hide();
 $("form").fadeIn(800);
 $(".formHeader").hide();
-typeWord($('#login'), "Pilot log in", "h3");
-typeWord($('#register'), "New Pilot Registry", "h3");
-typeWord($('#gameMenu'), "Enter or join session", "h3");
-typeWord($("#room"), "Standing by...", "h3");
+
+typeWord($('#login'), header, "h3");
+typeWord($('#register'), header, "h3");
+typeWord($('#gameMenu'), header, "h3");
+typeWord($("#room"), header, "h3");
+
 
 /*************************************
 FRONT END FORM VALIDATION
@@ -161,6 +166,16 @@ function validateNormalCharacters(string) {
     }
   }
   return valid;
+}
+
+function validateCompletion($input, validity) {
+  if ($input.val().length > 0 && valid) {
+    $(".submit").addClass("enabled");
+    $(".submit").removeClass("disabled");
+  } else {
+    $(".submit").addClass("disabled");
+    $(".submit").removeClass("enabled");
+  }
 }
 
 $("#createCallsign").on("keyup change", function() {
@@ -210,6 +225,11 @@ $("#sessionName").on("keyup change", function() {
     $(this).addClass("invalidEntry");
   }
 });
+
+
+/*****************************
+Specific to waiting room view
+*****************************/
 
 let $setup = $("<div>", {id: "setup"});
 let $server = $("<ul>", {id: "server"});

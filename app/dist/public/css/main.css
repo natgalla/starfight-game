@@ -490,7 +490,7 @@ li p {
     margin: 0 10px; }
   #wingmen .targeted {
     z-index: 1000;
-    background-color: #333;
+    background-color: #252525;
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
@@ -522,18 +522,20 @@ li p {
   position: fixed;
   left: 5%;
   bottom: 2%; }
+  #info.messages #chat {
+    margin-left: 4px; }
 
 #info #status {
-  width: 250px;
+  width: 247px;
   height: 70px;
   overflow-y: scroll;
   margin: 1em auto;
   text-align: left;
   padding-left: 0;
   padding: 1em;
-  background: rgba(50, 50, 50, 0.8);
-  border-radius: 5px;
-  box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -5px -8px 10px rgba(0, 0, 0, 0.8), inset 5px 8px 10px rgba(0, 0, 0, 0.8); }
+  background: #252525;
+  border-radius: 5px 5px 0 0;
+  box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -2px -4px 8px rgba(0, 0, 0, 0.8), inset 2px 4px 8px rgba(0, 0, 0, 0.8); }
   #info #status li {
     color: limegreen; }
     #info #status li.playerMessage {
@@ -587,7 +589,7 @@ button {
   border: 1px solid limegreen;
   color: limegreen;
   padding: 0.5em;
-  background-color: #333;
+  background-color: #252525;
   margin: 0 2px;
   border-radius: 3px;
   box-shadow: inset -2px -2px 1px limegreen, inset 1px 0px 1px limegreen;
@@ -616,17 +618,16 @@ input[type="password"] {
   font-size: 1.2em;
   padding-top: 10px;
   padding-bottom: 10px;
-  background-color: #333;
+  background-color: #252525;
   border: none;
-  color: limegreen;
-  box-shadow: inset 0px 0px 5px #1e7b1e, inset 0px 0px 5px #1e7b1e; }
+  color: limegreen; }
   input[type="text"]:focus,
   input[type="email"]:focus,
   input[type="password"]:focus {
     outline: 2px solid limegreen; }
 
 input[type="checkbox"] {
-  background-color: #333; }
+  background-color: #252525; }
   input[type="checkbox"]:focus {
     outline: 2px solid limegreen; }
 
@@ -637,17 +638,17 @@ input[type="checkbox"] {
   #messenger input {
     font-size: 1em;
     text-align: left;
-    box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -3px -6px 8px rgba(0, 0, 0, 0.8), inset 3px 6px 8px rgba(0, 0, 0, 0.8);
+    box-shadow: inset 0px 0px 5px limegreen, inset 0px 0px 5px limegreen, inset -1px -4px 6px rgba(0, 0, 0, 0.8), inset 1px 4px 6px rgba(0, 0, 0, 0.8);
     margin: 0;
     height: 30px;
     padding: 0 0 0 0.5em;
-    width: 73%; }
+    width: 72%; }
     #messenger input:focus {
       outline: none; }
   #messenger button {
     font-size: 0.9em;
     height: 30px;
-    width: 22%;
+    width: 23%;
     margin: 0;
     padding: 0 0.5em; }
   #messenger #sendMessage {
@@ -729,7 +730,7 @@ input[type="checkbox"] {
   font-size: 0.7em;
   color: white;
   position: relative;
-  background-color: #333;
+  background-color: #252525;
   display: inline-block;
   padding: 1em;
   margin: 0 -1em;
@@ -816,7 +817,7 @@ input[type="checkbox"] {
   font-size: 0.7em;
   color: white;
   position: relative;
-  background-color: #333;
+  background-color: #252525;
   display: inline-block;
   padding: 1em;
   margin: 0 -1em;
@@ -857,7 +858,7 @@ input[type="checkbox"] {
   font-size: 0.7em;
   color: white;
   position: relative;
-  background-color: #333;
+  background-color: #252525;
   display: inline-block;
   padding: 1em;
   margin: 0 -1em;
@@ -961,14 +962,14 @@ input[type="checkbox"] {
 #wingmen .targeted,
 #userSummary .targeted {
   z-index: 1000;
-  background-color: #333;
+  background-color: #252525;
   box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #FriendlyBase,
 #enemyBase {
   margin-top: -50px;
   position: relative;
-  background: #333;
+  background: #252525;
   height: 300px;
   width: 120px;
   padding: 5px;
@@ -1009,7 +1010,7 @@ input[type="checkbox"] {
   margin-left: 0px; }
   #FriendlyBase.targeted {
     z-index: 1000;
-    background-color: #333;
+    background-color: #252525;
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #enemyBase {
@@ -1132,7 +1133,7 @@ input[type="checkbox"] {
   margin-top: 4em; }
 
 .assist {
-  background-color: #333;
+  background-color: #252525;
   box-shadow: 0px 3px 4px #8db3d3, 0px -2px 3px #8db3d3; }
   .assist:hover {
     border-color: #8db3d3;

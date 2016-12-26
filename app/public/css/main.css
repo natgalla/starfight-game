@@ -663,6 +663,10 @@ input[type="checkbox"] {
   border-radius: 1em;
   border-top: 3px solid magenta;
   border-bottom: 5px solid magenta; }
+  .menu#error {
+    text-align: center; }
+    .menu#error p {
+      margin: 2em 0; }
   .menu h3 {
     text-align: center; }
   .menu div {
@@ -690,7 +694,7 @@ input[type="checkbox"] {
     .menu div.createAccount {
       display: block;
       text-align: center;
-      margin: 1em 1em 2em 1em; }
+      margin: 1em 1em 1em 1em; }
     .menu div#info {
       display: block;
       margin-bottom: 2em; }
