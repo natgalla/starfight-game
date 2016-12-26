@@ -666,7 +666,7 @@ input[type="checkbox"] {
   .menu#error {
     text-align: center; }
     .menu#error p {
-      margin: 2em 0; }
+      margin: 1em 0; }
   .menu h3 {
     text-align: center; }
   .menu div {
@@ -710,12 +710,21 @@ input[type="checkbox"] {
     .menu input[type="text"].invalidEntry,
     .menu input[type="email"].invalidEntry,
     .menu input[type="password"].invalidEntry {
-      box-shadow: inset 0px 0px 5px crimson, inset 0px 0px 5px crimson;
+      box-shadow: inset 0px 0px 7px crimson;
       color: crimson; }
       .menu input[type="text"].invalidEntry:focus,
       .menu input[type="email"].invalidEntry:focus,
       .menu input[type="password"].invalidEntry:focus {
         outline: 2px solid crimson; }
+    .menu input[type="text"].valid,
+    .menu input[type="email"].valid,
+    .menu input[type="password"].valid {
+      box-shadow: inset 0px 0px 6px steelblue;
+      color: steelblue; }
+      .menu input[type="text"].valid:focus,
+      .menu input[type="email"].valid:focus,
+      .menu input[type="password"].valid:focus {
+        outline: 2px solid steelblue; }
   .menu label {
     font-family: "Orbitron", monospace;
     margin: auto 0;

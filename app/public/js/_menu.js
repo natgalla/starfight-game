@@ -32,22 +32,39 @@ function validateNormalCharacters(string) {
   return valid;
 }
 
-function validateCompletion($input, validity) {
-  if ($input.val().length > 0 && valid) {
-    $(".submit").addClass("enabled");
-    $(".submit").removeClass("disabled");
-  } else {
-    $(".submit").addClass("disabled");
-    $(".submit").removeClass("enabled");
-  }
+let validateCompletion = function() {
+  $("input[type=text]").on("keyup change", function() {
+    let $form = $("form").find("input");
+    let $submit = $("form").find("button[type=submit]");
+    let valid = true;
+    $.each( $form, function(key, value) {
+      if (!Array.from(value.classList).includes("valid")) {
+        valid = false;
+      }
+    if (valid) {
+      $submit.removeClass("disabled");
+      $submit.addClass("enabled");
+    } else {
+      $submit.removeClass("enabled");
+      $submit.addClass("disabled");
+    }
+    });
+  });
 }
 
-$("#createCallsign").on("keyup change", function() {
-  if ( validateNormalCharacters($(this).val()) ) {
+$(".enterCallsign").on("keyup change", function() {
+  // min/max characters?
+  if ( $(this).val().length === 0) {
     $(this).removeClass("invalidEntry");
+    $(this).removeClass("valid");
+  } else if ( validateNormalCharacters($(this).val()) ) {
+    $(this).removeClass("invalidEntry");
+    $(this).addClass("valid");
   } else {
+    $(this).removeClass("valid");
     $(this).addClass("invalidEntry");
   }
+  validateCompletion();
 });
 
 $("#userMail").on("keyup change", function() {
@@ -56,38 +73,75 @@ $("#userMail").on("keyup change", function() {
     return re.test(email);
   }
   let email = $(this).val();
-  if(validateEmail(email) || email.length === 0) {
+  if ( $(this).val().length === 0 ){
     $(this).removeClass("invalidEntry");
+    $(this).removeClass("valid");
+  }
+  else if (validateEmail(email) || email.length === 0) {
+    $(this).removeClass("invalidEntry");
+    $(this).addClass("valid");
   } else {
+    $(this).removeClass("valid");
     $(this).addClass("invalidEntry");
   }
+  validateCompletion();
 });
 
-$("#passwordCreate").on("keyup change", function() {
-  if ( $(this).val().length > 0 && $(this).val().length < 8 ) {
+$(".enterPassword").on("keyup change", function() {
+  if ( $(this).val().length === 0 ) {
+    $(this).removeClass("invalidEntry");
+    $(this).removeClass("valid");
+  } else if ( $(this).val().length > 0 && $(this).val().length < 8 ) {
     $(this).addClass("invalidEntry");
+    $(this).removeClass("valid");
   } else {
     $(this).removeClass("invalidEntry");
+    $(this).addClass("valid");
   }
   if ( $(this).val().length > 7 && $(this).val() === $("#passwordConfirm").val() ) {
     $("#passwordConfirm").removeClass("invalidEntry");
+    $("#passwordConfirm").addClass("valid");
   }
+  validateCompletion();
 });
 
 $("#passwordConfirm").on("keyup change", function() {
-  if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $("#passwordCreate").val()){
+  if ( $(this).val().length === 0 ) {
+    $(this).removeClass("valid");
+    $(this).removeClass("invalidEntry");
+  } else if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $("#passwordCreate").val()){
+    $(this).removeClass("valid");
     $(this).addClass("invalidEntry");
   } else {
     $(this).removeClass("invalidEntry");
+    $(this).addClass("valid");
   }
+  validateCompletion();
 });
 
 $("#sessionName").on("keyup change", function() {
-  if ( validateNormalCharacters($(this).val()) ) {
+  if ( $(this).val().length === 0 ) {
+    $(this).removeClass("valid");
     $(this).removeClass("invalidEntry");
+  } else if ( validateNormalCharacters($(this).val()) ) {
+    $(this).removeClass("invalidEntry");
+    $(this).addClass("valid");
   } else {
+    $(this).removeClass("valid");
     $(this).addClass("invalidEntry");
   }
+  // if new
+    // valid if val > 0 && normal characters
+  // if join
+    // valid if session name exists
+});
+
+$('.session').click(function() {
+   if($("#createSession").is(':checked') || $("#joinSession").is(':checked')) {
+     $(this).addClass("valid");
+   } else {
+     $(this).removeClass("valid");
+   }
 });
 
 

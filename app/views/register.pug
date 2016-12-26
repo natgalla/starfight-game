@@ -7,21 +7,21 @@ block content
     form(action='/register' method='post')
       .callsign
         label(for='callsign' title='This will be your username') Callsign: 
-        input#createCallsign(type='text' name='callsign' title='This will be your username')
+        input.enterCallsign#createCallsign(type='text' name='callsign' title='This will be your username')
       .email
         label(for='email') Email: 
-        input#userMail(type='email' name='email')
+        input#email(type='email' name='email')
       .password
-        label(for='password' title='Must be at least 8 characters long') Password: 
-        input#passwordCreate(type='password' name='password' title='Must be at least 8 characters long')
+        label(for='passwordCreate' title='Must be at least 8 characters long') Password: 
+        input.enterPassword#passwordCreate(type='password' name='password' title='Must be at least 8 characters long')
       .confirm
         label(for='passwordConfirm' title='Must match password') Confirm: 
         input#passwordConfirm(type='password' name='passwordConfirm' title='Must match password')
       .updates
-        input(type='checkbox' name='updates')
+        input.valid(type='checkbox' name='updates')
         label#updates(for='updates' title='Only major updates. We promise not to spam you') Keep me posted on Starfire's release
       .submit
-        button(type='submit') ENLIST
+        button.disabled(type='submit') ENLIST
     .createAccount
       p 
         a(href='/login') Already registered?

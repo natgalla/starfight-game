@@ -7,12 +7,12 @@ block content
     form(action='/login' method='post')
       .callsign
         label(for='callsign') Callsign: 
-        input#callsign(type='text' name='callsign')
+        input.enterCallsign#callsign(type='text' name='callsign')
       .password
         label(for='password') Password: 
-        input#password(type='password' name='password')
+        input.enterPassword#password(type='password' name='password')
       .submit
-        button(type='submit') LOG IN
+        button.disabled(type='submit') LOG IN
     .createAccount
       p 
         a(href='/register') Create an account

@@ -10,7 +10,7 @@
   &#error {
     text-align: center;
     p {
-      margin: 2em 0;
+      margin: 1em 0;
     }
   }
   & h3 {
@@ -66,11 +66,17 @@
     padding: 0.5em ease-out;
     width: 60%;
     &.invalidEntry {
-      box-shadow: inset 0px 0px 5px $secondaryOrange,
-                  inset 0px 0px 5px $secondaryOrange;
+      box-shadow: inset 0px 0px 7px $secondaryOrange;
       color: $secondaryOrange;
       &:focus {
         outline: 2px solid $secondaryOrange;
+      }
+    }
+    &.valid {
+      box-shadow: inset 0px 0px 6px $secondaryBlue;
+      color: $secondaryBlue;
+      &:focus {
+        outline: 2px solid $secondaryBlue;
       }
     }
   }

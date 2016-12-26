@@ -6,16 +6,16 @@ block content
     h3.formHeader Create or join session
     form(action='/menu' method='post')
       .create
-        input(type='radio' name='createjoin')
-        label(for='create') New Game
+        input.session.valid(type='radio' name='session' id='createSession')
+        label(for='createSession') New Game
       .join
-        input(type='radio' name='createjoin')
-        label(for='create') Join Game
+        input.session.valid(type='radio' name='session' id='joinSession')
+        label(for='joinSession') Join Game
       .session
-        label(for='text') Session name: 
+        label(for='sessionName') Session name: 
         input#sessionName(type='text' name='sessionName')
       .submit
-        button(type='submit' value='confirm') CONFIRM
+        button.disabled(type='submit' value='confirm') CONFIRM
         
 block js
   include ./partials/_auth.pug

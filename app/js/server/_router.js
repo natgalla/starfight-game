@@ -53,5 +53,8 @@ app.get("/game", function(req, res) {
 
 // error
 app.get("/error", function(req, res) {
-  res.render("error");
+  res.render("error", {
+    statusCode: "Status code",
+    statusMessage: "Status message"
+  });
 })
