@@ -246,8 +246,7 @@ $("#email").on("keyup change", function() {
   if ( $(this).val().length === 0 ){
     $(this).removeClass("invalidEntry");
     $(this).removeClass("valid");
-  }
-  else if (validateEmail(email) || email.length === 0) {
+  } else if (validateEmail(email) || email.length === 0) {
     $(this).removeClass("invalidEntry");
     $(this).addClass("valid");
   } else {
@@ -271,6 +270,12 @@ $(".enterPassword").on("keyup change", function() {
   if ( $(this).val().length > 7 && $(this).val() === $("#passwordConfirm").val() ) {
     $("#passwordConfirm").removeClass("invalidEntry");
     $("#passwordConfirm").addClass("valid");
+  } else if ( $("#passwordConfirm").val().length === 0 ) {
+    $("#passwordConfirm").removeClass("invalidEntry");
+    $("#passwordConfirm").removeClass("valid");
+  } else {
+    $("#passwordConfirm").addClass("invalidEntry");
+    $("#passwordConfirm").removeClass("valid");
   }
   validateCompletion();
 });

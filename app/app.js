@@ -1529,7 +1529,14 @@ app.get("/menu", function(req, res) {
 });
 
 app.post("/menu", function(req, res) {
-  res.redirect("/game");
+  let body;
+  req.on("data", function(chunk) {
+    body += chunk;
+  });
+  req.on("end", function() {
+    console.log(body);
+    res.redirect('game');
+  });
 });
 
 

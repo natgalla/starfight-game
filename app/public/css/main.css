@@ -494,7 +494,7 @@ li p {
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
-  position: fixed;
+  position: absolute;
   width: 50%;
   text-align: center;
   margin-left: -25%;
