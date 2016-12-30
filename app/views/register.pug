@@ -13,13 +13,13 @@ block content
         input#email(type='email' name='email')
       .password
         label(for='passwordCreate' title='Must be at least 8 characters long') Password: 
-        input.enterPassword#passwordCreate(type='password' name='password' title='Must be at least 8 characters long')
+        input#passwordCreate(type='password' name='password' title='Must be at least 8 characters long')
       .confirm
         label(for='passwordConfirm' title='Must match password') Confirm: 
         input#passwordConfirm(type='password' name='passwordConfirm' title='Must match password')
       .updates
-        input.valid(type='checkbox' name='updates')
-        label#updates(for='updates' title='Only major updates. We promise not to spam you') Keep me posted on Starfire's release
+        input.valid#updates(type='checkbox' name='updates')
+        label(for='updates' title='Only major updates. We promise not to spam you') Keep me posted on Starfire's release
       .submit
         button.disabled(type='submit') ENLIST
     .createAccount

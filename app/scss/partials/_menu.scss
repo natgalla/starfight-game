@@ -43,6 +43,7 @@
       justify-content: space-around;
       & label {
         margin-left: 1em;
+        font-size: 0.95em;
       }
     }
     &.createAccount {
@@ -78,7 +79,7 @@
     }
     &.valid {
       box-shadow: inset 0px 0px 6px $secondaryBlue;
-      color: $secondaryBlue;
+      color: $complementGreen;
       &:focus {
         outline: 2px solid $secondaryBlue;
       }
@@ -90,8 +91,5 @@
     color: $secondaryBlue;
     font-size: 1.3em;
     text-align: left;
-    &#updates {
-      font-size: 0.8em;
-    }
   }
 }
