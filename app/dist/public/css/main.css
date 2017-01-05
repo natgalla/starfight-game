@@ -494,7 +494,7 @@ li p {
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
 
 #player {
-  position: fixed;
+  position: absolute;
   width: 50%;
   text-align: center;
   margin-left: -25%;
@@ -690,11 +690,15 @@ input[type="checkbox"] {
       margin-top: 1em;
       justify-content: space-around; }
       .menu div.updates label {
-        margin-left: 1em; }
+        margin-left: 1em;
+        font-size: 0.95em; }
     .menu div.createAccount {
       display: block;
       text-align: center;
-      margin: 1em 1em 1em 1em; }
+      margin: 1em; }
+    .menu div.difficulty {
+      margin: 1em 0 2em;
+      font-size: 0.8em; }
     .menu div#info {
       display: block;
       margin-bottom: 2em; }
@@ -720,7 +724,7 @@ input[type="checkbox"] {
     .menu input[type="email"].valid,
     .menu input[type="password"].valid {
       box-shadow: inset 0px 0px 6px steelblue;
-      color: steelblue; }
+      color: limegreen; }
       .menu input[type="text"].valid:focus,
       .menu input[type="email"].valid:focus,
       .menu input[type="password"].valid:focus {
@@ -731,8 +735,6 @@ input[type="checkbox"] {
     color: steelblue;
     font-size: 1.3em;
     text-align: left; }
-    .menu label#updates {
-      font-size: 0.8em; }
 
 .tactical,
 .advTactical {

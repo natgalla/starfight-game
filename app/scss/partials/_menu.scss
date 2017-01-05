@@ -5,12 +5,13 @@
   min-width: 275px;
   margin: 0 auto;
   border-radius: 1em;
-  border-top: 3px solid $primaryPink;
+  border-top: 4px solid $primaryPink;
   border-bottom: 5px solid $primaryPink;
   &#error {
     text-align: center;
-    p {
-      margin: 1em 0;
+    .error {
+      margin: 2.5em 0;
+      font-size: 1.5em;
     }
   }
   & h3 {
@@ -46,10 +47,23 @@
         font-size: 0.95em;
       }
     }
-    &.createAccount {
+    &.profile {
+      text-align: left;
+      justify-content: space-around;
+      & h3 {
+        display: block;
+        width: 50%;
+        text-align: left;
+        padding-left: 15%;
+      }
+    }
+    &.link {
       display: block;
       text-align: center;
       margin: 1em;
+      & button {
+        margin: 1em;
+      }
     }
     &.difficulty {
       margin: 1em 0 2em;
@@ -67,6 +81,9 @@
   input[type="text"],
   input[type="email"],
   input[type="password"] {
+    &::placeholder {
+      color: #111;
+    }
     margin: 0.3em 0;
     padding: 0.5em ease-out;
     width: 60%;

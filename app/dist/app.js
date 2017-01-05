@@ -1300,10 +1300,46 @@ let port = 8080;
 let http = require('http');
 let express = require('express');
 let socketio = require('socket.io');
+let bodyParser = require('body-parser');
+let mongoose = require('mongoose');
+
+mongoose.connect("mongodb://localhost:27017/bookworm");
+var db = mongoose.connection;
+
+db.on('error', console.error.bind(console, 'connection error:'));
 
 let app = express();
 let server = http.createServer(app);
 let io = socketio(server);
+
+io.on("connect", onConnection);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(express.static(root));
+
+app.set("view engine", "pug");
+app.set("views", __dirname + "/views");
+
+let routes = require('./js/routes/index');
+app.use('/', routes);
+
+app.use(function(req, res, next) {
+  var err = new Error('File Not Found');
+  err.status = 404;
+  next(err);
+});
+
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
+});
+
+server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
 let waitingPlayer1;
 let waitingPlayer2;
@@ -1320,11 +1356,6 @@ let session = {
   enemyBase: enemyBase
 }
 
-io.on("connect", onConnection);
-
-app.use(express.static(root));
-
-server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
 
 function validateNormalCharacters(string) {
   let valid = true;
@@ -1438,8 +1469,11 @@ function turn(data) {
       return enemyBase;
     }
   }
+  let friendly = undefined;
   let player = getPlayer(specs.player.id);
-  let friendly = getPlayer(specs.friendly.id);
+  if (specs.friendly !== undefined) {
+    friendly = getPlayer(specs.friendly.id);
+  }
   if (specs.button === "use") {
     player.useTactic(specs.cardIndex, friendly, specs.pursuerIndex);
   } else {
@@ -1485,66 +1519,5 @@ function turn(data) {
     updateObjects();
   }
 }
-
-let parser = require("body-parser");
-
-app.set("view engine", "pug");
-app.set("views", __dirname + "/views");
-
-
-// Login view
-app.get("/", function(req, res) {
-  res.redirect("/login");
-});
-
-app.get("/login", function(req, res) {
-  res.render('login');
-});
-
-app.post("/login", function(req, res) {
-  res.redirect("/menu");
-});
-
-
-// Register view
-app.get("/register", function(req, res) {
-  res.render('register');
-});
-
-app.post("/register", function(req, res) {
-  let body;
-  req.on("data", function(chunk) {
-    body += chunk;
-  });
-  req.on("end", function() {
-    console.log(body);
-    res.render('registered');
-  });
-});
-
-
-// Menu view
-app.get("/menu", function(req, res) {
-  res.render('menu');
-});
-
-app.post("/menu", function(req, res) {
-  res.redirect("/game");
-});
-
-
-// Game view
-app.get("/game", function(req, res) {
-  res.render("game");
-});
-
-
-// error
-app.get("/error", function(req, res) {
-  res.render("error", {
-    statusCode: "Status code",
-    statusMessage: "Status message"
-  });
-})
 
 //# sourceMappingURL=app.js.map

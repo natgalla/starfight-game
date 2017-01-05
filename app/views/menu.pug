@@ -3,28 +3,31 @@ extends ./layout.pug
 block content
   h1#title Starfire
   .menu#gameMenu
-    h3.formHeader Create or join session
+    h3.formHeader Create or join game
     form(action='/menu' method='post' onsubmit='return validateForm();')
       .create
-        input.session(type='radio' name='session'  value='create' id='createSession')
+        input.session#createSession(type='radio' name='session'  value='create')
         label(for='createSession') New Game
       .join
-        input.session(type='radio' name='session' value='join' id='joinSession')
+        input.session#joinSession(type='radio' name='session' value='join')
         label(for='joinSession') Join Game
       .difficulty
         input.difficultyChoice(type='radio' name='difficulty' id="two" value="2")
         label(for="two") Easy
-        input.difficultyChoice(type='radio' name='difficulty' id="three" value="3")
+        input.difficultyChoice(type='radio' name='difficulty' id="three" value="3" checked)
         label(for="three") Medium
         input.difficultyChoice(type='radio' name='difficulty' id="four" value="4")
         label(for="four") Hard
         input.difficultyChoice(type='radio' name='difficulty' id="five" value="5")
         label(for="five") Brutal
       .session
-        label(for='sessionName') Session name: 
+        label(for='sessionName') Game name: 
         input#sessionName(type='text' name='sessionName')
       .submit
         button.disabled(type='submit' value='confirm') CONFIRM
+      .link
+        p 
+          a(href='/profile') View profile
         
 block js
   include ./partials/_auth.pug

@@ -12,12 +12,11 @@ var enemyBase;
 var turn;
 
 sock.on("msg", onMessage);
+sock.on("chatMessage", onChat);
+sock.on("end", centerMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
-sock.on("win", victory);
-sock.on("lose", defeat);
-sock.on("chatMessage", onChat);
-sock.on("openGame", onOpen);
+sock.on("openGame", openGame);
 sock.on("firstPlayer", onFirst);
 sock.on("start", onStart);
 
@@ -52,7 +51,7 @@ function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
 }
 
-function onOpen() {
+function openGame() {
   $("#play").removeClass("disabled");
   $("#play").addClass("enabled");
   $("#info").removeClass("menu");
@@ -83,14 +82,10 @@ function onStart() {
   $("#playArea").fadeIn();
 }
 
-function victory(text) {
+function centerMessage(text) {
   disableSelect();
-  let $victory = $("<h1>", {id: "victory", text: text})
-  $("body").append($victory);
-}
-
-function defeat(text) {
-  disableSelect();
-  let $defeat = $("<h1>", {id: "defeat", text: text})
-  $("body").append($defeat);
+  let $message = $("<h1>", {id: "centerMessage", text: text})
+  $("body").append($message);
+  $message.hide();
+  $message.fadeIn(800);
 }

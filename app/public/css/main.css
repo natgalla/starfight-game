@@ -548,8 +548,7 @@ li p {
   #room button {
     margin-bottom: 2em; }
 
-#victory,
-#defeat {
+#centerMessage {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -661,12 +660,13 @@ input[type="checkbox"] {
   min-width: 275px;
   margin: 0 auto;
   border-radius: 1em;
-  border-top: 3px solid magenta;
+  border-top: 4px solid magenta;
   border-bottom: 5px solid magenta; }
   .menu#error {
     text-align: center; }
-    .menu#error p {
-      margin: 1em 0; }
+    .menu#error .error {
+      margin: 2.5em 0;
+      font-size: 1.5em; }
   .menu h3 {
     text-align: center; }
   .menu div {
@@ -692,10 +692,20 @@ input[type="checkbox"] {
       .menu div.updates label {
         margin-left: 1em;
         font-size: 0.95em; }
-    .menu div.createAccount {
+    .menu div.profile {
+      text-align: left;
+      justify-content: space-around; }
+      .menu div.profile h3 {
+        display: block;
+        width: 50%;
+        text-align: left;
+        padding-left: 15%; }
+    .menu div.link {
       display: block;
       text-align: center;
       margin: 1em; }
+      .menu div.link button {
+        margin: 1em; }
     .menu div.difficulty {
       margin: 1em 0 2em;
       font-size: 0.8em; }
@@ -711,6 +721,10 @@ input[type="checkbox"] {
     margin: 0.3em 0;
     padding: 0.5em ease-out;
     width: 60%; }
+    .menu input[type="text"]::placeholder,
+    .menu input[type="email"]::placeholder,
+    .menu input[type="password"]::placeholder {
+      color: #111; }
     .menu input[type="text"].invalidEntry,
     .menu input[type="email"].invalidEntry,
     .menu input[type="password"].invalidEntry {

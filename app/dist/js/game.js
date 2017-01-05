@@ -144,155 +144,196 @@ let typeWord = function($location, text, element, begEnd, interval, cursor) {
 Effects
 ********************/
 
-let header = $(".formHeader").text();
+let header = $('.formHeader').text();
 
-$(".menu").hide();
-$(".menu").slideDown(500);
-$("form").hide();
-$("form").fadeIn(800);
-$(".formHeader").hide();
+$('.menu').hide();
+$('.menu').slideDown(500);
+$('form').hide();
+$('form').fadeIn(800);
+$('.formHeader').hide();
 
-typeWord($('#login'), header, "h3");
-typeWord($('#register'), header, "h3");
-typeWord($('#gameMenu'), header, "h3");
-typeWord($("#room"), header, "h3");
-typeWord($("#error"), header, "h3");
+typeWord($('#login'), header, 'h3');
+typeWord($('#register'), header, 'h3');
+typeWord($('#gameMenu'), header, 'h3');
+typeWord($('#room'), header, 'h3');
+typeWord($('#error'), header, 'h3');
 
 
 /*************************************
 FRONT END FORM VALIDATION
 *************************************/
 
-function validateNormalCharacters(string) {
+let validateForm = function() {
+  let $form = $('form');
+  let $inputs = $form.find('input').not('input[type=radio]');
+  let $submit = $('button[type=submit]');
+  let valid = true;
+  $.each( $inputs, function(key, value) {
+    if (!Array.from(value.classList).includes('valid')) {
+      valid = false;
+    }
+  });
+  if (valid) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+let validateNormalCharacters = function(string) {
   let valid = true;
   for (let i=0; i < string.length; i++) {
     let character = string[i];
-    if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".includes(character)) {
+    if (!'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'.includes(character)) {
       valid = false;
     }
   }
   return valid;
 }
 
+let disableForm = function() {
+  let $form = $('form');
+  let $submit = $form.find('button[type=submit]');
+  if ( $submit.hasClass('disabled') ) {
+    $form.on('submit', function() {
+      $submit.off('click');
+      $(this).preventDefault();
+    });
+  }
+}
+
 let validateCompletion = function() {
-  $("input[type=text]").on("keyup change", function() {
-    let $inputs = $("form").find("input[type=text]");
-    let $submit = $("form").find("button[type=submit]");
+  $('input').on('keyup change', function() {
+    let $form = $('form');
+    let $inputs = $form.find('input').not('input[type=radio]');
+    let $submit = $('button[type=submit]');
     let valid = true;
     $.each( $inputs, function(key, value) {
-      if (!Array.from(value.classList).includes("valid")) {
+      if (!Array.from(value.classList).includes('valid')) {
         valid = false;
       }
     });
     if (valid) {
-      $submit.removeClass("disabled");
-      $submit.addClass("enabled");
+      $submit.removeClass('disabled');
+      $submit.addClass('enabled');
     } else {
-      $submit.removeClass("enabled");
-      $submit.addClass("disabled");
-      $("form").on("submit", function() {
-        $(this).preventDefault();
-      });
+      $submit.removeClass('enabled');
+      $submit.addClass('disabled');
     }
   });
 }
 
-let disableForm = function() {
-  let $form = $("form");
-  let $submit = $("form").find("button[type=submit]");
-
-}
-
-$(".enterCallsign").on("keyup change", function() {
+$('.enterCallsign').on('keyup change', function() {
   // min/max characters?
   if ( $(this).val().length === 0) {
-    $(this).removeClass("invalidEntry");
-    $(this).removeClass("valid");
-  } else if ( validateNormalCharacters($(this).val()) ) {
-    $(this).removeClass("invalidEntry");
-    $(this).addClass("valid");
+    $(this).removeClass('invalidEntry');
+    $(this).removeClass('valid');
+  } else if ( validateNormalCharacters($(this).val()) && $(this).val().length < 9 ) {
+    $(this).removeClass('invalidEntry');
+    $(this).addClass('valid');
   } else {
-    $(this).removeClass("valid");
-    $(this).addClass("invalidEntry");
+    $(this).removeClass('valid');
+    $(this).addClass('invalidEntry');
   }
   validateCompletion();
 });
 
-$("#userMail").on("keyup change", function() {
+$('#email').on('keyup change', function() {
   function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    var re = /^(([^<>()\[\]\\.,;:\s@']+(\.[^<>()\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
   }
   let email = $(this).val();
   if ( $(this).val().length === 0 ){
-    $(this).removeClass("invalidEntry");
-    $(this).removeClass("valid");
-  }
-  else if (validateEmail(email) || email.length === 0) {
-    $(this).removeClass("invalidEntry");
-    $(this).addClass("valid");
+    $(this).removeClass('invalidEntry');
+    $(this).removeClass('valid');
+  } else if (validateEmail(email) || email.length === 0) {
+    $(this).removeClass('invalidEntry');
+    $(this).addClass('valid');
   } else {
-    $(this).removeClass("valid");
-    $(this).addClass("invalidEntry");
+    $(this).removeClass('valid');
+    $(this).addClass('invalidEntry');
   }
   validateCompletion();
 });
 
-$(".enterPassword").on("keyup change", function() {
-  if ( $(this).val().length === 0 ) {
-    $(this).removeClass("invalidEntry");
-    $(this).removeClass("valid");
-  } else if ( $(this).val().length > 0 && $(this).val().length < 8 ) {
-    $(this).addClass("invalidEntry");
-    $(this).removeClass("valid");
+let validatePassword = function( $object ) {
+  if ( $object.val().length === 0 ) {
+    $object.removeClass('invalidEntry');
+    $object.removeClass('valid');
+  } else if ( $object.val().length > 0 && $object.val().length < 8 ) {
+    $object.addClass('invalidEntry');
+    $object.removeClass('valid');
   } else {
-    $(this).removeClass("invalidEntry");
-    $(this).addClass("valid");
+    $object.removeClass('invalidEntry');
+    $object.addClass('valid');
   }
-  if ( $(this).val().length > 7 && $(this).val() === $("#passwordConfirm").val() ) {
-    $("#passwordConfirm").removeClass("invalidEntry");
-    $("#passwordConfirm").addClass("valid");
+}
+
+$('#password').on('keyup change', function() {
+  validatePassword( $(this) );
+  if ( $('#passwordConfirm') !== undefined ) {
+    if ( $(this).val().length > 7 && $(this).val() === $('#passwordConfirm').val() ) {
+      $('#passwordConfirm').removeClass('invalidEntry');
+      $('#passwordConfirm').addClass('valid');
+    } else if ( $('#passwordConfirm').val().length === 0 ) {
+      $('#passwordConfirm').removeClass('invalidEntry');
+      $('#passwordConfirm').removeClass('valid');
+    } else {
+      $('#passwordConfirm').addClass('invalidEntry');
+      $('#passwordConfirm').removeClass('valid');
+    }
   }
   validateCompletion();
 });
 
-$("#passwordConfirm").on("keyup change", function() {
+$('#passwordConfirm').on('keyup change', function() {
   if ( $(this).val().length === 0 ) {
-    $(this).removeClass("valid");
-    $(this).removeClass("invalidEntry");
-  } else if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $("#passwordCreate").val()){
-    $(this).removeClass("valid");
-    $(this).addClass("invalidEntry");
+    $(this).removeClass('valid');
+    $(this).removeClass('invalidEntry');
+  } else if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $('#password').val()){
+    $(this).removeClass('valid');
+    $(this).addClass('invalidEntry');
   } else {
-    $(this).removeClass("invalidEntry");
-    $(this).addClass("valid");
+    $(this).removeClass('invalidEntry');
+    $(this).addClass('valid');
   }
   validateCompletion();
 });
 
-$("#sessionName").on("keyup change", function() {
+$('#password').on('keyup change', function() {
+  validatePassword( $(this) );
+});
+
+$('#sessionName').on('keyup change', function() {
   if ( $(this).val().length === 0 ) {
-    $(this).removeClass("valid");
-    $(this).removeClass("invalidEntry");
+    $(this).removeClass('valid');
+    $(this).removeClass('invalidEntry');
   } else if ( validateNormalCharacters($(this).val()) ) {
-    $(this).removeClass("invalidEntry");
-    $(this).addClass("valid");
+    $(this).removeClass('invalidEntry');
+    $(this).addClass('valid');
   } else {
-    $(this).removeClass("valid");
-    $(this).addClass("invalidEntry");
+    $(this).removeClass('valid');
+    $(this).addClass('invalidEntry');
   }
+  validateCompletion()
   // if new
     // valid if val > 0 && normal characters
   // if join
     // valid if session name exists
 });
 
-$('.session').click(function() {
-   if($("#createSession").is(':checked') || $("#joinSession").is(':checked')) {
-     $(this).addClass("valid");
-   } else {
-     $(this).removeClass("valid");
-   }
+
+/*****************************
+Specific to menu view
+*****************************/
+
+$('.difficulty').hide();
+$('#createSession').on('click', function() {
+  $('.difficulty').show();
+});
+$('#joinSession').on('click', function() {
+  $('.difficulty').hide();
 });
 
 
@@ -300,10 +341,10 @@ $('.session').click(function() {
 Specific to waiting room view
 *****************************/
 
-let $setup = $("<div>", {id: "setup"});
-let $server = $("<ul>", {id: "server"});
+let $setup = $('<div>', {id: 'setup'});
+let $server = $('<ul>', {id: 'server'});
 
-$("#playArea").hide();
+$('#playArea').hide();
 
 // globals changed throughout the game by player events, passed to back-end code
 let action;

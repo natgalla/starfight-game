@@ -1,4 +1,3 @@
-let parser = require("body-parser");
 
 app.set("view engine", "pug");
 app.set("views", __dirname + "/views");
@@ -48,7 +47,6 @@ app.post("/menu", function(req, res) {
   req.on("end", function() {
     console.log(body);
     res.redirect('game');
-  });
 });
 
 

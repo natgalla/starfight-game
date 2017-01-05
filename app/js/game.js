@@ -17,12 +17,11 @@ var enemyBase;
 var turn;
 
 sock.on("msg", onMessage);
+sock.on("chatMessage", onChat);
+sock.on("end", centerMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
-sock.on("win", victory);
-sock.on("lose", defeat);
-sock.on("chatMessage", onChat);
-sock.on("openGame", onOpen);
+sock.on("openGame", openGame);
 sock.on("firstPlayer", onFirst);
 sock.on("start", onStart);
 
@@ -57,7 +56,7 @@ function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
 }
 
-function onOpen() {
+function openGame() {
   $("#play").removeClass("disabled");
   $("#play").addClass("enabled");
   $("#info").removeClass("menu");
@@ -88,16 +87,12 @@ function onStart() {
   $("#playArea").fadeIn();
 }
 
-function victory(text) {
+function centerMessage(text) {
   disableSelect();
-  let $victory = $("<h1>", {id: "victory", text: text})
-  $("body").append($victory);
-}
-
-function defeat(text) {
-  disableSelect();
-  let $defeat = $("<h1>", {id: "defeat", text: text})
-  $("body").append($defeat);
+  let $message = $("<h1>", {id: "centerMessage", text: text})
+  $("body").append($message);
+  $message.hide();
+  $message.fadeIn(800);
 }
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
@@ -156,7 +151,9 @@ typeWord($('#login'), header, 'h3');
 typeWord($('#register'), header, 'h3');
 typeWord($('#gameMenu'), header, 'h3');
 typeWord($('#room'), header, 'h3');
+typeWord($('#profile'), header, 'h3');
 typeWord($('#error'), header, 'h3');
+typeWord($('#logout'), header, 'h3');
 
 
 /*************************************
@@ -270,7 +267,7 @@ let validatePassword = function( $object ) {
   }
 }
 
-$('#passwordCreate').on('keyup change', function() {
+$('#password').on('keyup change', function() {
   validatePassword( $(this) );
   if ( $('#passwordConfirm') !== undefined ) {
     if ( $(this).val().length > 7 && $(this).val() === $('#passwordConfirm').val() ) {
@@ -291,7 +288,7 @@ $('#passwordConfirm').on('keyup change', function() {
   if ( $(this).val().length === 0 ) {
     $(this).removeClass('valid');
     $(this).removeClass('invalidEntry');
-  } else if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $('#passwordCreate').val()){
+  } else if ( ($(this).val().length > 0 && $(this).val().length < 8) || $(this).val() !== $('#password').val()){
     $(this).removeClass('valid');
     $(this).addClass('invalidEntry');
   } else {
@@ -301,7 +298,7 @@ $('#passwordConfirm').on('keyup change', function() {
   validateCompletion();
 });
 
-$('#password').on('keyup change', function() {
+$('#enterPassword').on('keyup change', function() {
   validatePassword( $(this) );
 });
 
