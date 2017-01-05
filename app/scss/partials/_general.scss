@@ -173,15 +173,4 @@ li p {
   margin-top: -150px;
 }
 
-a {
-  transition: 0.5s ease-out;
-  text-decoration: none;
-  color: $shadePink;
-  padding: 0.7em 1em;
-  margin-top: 0.5em;
-  &:hover {
-    color: $primaryPink;
-  }
-}
-
 @include scrollbars(0.3em, darken($complementGreen, $step), $complementGreen);

@@ -8,15 +8,23 @@ block content
       .callsign
         label(for='callsign' title='This will be your username') Callsign: 
         input.enterCallsign#callsign(type='text' name='callsign' title='This will be your username')
+      .tip 
+        h3 Your username. Maximum 8 characters. May contain letters, numbers, dashes (-), and underscores (_)
       .email
         label(for='email') Email: 
         input#email(type='email' name='email')
+      .tip
+        h3 Must be a valid email address
       .password
         label(for='password' title='Must be at least 8 characters long') Password: 
         input#password(type='password' name='password' title='Must be at least 8 characters long')
+      .tip
+        h3 Minimum 8 characters.
       .confirm
         label(for='passwordConfirm' title='Must match password') Confirm: 
         input#passwordConfirm(type='password' name='passwordConfirm' title='Must match password')
+      .tip
+        h3 Must match your password.
       .updates
         input.valid#updates(type='checkbox' name='updates' checked)
         label(for='updates' title='Only major updates. We promise not to spam you') Keep me posted on Starfire's release

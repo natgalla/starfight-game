@@ -7,7 +7,7 @@ block content
     p.error >>  #{statusMessage}
     .link
       p
-        a(href='/login') Go to login
+        a(href=backUrl) Go back
 
 block js
   include ./partials/_auth.pug

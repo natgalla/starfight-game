@@ -2,22 +2,52 @@
   background: $lightTranslucent;
   padding: 0.5em 1em;
   width: 30%;
-  min-width: 275px;
+  width: 375px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    width: 275px;
+  }
   margin: 0 auto;
   border-radius: 1em;
   border-top: 4px solid $primaryPink;
   border-bottom: 5px solid $primaryPink;
-  &#error {
-    text-align: center;
-    .error {
-      margin: 2.5em 0;
-      font-size: 1.5em;
-    }
-  }
   & h3 {
     text-align: center;
   }
+  &#error {
+    text-align: center;
+    & p {
+      margin: 2.5em 0;
+      font-size: 1.5em;
+      text-align: center;
+    }
+    & .link p {
+      margin: 0;
+      font-size: 1.2em;
+    }
+  }
   & div {
+    &.tip {
+      display: block;
+      background: $darkTranslucent;
+      border-left: 3px solid $primaryPink;
+      border-right: 3px solid $primaryPink;
+      border-radius: 0.7em;
+      width: 250px;
+      position: absolute;
+      margin-left: -110px;
+      margin-top: -50px;
+      @media (max-width: $breakWidth), (max-height: $breakHeight) {
+        margin-left: -150px;
+        margin-top: -50px;
+      }
+      padding: 0;
+      & h3 {
+        font-size: 0.9em;
+        text-align: center;
+        vertical-align: middle;
+        padding: 0 0.2em;
+      }
+    }
     display: flex;
     justify-content: space-between;
     &.create,
@@ -64,6 +94,9 @@
       & button {
         margin: 1em;
       }
+      & a {
+        @include menuLink;
+      }
     }
     &.difficulty {
       margin: 1em 0 2em;
@@ -81,9 +114,6 @@
   input[type="text"],
   input[type="email"],
   input[type="password"] {
-    &::placeholder {
-      color: #111;
-    }
     margin: 0.3em 0;
     padding: 0.5em ease-out;
     width: 60%;
@@ -95,7 +125,6 @@
       }
     }
     &.valid {
-      box-shadow: inset 0px 0px 6px $secondaryBlue;
       color: $complementGreen;
       &:focus {
         outline: 2px solid $secondaryBlue;

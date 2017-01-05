@@ -559,15 +559,6 @@ li p {
   margin-left: -150px;
   margin-top: -150px; }
 
-a {
-  transition: 0.5s ease-out;
-  text-decoration: none;
-  color: #990099;
-  padding: 0.7em 1em;
-  margin-top: 0.5em; }
-  a:hover {
-    color: magenta; }
-
 ::-webkit-scrollbar {
   width: 0.3em;
   height: 0.3em; }
@@ -657,21 +648,48 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.5);
   padding: 0.5em 1em;
   width: 30%;
-  min-width: 275px;
+  width: 375px;
   margin: 0 auto;
   border-radius: 1em;
   border-top: 4px solid magenta;
   border-bottom: 5px solid magenta; }
-  .menu#error {
-    text-align: center; }
-    .menu#error .error {
-      margin: 2.5em 0;
-      font-size: 1.5em; }
+  @media (max-width: 1000px), (max-height: 700px) {
+    .menu {
+      width: 275px; } }
   .menu h3 {
     text-align: center; }
+  .menu#error {
+    text-align: center; }
+    .menu#error p {
+      margin: 2.5em 0;
+      font-size: 1.5em;
+      text-align: center; }
+    .menu#error .link p {
+      margin: 0;
+      font-size: 1.2em; }
   .menu div {
     display: flex;
     justify-content: space-between; }
+    .menu div.tip {
+      display: block;
+      background: rgba(0, 0, 0, 0.8);
+      border-left: 3px solid magenta;
+      border-right: 3px solid magenta;
+      border-radius: 0.7em;
+      width: 250px;
+      position: absolute;
+      margin-left: -110px;
+      margin-top: -50px;
+      padding: 0; }
+      @media (max-width: 1000px), (max-height: 700px) {
+        .menu div.tip {
+          margin-left: -150px;
+          margin-top: -50px; } }
+      .menu div.tip h3 {
+        font-size: 0.9em;
+        text-align: center;
+        vertical-align: middle;
+        padding: 0 0.2em; }
     .menu div.create, .menu div.join {
       width: 50%;
       display: inline-block;
@@ -706,6 +724,13 @@ input[type="checkbox"] {
       margin: 1em; }
       .menu div.link button {
         margin: 1em; }
+      .menu div.link a {
+        font-size: 1em;
+        transition: 0.5s ease-out;
+        text-decoration: none;
+        color: #990099; }
+        .menu div.link a:hover {
+          color: magenta; }
     .menu div.difficulty {
       margin: 1em 0 2em;
       font-size: 0.8em; }
@@ -721,10 +746,6 @@ input[type="checkbox"] {
     margin: 0.3em 0;
     padding: 0.5em ease-out;
     width: 60%; }
-    .menu input[type="text"]::placeholder,
-    .menu input[type="email"]::placeholder,
-    .menu input[type="password"]::placeholder {
-      color: #111; }
     .menu input[type="text"].invalidEntry,
     .menu input[type="email"].invalidEntry,
     .menu input[type="password"].invalidEntry {
@@ -737,7 +758,6 @@ input[type="checkbox"] {
     .menu input[type="text"].valid,
     .menu input[type="email"].valid,
     .menu input[type="password"].valid {
-      box-shadow: inset 0px 0px 6px steelblue;
       color: limegreen; }
       .menu input[type="text"].valid:focus,
       .menu input[type="email"].valid:focus,

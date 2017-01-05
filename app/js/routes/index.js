@@ -140,25 +140,31 @@ router.get('/menu', mid.requiresLogin, function(req, res, next) {
 });
 
 router.post('/menu', function(req, res, next) {
-  console.log(req.body);
-  // was "new game" or "join game" selected?
-    // let err = new Error('Must choose whether to create a new game or join an existing game.');
-    // err.status = 400;
-    // return next(err);
-  if(!validateNormalCharacters(req.body.sessionName)) {
-      let err = new Error('Invalid game name. Can only contain letters, numbers, dashes (-), and underscores (_)');
-      err.status = 400;
-      return next(err);
+  if (!req.body.session) {
+    let err = new Error('Must choose to create a new game or join an existing game.');
+    err.status = 400;
+    return next(err);
   }
-  // if new game is selected
+  if( !validateNormalCharacters(req.body.sessionName) ) {
+    let err = new Error('Invalid game name. Can only contain letters, numbers, dashes (-), and underscores (_)');
+    err.status = 400;
+    return next(err);
+  }
+  if (req.body.session === 'create') {
+    // game.difficulty = Number(req.body.difficulty);
     // create a namespace with the provided name
-    // store the "difficulty" in an instance of the game
-    // redirect to that namespace
-  // else if join game is selected
-    // if session name does not exist
-      // return error
-    // redirect to this namespace
-  return res.redirect('game');
+    // return res.redirect('game' + req.body.sessionName)
+    return res.redirect('game');
+  }
+  if (req.body.session === 'join') {
+    // if (req.body.sessionName !== 'someExistingName') {
+    //   let err = new Error('This game does not exist. Make sure you are entering the name correctly.');
+    //   err.status = 400;
+    //   return next(err);
+    // }
+    // return res.redirect('game' + req.body.sessionName)
+    return res.redirect('game');
+  }
 });
 
 // Game view

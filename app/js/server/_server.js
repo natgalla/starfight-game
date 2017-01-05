@@ -61,10 +61,12 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  let backUrl = req.header('Referer') || '/';
   res.status(err.status || 500);
   res.render('error', {
     statusMessage: err.message || 'There was en error processing your request',
-    error: {}
+    error: {},
+    backUrl: backUrl
   });
 });
 

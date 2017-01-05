@@ -12,14 +12,14 @@ block content
         input.session#joinSession(type='radio' name='session' value='join')
         label(for='joinSession') Join Game
       .difficulty
-        input.difficultyChoice(type='radio' name='difficulty' id="two" value="2")
-        label(for="two") Easy
-        input.difficultyChoice(type='radio' name='difficulty' id="three" value="3" checked)
-        label(for="three") Medium
-        input.difficultyChoice(type='radio' name='difficulty' id="four" value="4")
-        label(for="four") Hard
-        input.difficultyChoice(type='radio' name='difficulty' id="five" value="5")
-        label(for="five") Brutal
+        input.difficultyChoice.valid(type='radio' name='difficulty' id='two' value='2')
+        label(for='two') Easy
+        input.difficultyChoice.valid(type='radio' name='difficulty' id='three' value='3' checked)
+        label(for='three') Medium
+        input.difficultyChoice.valid(type='radio' name='difficulty' id='four' value='4')
+        label(for='four') Hard
+        input.difficultyChoice.valid(type='radio' name='difficulty' id='five' value='5')
+        label(for='five') Brutal
       .session
         label(for='sessionName') Game name: 
         input#sessionName(type='text' name='sessionName')
