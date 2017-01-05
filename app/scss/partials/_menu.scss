@@ -4,7 +4,7 @@
   width: 30%;
   width: 375px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    width: 275px;
+    width: 300px;
   }
   margin: 0 auto;
   border-radius: 1em;
@@ -28,24 +28,23 @@
   & div {
     &.tip {
       display: block;
-      background: $darkTranslucent;
+      background: $black;
       border-left: 3px solid $primaryPink;
       border-right: 3px solid $primaryPink;
-      border-radius: 0.7em;
+      border-radius: 0.5em;
       width: 250px;
       position: absolute;
       margin-left: -110px;
-      margin-top: -50px;
+      margin-top: -48px;
       @media (max-width: $breakWidth), (max-height: $breakHeight) {
-        margin-left: -150px;
-        margin-top: -50px;
+        margin-left: -140px;
+        margin-top: -40px;
       }
       padding: 0;
+      vertical-align: middle;
       & h3 {
         font-size: 0.9em;
         text-align: center;
-        vertical-align: middle;
-        padding: 0 0.2em;
       }
     }
     display: flex;

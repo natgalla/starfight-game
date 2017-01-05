@@ -411,9 +411,8 @@ body {
   body h1 {
     color: magenta;
     font-family: 'Orbitron', sans-serif;
-    margin: 2% auto 1%;
+    margin: 50px auto 1%;
     font-size: 5.5em;
-    padding-top: 5%;
     text-align: center;
     text-shadow: 2px 2px 5px #8db3d3, -2px -2px 4px #294d6b; }
   @media (max-width: 1000px), (max-height: 700px) {
@@ -655,7 +654,7 @@ input[type="checkbox"] {
   border-bottom: 5px solid magenta; }
   @media (max-width: 1000px), (max-height: 700px) {
     .menu {
-      width: 275px; } }
+      width: 300px; } }
   .menu h3 {
     text-align: center; }
   .menu#error {
@@ -672,24 +671,23 @@ input[type="checkbox"] {
     justify-content: space-between; }
     .menu div.tip {
       display: block;
-      background: rgba(0, 0, 0, 0.8);
+      background: #000;
       border-left: 3px solid magenta;
       border-right: 3px solid magenta;
-      border-radius: 0.7em;
+      border-radius: 0.5em;
       width: 250px;
       position: absolute;
       margin-left: -110px;
-      margin-top: -50px;
-      padding: 0; }
+      margin-top: -48px;
+      padding: 0;
+      vertical-align: middle; }
       @media (max-width: 1000px), (max-height: 700px) {
         .menu div.tip {
-          margin-left: -150px;
-          margin-top: -50px; } }
+          margin-left: -140px;
+          margin-top: -40px; } }
       .menu div.tip h3 {
         font-size: 0.9em;
-        text-align: center;
-        vertical-align: middle;
-        padding: 0 0.2em; }
+        text-align: center; }
     .menu div.create, .menu div.join {
       width: 50%;
       display: inline-block;
