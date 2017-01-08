@@ -137,15 +137,19 @@ Game.prototype.distributeEnemies = function(source) {
   while (source.length > 0) {
     for (let i = 0; i < this.friendlies.length; i++) {
       let friendly = this.friendlies[i];
-      if (source.length > 0 && friendly.effects.incinerator) {
-        friendly.pursuers.push(source.pop());
-        console.log(friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
-        enemyBase.enemyDeck.discard.push(friendly.pursuers.pop());
-        friendly.incinerator = false;
-      } else if (source.length > 0) {
-        friendly.pursuers.push(source.pop());
+      if (friendly.effects.dead) {
+        continue;
       } else {
-        break;
+        if (source.length > 0 && friendly.effects.incinerator) {
+          friendly.pursuers.push(source.pop());
+          io.sockets.emit("msg", friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
+          enemyBase.enemyDeck.discard.push(friendly.pursuers.pop());
+          friendly.effects.incinerator = false;
+        } else if (source.length > 0) {
+          friendly.pursuers.push(source.pop());
+        } else {
+          break;
+        }
       }
     }
   }
@@ -221,7 +225,7 @@ Game.prototype.update = function() {
 
 Game.prototype.round = function() {
   this.roundNumber++;
-  console.log("Round: " + this.gameID + "." + this.roundNumber + " begin.");
+  console.log("Round: " + this.gameID + "." + this.roundNumber);
   // add enemies and advanced tactics into play
   if (this.roundNumber === 1) {
     this.replaceCards(enemyBase.startingEnemies, enemyBase.enemyDeck,
@@ -254,7 +258,7 @@ Game.prototype.round = function() {
 
   // replace tactical cards from last turn
   this.friendlies.forEach( function(player) {
-    if (player === FriendlyBase) {
+    if (player === FriendlyBase || player.effects.dead) {
       return;
     } else {
       player.resetCardsUsed();
@@ -265,9 +269,7 @@ Game.prototype.round = function() {
   // refresh play area
 }
 
-Game.prototype.postRound = function() { //strange behavior removing placeholders
-  console.log("Round: " + this.gameID + "." + this.roundNumber + " end.");
-
+Game.prototype.postRound = function() {
   // discard empty space cards and remove place holders
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];

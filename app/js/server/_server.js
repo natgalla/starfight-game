@@ -2,12 +2,12 @@ let root = __dirname;
 let port = process.env.PORT || 8080;
 let http = require('http');
 let express = require('express');
-let socketio = require('socket.io');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
 let session = require('express-session');
 let app = express();
 let server = http.createServer(app);
+let socketio = require('socket.io');
 let io = socketio(server);
 let User = require('./js/models/user');
 let MongoStore = require('connect-mongo')(session);
@@ -82,6 +82,9 @@ let waitingPlayer3;
 
 let currentTurn;
 
+let startTime;
+let endTime;
+
 let gameSession = {
   turn: currentTurn,
   game: game,
@@ -102,20 +105,21 @@ function createGame(sessionName) {
   nsp.on('connection', onConnection);
 }
 
-function onConnection(socket) {
-  socket.emit('msg', 'Connection established.');
-  let join = function(player) {
-    let setName = function(userId, callback) {
-      User.findById(userId, function(error, user) {
-        if (error) {
-          callback(err, null);
-        } else {
-          callback(null, user);
-        }
-      });
+function getUser(userId, callback) {
+  User.findById(userId, function(error, user) {
+    if (error) {
+      callback(err, null);
+    } else {
+      callback(null, user);
     }
+  });
+}
+
+function onConnection(socket) {
+  let join = function(player) {
+
     if (currentUser) {
-      setName(currentUser, function(err, user) {
+      getUser(currentUser, function(err, user) {
         if (err) {
           console.error(err);
         }
@@ -126,7 +130,7 @@ function onConnection(socket) {
         socket.on('chat', function(message) {
           io.sockets.emit('chatMessage', message);
         });
-        io.sockets.emit('msg', player.name + ' joined game as ' + player.id);
+        io.sockets.emit('msg', player.name + ' joined as ' + player.id);
       });
     }
   }
@@ -153,8 +157,11 @@ function onConnection(socket) {
     socket.emit('msg', 'Waiting for second player...');
     socket.emit('firstPlayer');
     socket.on('startGame', function() {
-      if (game.friendlies.includes(Player2)) { //protects from premature game start
+      if (game.friendlies.includes(Player2)) {
+        //protects from premature game start
         io.sockets.emit('start');
+        startTime = new Date();
+        console.log("Game start: " + startTime);
         currentTurn = 1;
         clearSockets();
         startGame(game);
@@ -204,6 +211,12 @@ function turn(data) {
       return enemyBase;
     }
   }
+  let logElapsedTime = function() {
+    endTime = new Date();
+    let ms = endTime.getTime() - startTime.getTime();
+    let min = Math.round((ms/1000)/60);
+    console.log('Elapsed time: ' + min + ' min');
+  }
   let friendly = undefined;
   let player = getPlayer(specs.player.id);
   if (specs.friendly !== undefined) {
@@ -232,27 +245,50 @@ function turn(data) {
   } else {
     currentTurn += 1;
   }
-  if (currentTurn === game.friendlies.length
-    || (currentTurn === game.friendlies.length-1
-      && game.friendlies[currentTurn].id === 'FriendlyBase')) {
-    currentTurn = 0;
+  let resetTurns = function() {
+    if (currentTurn >= game.friendlies.length
+        || (currentTurn === game.friendlies.length-1
+        && game.friendlies[currentTurn].id === 'FriendlyBase')
+        || (currentTurn === game.friendlies.length-1
+        && game.friendlies[currentTurn].effects.dead)) {
+      currentTurn = 0;
+    }
   }
-  if (game.friendlies[currentTurn].id === 'FriendlyBase') {
+  resetTurns();
+  while (game.friendlies[currentTurn].id === 'FriendlyBase'
+      || game.friendlies[currentTurn].effects.dead) {
     currentTurn += 1;
+    resetTurns();
   }
   if (game.win) {
-    // increment currentUser's meta.wins
-    // check to see if currentUser should be promoted
-    console.log('Game won');
-    updateObjects();
-    io.sockets.emit('end', 'Victory!');
-    reset();
+    getUser(currentUser, function(err, user) {
+      if (err) {
+        console.error(err);
+      }
+      let update = { $inc: {"meta.wins": 1 }};
+      User.update(user, update, function() {  // needs to update all users in session
+        console.log("Game won: " + Date());
+        logElapsedTime();
+        updateObjects();
+        io.sockets.emit('end', 'Victory!');
+        reset();
+      });
+      // check to see if currentUser should be promoted
+    });
   } else if (game.lose) {
-    // increment currentUser's meta.losses
-    console.log('Game lost');
-    updateObjects();
-    io.sockets.emit('end', 'Defeat!');
-    reset();
+    getUser(currentUser, function(err, user) {
+      if (err) {
+        console.error(err);
+      }
+      let update = { $inc: {"meta.losses": 1 }};
+      User.update(user, update, function() {  // needs to update all users in session
+        console.log("Game lost: " + Date());
+        logElapsedTime();
+        updateObjects();
+        io.sockets.emit('end', 'Defeat!');
+        reset();
+      });
+    });
   } else {
     updateObjects();
   }

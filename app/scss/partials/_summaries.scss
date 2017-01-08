@@ -20,14 +20,14 @@
 #userSummary {
   position: absolute;
   display: inline-block;
-  z-index: -10;
+  z-index: 10;
   margin-top: 40px;
   &.bumped {
     margin-left: 70px;
   }
-  width: 100px;
+  min-width: 100px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    width: 80px;
+    min-width: 80px;
     &.bumped {
       margin-left: 65px;
     }

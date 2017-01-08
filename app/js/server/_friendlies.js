@@ -14,6 +14,7 @@ const Friendly = function(id, name, maxArmor) {
   this.pursuers = [];
   this.pursuerDamage = [];
   this.effects = {
+    dead: false,
     medalOfHonor: false,
     medic: false,
     daredevil: false,
@@ -117,7 +118,8 @@ Friendly.prototype.takeDamage = function(damage) {
       this.currentArmor = 0;
     }
     if (this.currentArmor === 0) {
-      io.sockets.emit("msg", this.name + " has been destroyed. Players lose.")
+      io.sockets.emit("msg", this.name + " has been destroyed. Players lose.");
+      this.effects.dead = true;
       game.lose = true;
     } else {
       io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
@@ -154,6 +156,7 @@ const Player = function(id, name) {
   this.missileDie = [0,0,1,1,2,2];
   this.amtImproved = 0;
   this.effects = {
+    dead: false,
     medalOfHonor: false,
     medic: false,
     daredevil: false,
@@ -188,18 +191,20 @@ Player.prototype.resetCardsUsed = function() {
 }
 
 Player.prototype.updateSummary = function() {
-  this.effects.status = "Free";
-  this.summary = "<h3>" + this.name + "</h3>"
-                  + "<p>Armor: " + this.currentArmor
+  this.summary = "<h3>" + this.name + "</h3>";
+  if (!this.effects.dead) {
+    this.effects.status = "Free";
+    this.summary += "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
                   + "<p>Merit: " + this.merit + "</p>";
-  for (let i=0; i<this.pursuers.length; i++) {
-    let enemy = this.pursuers[i];
-    if (enemy.merit > 0) {
-      this.effects.status = "Pursued";
+    for (let i=0; i<this.pursuers.length; i++) {
+      let enemy = this.pursuers[i];
+      if (enemy.merit > 0) {
+        this.effects.status = "Pursued";
+      }
     }
   }
-  if (this.effects.status === "Pursued") {
+  if (this.effects.status === "Pursued" || this.effects.status === "KIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
     this.summary += "<p class='free'>" + this.effects.status + "</p>";
@@ -273,13 +278,29 @@ Player.prototype.checkDamageNegation = function(damage) {
 Player.prototype.takeDamage = function(damage) {
   if (damage > 0) {
     this.currentArmor -= damage;
-    if (this.currentArmor < 0) {
+    if (this.currentArmor <= 0) {
       this.currentArmor = 0;
+      this.effects.dead = true;
+      this.effects.status = "KIA";
       io.sockets.emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
-      game.distributeEnemies(this.pursuers);
-      game.friendlies.splice(game.friendlies.indexOf(this), 1);
-      game.friendlies.join();
-      if (game.friendlies === [FriendlyBase]) {
+      while (this.hand.length > 0) {
+        game.moveCard(0, this.hand, game.tacticalDeck.discard);
+      }
+      let pursuers = this.pursuers;
+      game.distributeEnemies(pursuers);
+      this.pursuers = [];
+      let alldead = true;
+      for (let i = 0; i < game.friendlies.length; i++) {
+        let friendly = game.friendlies[i];
+        if (friendly.id === "FriendlyBase") {
+          continue;
+        } else {
+          if (!friendly.effects.dead) {
+            alldead = false;
+          }
+        }
+      }
+      if (alldead) {
         io.sockets.emit("msg", "All pilots destroyed. Players lose.");
         game.lose = true;
       }

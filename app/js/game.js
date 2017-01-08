@@ -704,6 +704,9 @@ const showTargets = function(action) {
   if (action === "feint") {
     action = player.lastCardUsed.cssClass;
   }
+  if (["jammer", "incinerate", "intercept", "divertShields", "countermeasures", "jump", "hardsix", "guidedMissile"].includes(action)) {
+    return;
+  }
   if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
     if (player.effects.status == "Free") {
       selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
@@ -722,7 +725,7 @@ const showTargets = function(action) {
   if (["immelman", "evade", "barrelRoll"].includes(action)) {
     selectTargets("playerPursuers");
   }
-  if (["repairDrone"].includes(action)) {
+  if (["repairDrone", "healthPack"].includes(action)) {
     selectAlly("all");
   }
 }
@@ -753,7 +756,6 @@ $discardButton.on("click", function() {
   $cancelButton.show();
   disableSelect();
 });
-
 
 $fireButton.on("click", function() {
   clearButtons();
@@ -861,37 +863,5 @@ $confirmTargetButton.on("click", function() {
 $confirmAdvButton.on("click", function() {
   sendPacket();
 });
-
-let turns = function() {
-  let turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player === FriendlyBase) {
-        continue;
-      } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
-        let cardChoice = player.hand(cardChoiceIndex);
-      }
-    }
-    this.turnNumber ++;
-  }
-}
 
 //# sourceMappingURL=game.js.map

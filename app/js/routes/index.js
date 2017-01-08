@@ -151,6 +151,11 @@ router.post('/menu', function(req, res, next) {
     return next(err);
   }
   if (req.body.session === 'create') {
+    // if (req.body.sessionName === 'someExistingName') {
+    //   let err = new Error('This name is not available. Please choose a different name.');
+    //   err.status = 400;
+    //   return next(err);
+    // }
     // game.difficulty = Number(req.body.difficulty);
     // create a namespace with the provided name
     // return res.redirect('game' + req.body.sessionName)

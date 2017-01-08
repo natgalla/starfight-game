@@ -64,7 +64,7 @@
   // }
   perspective: $perspective;
   & .enemy {
-    z-index: -1;
+    z-index: -11;
     // @media (max-height: 700px) {
     //   margin-bottom: -230px;
     // }
@@ -84,7 +84,7 @@
     margin-bottom: 120px;
   }
   & .emptySpace {
-    z-index: -2;
+    z-index: -12;
   }
 }
 
