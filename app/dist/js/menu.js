@@ -48,27 +48,41 @@ Effects
 ********************/
 
 let header = $('.formHeader').text();
+let error = $('.error').text();
 
 $('.menu').hide();
 $('.menu').slideDown(500);
 $('form').hide();
 $('form').fadeIn(800);
 $('.formHeader').hide();
+$('.error').hide();
+$('.tip').hide();
 
+typeWord($('#error'), error, 'p');
 typeWord($('#login'), header, 'h3');
 typeWord($('#register'), header, 'h3');
 typeWord($('#gameMenu'), header, 'h3');
 typeWord($('#room'), header, 'h3');
+typeWord($('#profile'), header, 'h3');
 typeWord($('#error'), header, 'h3');
+typeWord($('#logout'), header, 'h3');
 
 
 /*************************************
 FRONT END FORM VALIDATION
 *************************************/
 
+$('input').focus(function() {
+  let $tip = $(this).closest('div').next('.tip');
+  $tip.slideDown();
+  $(this).focusout(function() {
+    $tip.fadeOut();
+  })
+});
+
 let validateForm = function() {
   let $form = $('form');
-  let $inputs = $form.find('input').not('input[type=radio]');
+  let $inputs = $form.find('input');
   let $submit = $('button[type=submit]');
   let valid = true;
   $.each( $inputs, function(key, value) {
@@ -108,7 +122,7 @@ let disableForm = function() {
 let validateCompletion = function() {
   $('input').on('keyup change', function() {
     let $form = $('form');
-    let $inputs = $form.find('input').not('input[type=radio]');
+    let $inputs = $form.find('input');
     let $submit = $('button[type=submit]');
     let valid = true;
     $.each( $inputs, function(key, value) {
@@ -204,7 +218,7 @@ $('#passwordConfirm').on('keyup change', function() {
   validateCompletion();
 });
 
-$('#password').on('keyup change', function() {
+$('#enterPassword').on('keyup change', function() {
   validatePassword( $(this) );
 });
 
@@ -234,9 +248,13 @@ Specific to menu view
 $('.difficulty').hide();
 $('#createSession').on('click', function() {
   $('.difficulty').show();
+  $(this).addClass('valid');
+  $('#joinSession').addClass('valid');
 });
 $('#joinSession').on('click', function() {
   $('.difficulty').hide();
+  $(this).addClass('valid');
+  $('#createSession').addClass('valid');
 });
 
 

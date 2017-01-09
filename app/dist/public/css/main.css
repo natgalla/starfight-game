@@ -411,9 +411,8 @@ body {
   body h1 {
     color: magenta;
     font-family: 'Orbitron', sans-serif;
-    margin: 2% auto 1%;
+    margin: 50px auto 1%;
     font-size: 5.5em;
-    padding-top: 5%;
     text-align: center;
     text-shadow: 2px 2px 5px #8db3d3, -2px -2px 4px #294d6b; }
   @media (max-width: 1000px), (max-height: 700px) {
@@ -470,7 +469,7 @@ li p {
   color: steelblue;
   font-size: 0.7em;
   text-align: center;
-  position: absolute;
+  position: fixed;
   bottom: 0;
   margin-top: 2%;
   width: 100%; }
@@ -548,8 +547,7 @@ li p {
   #room button {
     margin-bottom: 2em; }
 
-#victory,
-#defeat {
+#centerMessage {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -559,15 +557,6 @@ li p {
   vertical-align: middle;
   margin-left: -150px;
   margin-top: -150px; }
-
-a {
-  transition: 0.5s ease-out;
-  text-decoration: none;
-  color: #990099;
-  padding: 0.7em 1em;
-  margin-top: 0.5em; }
-  a:hover {
-    color: magenta; }
 
 ::-webkit-scrollbar {
   width: 0.3em;
@@ -658,20 +647,47 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.5);
   padding: 0.5em 1em;
   width: 30%;
-  min-width: 275px;
+  width: 375px;
   margin: 0 auto;
   border-radius: 1em;
-  border-top: 3px solid magenta;
+  border-top: 4px solid magenta;
   border-bottom: 5px solid magenta; }
+  @media (max-width: 1000px), (max-height: 700px) {
+    .menu {
+      width: 300px; } }
+  .menu h3 {
+    text-align: center; }
   .menu#error {
     text-align: center; }
     .menu#error p {
-      margin: 1em 0; }
-  .menu h3 {
-    text-align: center; }
+      margin: 2.5em 0;
+      font-size: 1.5em;
+      text-align: center; }
+    .menu#error .link p {
+      margin: 0;
+      font-size: 1.2em; }
   .menu div {
     display: flex;
     justify-content: space-between; }
+    .menu div.tip {
+      display: block;
+      background: #000;
+      border-left: 3px solid magenta;
+      border-right: 3px solid magenta;
+      border-radius: 0.5em;
+      width: 250px;
+      position: absolute;
+      margin-left: -110px;
+      margin-top: -48px;
+      padding: 0;
+      vertical-align: middle; }
+      @media (max-width: 1000px), (max-height: 700px) {
+        .menu div.tip {
+          margin-left: -140px;
+          margin-top: -40px; } }
+      .menu div.tip h3 {
+        font-size: 0.9em;
+        text-align: center; }
     .menu div.create, .menu div.join {
       width: 50%;
       display: inline-block;
@@ -692,10 +708,27 @@ input[type="checkbox"] {
       .menu div.updates label {
         margin-left: 1em;
         font-size: 0.95em; }
-    .menu div.createAccount {
+    .menu div.profile {
+      text-align: left;
+      justify-content: space-around; }
+      .menu div.profile h3 {
+        display: block;
+        width: 50%;
+        text-align: left;
+        padding-left: 15%; }
+    .menu div.link {
       display: block;
       text-align: center;
       margin: 1em; }
+      .menu div.link button {
+        margin: 1em; }
+      .menu div.link a {
+        font-size: 1em;
+        transition: 0.5s ease-out;
+        text-decoration: none;
+        color: #990099; }
+        .menu div.link a:hover {
+          color: magenta; }
     .menu div.difficulty {
       margin: 1em 0 2em;
       font-size: 0.8em; }
@@ -723,7 +756,6 @@ input[type="checkbox"] {
     .menu input[type="text"].valid,
     .menu input[type="email"].valid,
     .menu input[type="password"].valid {
-      box-shadow: inset 0px 0px 6px steelblue;
       color: limegreen; }
       .menu input[type="text"].valid:focus,
       .menu input[type="email"].valid:focus,
@@ -953,7 +985,7 @@ input[type="checkbox"] {
   margin-bottom: -70px;
   perspective: 1000px; }
   #playerPursuers .enemy {
-    z-index: -1; }
+    z-index: -11; }
   #playerPursuers .target {
     z-index: 14;
     margin-bottom: 120px; }
@@ -961,7 +993,7 @@ input[type="checkbox"] {
     z-index: 17;
     margin-bottom: 120px; }
   #playerPursuers .emptySpace {
-    z-index: -2; }
+    z-index: -12; }
 
 #basePursuers {
   float: left;
@@ -1131,14 +1163,14 @@ input[type="checkbox"] {
 #userSummary {
   position: absolute;
   display: inline-block;
-  z-index: -10;
+  z-index: 10;
   margin-top: 40px;
-  width: 100px; }
+  min-width: 100px; }
   #userSummary.bumped {
     margin-left: 70px; }
   @media (max-width: 1000px), (max-height: 700px) {
     #userSummary {
-      width: 80px; }
+      min-width: 80px; }
       #userSummary.bumped {
         margin-left: 65px; } }
 

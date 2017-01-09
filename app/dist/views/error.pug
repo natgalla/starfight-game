@@ -4,11 +4,10 @@ block content
   h1#title Starfire
   .menu#error
     h3.formHeader ERROR
-    p There was an error processing your request 
-    p >>  #{statusCode}: #{statusMessage}
-    .createAccount
+    p.error >>  #{statusMessage}
+    .link
       p
-        a(href='/login') Back to login
+        a(href=backUrl) Go back
 
 block js
   include ./partials/_auth.pug

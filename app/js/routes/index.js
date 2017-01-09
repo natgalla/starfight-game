@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
+var Game = require('../models/game');
 var mid = require('../middleware');
 
 function validateNormalCharacters(string) {
@@ -104,8 +105,7 @@ router.post('/register', function(req, res, next) {
 
 // Profile view
 router.get('/profile', mid.requiresLogin, function(req, res, next) {
-  User.findById(req.session.userId)
-  .exec(function (error, user) {
+  User.findById(req.session.userId).exec(function (error, user) {
     if (error) {
       return next(error);
     } else {
@@ -151,24 +151,75 @@ router.post('/menu', function(req, res, next) {
     return next(err);
   }
   if (req.body.session === 'create') {
-    // if (req.body.sessionName === 'someExistingName') {
-    //   let err = new Error('This name is not available. Please choose a different name.');
-    //   err.status = 400;
-    //   return next(err);
-    // }
-    // game.difficulty = Number(req.body.difficulty);
-    // create a namespace with the provided name
-    // return res.redirect('game' + req.body.sessionName)
-    return res.redirect('game');
+    Game.find({ gameName: req.body.sessionName }, function(err, game) {
+      if (err) {
+        return next(err);
+      }
+      if (game.length) {
+        let err = new Error('This name is currently unavailable. Please choose a different name.');
+        err.status = 400;
+        return next(err);
+      }
+      User.findById(req.session.userId).exec(function (error, user) {
+        if (error) {
+          return next(error);
+        }
+        let gameData = {
+          gameName: req.body.sessionName,
+          difficulty: req.body.difficulty,
+          users: {
+            user1: user.callsign
+          }
+        }
+        Game.create(gameData, function(error, game) {
+          if (error) {
+            return next(error);
+          } else {
+            req.session.gameId = game._id;
+            // game.difficulty = Number(req.body.difficulty);
+            // create a namespace using the gameName or _id
+            // redirect to the new namespace
+            return res.redirect('game');
+          }
+        });
+      });
+    });
   }
   if (req.body.session === 'join') {
-    // if (req.body.sessionName !== 'someExistingName') {
-    //   let err = new Error('This game does not exist. Make sure you are entering the name correctly.');
-    //   err.status = 400;
-    //   return next(err);
-    // }
-    // return res.redirect('game' + req.body.sessionName)
-    return res.redirect('game');
+    Game.find({ gameName: req.body.sessionName }, function(err, game) {
+      if (err) {
+        return next(err);
+      }
+      if (game.length) {
+        if (game[0].meta.locked) {
+          let err = new Error('This game is full or has already started.');
+          err.status = 400;
+          return next(err);
+        }
+        User.findById(req.session.userId).exec(function (error, user) {
+          if (error) {
+            return next(error);
+          }
+          let query = { gameName: req.body.sessionName };
+          let update;
+          if (game[0].users.user3) {
+            update = { "users.user4": user.callsign, $inc: { players: 1 }, "meta.locked": true };
+          } else if (game[0].users.user2) {
+            update = { "users.user3": user.callsign, $inc: { players: 1 } };
+          } else {
+            update = { "users.user2": user.callsign, $inc: { players: 1 } };
+          }
+          Game.update(query, update, function() {
+            req.session.gameId = game._id;
+            return res.redirect('game');
+          });
+        });
+      } else {
+        let err = new Error('This game does not exist. Make sure you are entering the name correctly.');
+        err.status = 400;
+        return next(err);
+      }
+    })
   }
 });
 

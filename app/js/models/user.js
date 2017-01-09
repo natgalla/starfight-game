@@ -6,7 +6,8 @@ let UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true
+    unique: true,
+    uppercase: true
   },
   email: {
     type: String,
@@ -51,13 +52,23 @@ UserSchema.statics.authenticate = function(callsign, password, callback) {
 
 UserSchema.pre('save', function(next) {
   let user = this;
-  bcrypt.hash(user.password, 10, function(err, hash) {
-    if (err) {
+  mongoose.models['User'].findOne({callsign: user.callsign}, function(err, results) {
+    if(err) {
       return next(err);
+    } else if(results) {
+      let err = new Error('This callsign is not available');
+      err.status = 400;
+      return next(err);
+    } else {
+      bcrypt.hash(user.password, 10, function(err, hash) {
+        if (err) {
+          return next(err);
+        }
+        user.password = hash;
+        next();
+      });
     }
-    user.password = hash;
-    next();
-  });
+  })
 });
 
 let User = mongoose.model('User', UserSchema);

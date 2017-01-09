@@ -208,6 +208,7 @@ const Friendly = function(id, name, maxArmor) {
   this.pursuers = [];
   this.pursuerDamage = [];
   this.effects = {
+    dead: false,
     medalOfHonor: false,
     medic: false,
     daredevil: false,
@@ -311,7 +312,8 @@ Friendly.prototype.takeDamage = function(damage) {
       this.currentArmor = 0;
     }
     if (this.currentArmor === 0) {
-      io.sockets.emit("msg", this.name + " has been destroyed. Players lose.")
+      io.sockets.emit("msg", this.name + " has been destroyed. Players lose.");
+      this.effects.dead = true;
       game.lose = true;
     } else {
       io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
@@ -348,6 +350,7 @@ const Player = function(id, name) {
   this.missileDie = [0,0,1,1,2,2];
   this.amtImproved = 0;
   this.effects = {
+    dead: false,
     medalOfHonor: false,
     medic: false,
     daredevil: false,
@@ -382,18 +385,20 @@ Player.prototype.resetCardsUsed = function() {
 }
 
 Player.prototype.updateSummary = function() {
-  this.effects.status = "Free";
-  this.summary = "<h3>" + this.name + "</h3>"
-                  + "<p>Armor: " + this.currentArmor
+  this.summary = "<h3>" + this.name + "</h3>";
+  if (!this.effects.dead) {
+    this.effects.status = "Free";
+    this.summary += "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
                   + "<p>Merit: " + this.merit + "</p>";
-  for (let i=0; i<this.pursuers.length; i++) {
-    let enemy = this.pursuers[i];
-    if (enemy.merit > 0) {
-      this.effects.status = "Pursued";
+    for (let i=0; i<this.pursuers.length; i++) {
+      let enemy = this.pursuers[i];
+      if (enemy.merit > 0) {
+        this.effects.status = "Pursued";
+      }
     }
   }
-  if (this.effects.status === "Pursued") {
+  if (this.effects.status === "Pursued" || this.effects.status === "KIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
     this.summary += "<p class='free'>" + this.effects.status + "</p>";
@@ -467,13 +472,29 @@ Player.prototype.checkDamageNegation = function(damage) {
 Player.prototype.takeDamage = function(damage) {
   if (damage > 0) {
     this.currentArmor -= damage;
-    if (this.currentArmor < 0) {
+    if (this.currentArmor <= 0) {
       this.currentArmor = 0;
+      this.effects.dead = true;
+      this.effects.status = "KIA";
       io.sockets.emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
-      game.distributeEnemies(this.pursuers);
-      game.friendlies.splice(game.friendlies.indexOf(this), 1);
-      game.friendlies.join();
-      if (game.friendlies === [FriendlyBase]) {
+      while (this.hand.length > 0) {
+        game.moveCard(0, this.hand, game.tacticalDeck.discard);
+      }
+      let pursuers = this.pursuers;
+      game.distributeEnemies(pursuers);
+      this.pursuers = [];
+      let alldead = true;
+      for (let i = 0; i < game.friendlies.length; i++) {
+        let friendly = game.friendlies[i];
+        if (friendly.id === "FriendlyBase") {
+          continue;
+        } else {
+          if (!friendly.effects.dead) {
+            alldead = false;
+          }
+        }
+      }
+      if (alldead) {
         io.sockets.emit("msg", "All pilots destroyed. Players lose.");
         game.lose = true;
       }
@@ -1004,15 +1025,19 @@ Game.prototype.distributeEnemies = function(source) {
   while (source.length > 0) {
     for (let i = 0; i < this.friendlies.length; i++) {
       let friendly = this.friendlies[i];
-      if (source.length > 0 && friendly.effects.incinerator) {
-        friendly.pursuers.push(source.pop());
-        console.log(friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
-        enemyBase.enemyDeck.discard.push(friendly.pursuers.pop());
-        friendly.incinerator = false;
-      } else if (source.length > 0) {
-        friendly.pursuers.push(source.pop());
+      if (friendly.effects.dead) {
+        continue;
       } else {
-        break;
+        if (source.length > 0 && friendly.effects.incinerator) {
+          friendly.pursuers.push(source.pop());
+          io.sockets.emit("msg", friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
+          enemyBase.enemyDeck.discard.push(friendly.pursuers.pop());
+          friendly.effects.incinerator = false;
+        } else if (source.length > 0) {
+          friendly.pursuers.push(source.pop());
+        } else {
+          break;
+        }
       }
     }
   }
@@ -1088,7 +1113,7 @@ Game.prototype.update = function() {
 
 Game.prototype.round = function() {
   this.roundNumber++;
-  console.log("Round: " + this.gameID + "." + this.roundNumber + " begin.");
+  console.log("Round: " + this.gameID + "." + this.roundNumber);
   // add enemies and advanced tactics into play
   if (this.roundNumber === 1) {
     this.replaceCards(enemyBase.startingEnemies, enemyBase.enemyDeck,
@@ -1121,7 +1146,7 @@ Game.prototype.round = function() {
 
   // replace tactical cards from last turn
   this.friendlies.forEach( function(player) {
-    if (player === FriendlyBase) {
+    if (player === FriendlyBase || player.effects.dead) {
       return;
     } else {
       player.resetCardsUsed();
@@ -1132,9 +1157,7 @@ Game.prototype.round = function() {
   // refresh play area
 }
 
-Game.prototype.postRound = function() { //strange behavior removing placeholders
-  console.log("Round: " + this.gameID + "." + this.roundNumber + " end.");
-
+Game.prototype.postRound = function() {
   // discard empty space cards and remove place holders
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];
@@ -1296,50 +1319,82 @@ let startGame = function(game) {
 }
 
 let root = __dirname;
-let port = 8080;
+let port = process.env.PORT || 8080;
 let http = require('http');
 let express = require('express');
-let socketio = require('socket.io');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
-
-mongoose.connect("mongodb://localhost:27017/bookworm");
-var db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'connection error:'));
-
+let session = require('express-session');
 let app = express();
 let server = http.createServer(app);
+let socketio = require('socket.io');
 let io = socketio(server);
+let User = require('./js/models/user');
+let MongoStore = require('connect-mongo')(session);
+let currentUser;
 
-io.on("connect", onConnection);
+// mongodb connection
+mongoose.connect('mongodb://localhost:27017/starfire');
+let db = mongoose.connection;
 
+// mongo error
+db.on('error', console.error.bind(console, 'connection error:'));
+
+// use sessions for tracking logins
+app.use(session({
+  secret: 'Do a barrel roll!',
+  resave: true,
+  saveUninitialized: false,
+  store: new MongoStore({
+    mongooseConnection: db
+  })
+}));
+
+// make user ID available in app and templates
+app.use(function (req, res, next) {
+  res.locals.currentUser = req.session.userId;
+  currentUser = req.session.userId;
+  next();
+})
+
+// parse incoming requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// serve static files from root
 app.use(express.static(root));
 
-app.set("view engine", "pug");
-app.set("views", __dirname + "/views");
+// view engine setup
+app.set('view engine', 'pug');
+app.set('views', __dirname + '/views');
 
+// include routes
 let routes = require('./js/routes/index');
 app.use('/', routes);
 
+// 404 handler
 app.use(function(req, res, next) {
   var err = new Error('File Not Found');
   err.status = 404;
   next(err);
 });
 
+// error handler
 app.use(function(err, req, res, next) {
+  let backUrl = req.header('Referer') || '/';
   res.status(err.status || 500);
   res.render('error', {
-    message: err.message,
-    error: {}
+    statusMessage: err.message || 'There was en error processing your request',
+    error: {},
+    backUrl: backUrl
   });
 });
 
-server.listen(port, () => console.log("Ready. Listening at http://localhost:" + port));
+server.listen(port, () => console.log('Ready. Listening at http://localhost:' + port));
+
+
+// game logic
+io.on('connect', onConnection);
 
 let waitingPlayer1;
 let waitingPlayer2;
@@ -1347,30 +1402,16 @@ let waitingPlayer3;
 
 let currentTurn;
 
-let session = {
+let startTime;
+let endTime;
+
+let gameSession = {
   turn: currentTurn,
   game: game,
   FriendlyBase: FriendlyBase,
   Player1: Player1,
   Player2: Player2,
   enemyBase: enemyBase
-}
-
-
-function validateNormalCharacters(string) {
-  let valid = true;
-  for (let i=0; i < string.length; i++) {
-    let character = string[i];
-    if (!"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".includes(character)) {
-      valid = false;
-    }
-  }
-  return valid;
-}
-
-function validateEmail(email) {
-  var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  return re.test(email);
 }
 
 function clearSockets() {
@@ -1384,42 +1425,63 @@ function createGame(sessionName) {
   nsp.on('connection', onConnection);
 }
 
+function getUser(userId, callback) {
+  User.findById(userId, function(error, user) {
+    if (error) {
+      callback(err, null);
+    } else {
+      callback(null, user);
+    }
+  });
+}
+
 function onConnection(socket) {
-  socket.emit("msg", "Connection established.");
   let join = function(player) {
-    game.friendlies.push(player);
-    socket.emit("assign", player);
-    socket.on("turn", turn);
-    socket.on("chat", function(message) {
-      io.sockets.emit("chatMessage", message);
-    });
-    io.sockets.emit("msg", player.name + " joined game as " + player.id);
+
+    if (currentUser) {
+      getUser(currentUser, function(err, user) {
+        if (err) {
+          console.error(err);
+        }
+        player.name = user.callsign;
+        game.friendlies.push(player);
+        socket.emit('assign', player);
+        socket.on('turn', turn);
+        socket.on('chat', function(message) {
+          io.sockets.emit('chatMessage', message);
+        });
+        io.sockets.emit('msg', player.name + ' joined as ' + player.id);
+      });
+    }
   }
   if (waitingPlayer3) {
     waitingPlayer4 = socket;
-    Player4 = new Player("Player4", "Alan");
+    Player4 = new Player('Player4');
     join(Player4);
-    io.sockets.emit("msg", "Game full");
+    io.sockets.emit('msg', 'Game full');
     clearSockets();
   } else if (waitingPlayer2) {
     waitingPlayer3 = socket;
-    Player3 = new Player("Player3", "Ruth");
+    Player3 = new Player('Player3');
     join(Player3);
   } else if (waitingPlayer1) {
     waitingPlayer2 = socket;
-    Player2 = new Player("Player2", "Rudi");
+    Player2 = new Player('Player2');
     join(Player2);
-    io.sockets.emit("msg", "Game ready");
-    io.sockets.emit("openGame");
+    io.sockets.emit('msg', 'Game ready');
+    io.sockets.emit('openGame');
   } else {
     waitingPlayer1 = socket;
-    Player1 = new Player("Player1", "Nathan");
+    Player1 = new Player('Player1');
     join(Player1);
-    socket.emit("msg", "Waiting for second player...");
-    socket.emit("firstPlayer");
-    socket.on("startGame", function() {
-      if (game.friendlies.includes(Player2)) { //protects from premature game start
-        io.sockets.emit("start");
+    socket.emit('msg', 'Waiting for second player...');
+    socket.emit('firstPlayer');
+    socket.on('startGame', function() {
+      if (game.friendlies.includes(Player2)) {
+        //protects from premature game start
+        io.sockets.emit('start');
+        startTime = new Date();
+        console.log("Game start: " + startTime);
         currentTurn = 1;
         clearSockets();
         startGame(game);
@@ -1431,50 +1493,56 @@ function onConnection(socket) {
 
 function updateObjects() {
   game.update();
-  session = {
+  gameSession = {
     turn: currentTurn,
     game: game,
     FriendlyBase: FriendlyBase,
     enemyBase: enemyBase
   }
   if (game.friendlies.includes(Player1)) {
-    session.Player1 = Player1;
+    gameSession.Player1 = Player1;
   }
   if (game.friendlies.includes(Player2)) {
-    session.Player2 = Player2;
+    gameSession.Player2 = Player2;
   }
   if (game.friendlies.includes(Player3)) {
-    session.Player3 = Player3;
+    gameSession.Player3 = Player3;
   }
   if (game.friendlies.includes(Player4)) {
-    session.Player4 = Player4;
+    gameSession.Player4 = Player4;
   }
-  io.sockets.emit("update", session);
+  io.sockets.emit('update', gameSession);
 }
 
 function turn(data) {
   let specs = JSON.parse(data);
   let getPlayer = function(id) {
-    if (id === "Player1") {
+    if (id === 'Player1') {
       return Player1;
-    } else if (id === "Player2") {
+    } else if (id === 'Player2') {
       return Player2;
-    } else if (id === "Player3") {
+    } else if (id === 'Player3') {
       return Player3;
-    } else if (id === "Player4") {
+    } else if (id === 'Player4') {
       return Player4;
-    } else if (id === "FriendlyBase") {
+    } else if (id === 'FriendlyBase') {
       return FriendlyBase;
-    } else if (id === "enemyBase") {
+    } else if (id === 'enemyBase') {
       return enemyBase;
     }
+  }
+  let logElapsedTime = function() {
+    endTime = new Date();
+    let ms = endTime.getTime() - startTime.getTime();
+    let min = Math.round((ms/1000)/60);
+    console.log('Elapsed time: ' + min + ' min');
   }
   let friendly = undefined;
   let player = getPlayer(specs.player.id);
   if (specs.friendly !== undefined) {
     friendly = getPlayer(specs.friendly.id);
   }
-  if (specs.button === "use") {
+  if (specs.button === 'use') {
     player.useTactic(specs.cardIndex, friendly, specs.pursuerIndex);
   } else {
     player.discard(specs.cardIndex, specs.button, friendly,
@@ -1497,24 +1565,50 @@ function turn(data) {
   } else {
     currentTurn += 1;
   }
-  if (currentTurn === game.friendlies.length
-    || (currentTurn === game.friendlies.length-1
-      && game.friendlies[currentTurn].id === "FriendlyBase")) {
-    currentTurn = 0;
+  let resetTurns = function() {
+    if (currentTurn >= game.friendlies.length
+        || (currentTurn === game.friendlies.length-1
+        && game.friendlies[currentTurn].id === 'FriendlyBase')
+        || (currentTurn === game.friendlies.length-1
+        && game.friendlies[currentTurn].effects.dead)) {
+      currentTurn = 0;
+    }
   }
-  if (game.friendlies[currentTurn].id === "FriendlyBase") {
+  resetTurns();
+  while (game.friendlies[currentTurn].id === 'FriendlyBase'
+      || game.friendlies[currentTurn].effects.dead) {
     currentTurn += 1;
+    resetTurns();
   }
   if (game.win) {
-    console.log("Game won");
-    updateObjects();
-    io.sockets.emit("win", "Victory!");
-    reset();
+    getUser(currentUser, function(err, user) {
+      if (err) {
+        console.error(err);
+      }
+      let update = { $inc: {"meta.wins": 1 }};
+      User.update(user, update, function() {  // needs to update all users in session
+        console.log("Game won: " + Date());
+        logElapsedTime();
+        updateObjects();
+        io.sockets.emit('end', 'Victory!');
+        reset();
+      });
+      // check to see if currentUser should be promoted
+    });
   } else if (game.lose) {
-    console.log("Game lost");
-    updateObjects();
-    io.sockets.emit("lose", "Defeat!");
-    reset();
+    getUser(currentUser, function(err, user) {
+      if (err) {
+        console.error(err);
+      }
+      let update = { $inc: {"meta.losses": 1 }};
+      User.update(user, update, function() {  // needs to update all users in session
+        console.log("Game lost: " + Date());
+        logElapsedTime();
+        updateObjects();
+        io.sockets.emit('end', 'Defeat!');
+        reset();
+      });
+    });
   } else {
     updateObjects();
   }

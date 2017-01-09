@@ -17,12 +17,11 @@ var enemyBase;
 var turn;
 
 sock.on("msg", onMessage);
+sock.on("chatMessage", onChat);
+sock.on("end", centerMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
-sock.on("win", victory);
-sock.on("lose", defeat);
-sock.on("chatMessage", onChat);
-sock.on("openGame", onOpen);
+sock.on("openGame", openGame);
 sock.on("firstPlayer", onFirst);
 sock.on("start", onStart);
 
@@ -57,7 +56,7 @@ function onMessage(text) {
   typeWord($("#status"), ">>  " + text, "li");
 }
 
-function onOpen() {
+function openGame() {
   $("#play").removeClass("disabled");
   $("#play").addClass("enabled");
   $("#info").removeClass("menu");
@@ -88,16 +87,12 @@ function onStart() {
   $("#playArea").fadeIn();
 }
 
-function victory(text) {
+function centerMessage(text) {
   disableSelect();
-  let $victory = $("<h1>", {id: "victory", text: text})
-  $("body").append($victory);
-}
-
-function defeat(text) {
-  disableSelect();
-  let $defeat = $("<h1>", {id: "defeat", text: text})
-  $("body").append($defeat);
+  let $message = $("<h1>", {id: "centerMessage", text: text})
+  $("body").append($message);
+  $message.hide();
+  $message.fadeIn(800);
 }
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
@@ -145,27 +140,41 @@ Effects
 ********************/
 
 let header = $('.formHeader').text();
+let error = $('.error').text();
 
 $('.menu').hide();
 $('.menu').slideDown(500);
 $('form').hide();
 $('form').fadeIn(800);
 $('.formHeader').hide();
+$('.error').hide();
+$('.tip').hide();
 
+typeWord($('#error'), error, 'p');
 typeWord($('#login'), header, 'h3');
 typeWord($('#register'), header, 'h3');
 typeWord($('#gameMenu'), header, 'h3');
 typeWord($('#room'), header, 'h3');
+typeWord($('#profile'), header, 'h3');
 typeWord($('#error'), header, 'h3');
+typeWord($('#logout'), header, 'h3');
 
 
 /*************************************
 FRONT END FORM VALIDATION
 *************************************/
 
+$('input').focus(function() {
+  let $tip = $(this).closest('div').next('.tip');
+  $tip.slideDown();
+  $(this).focusout(function() {
+    $tip.fadeOut();
+  })
+});
+
 let validateForm = function() {
   let $form = $('form');
-  let $inputs = $form.find('input').not('input[type=radio]');
+  let $inputs = $form.find('input');
   let $submit = $('button[type=submit]');
   let valid = true;
   $.each( $inputs, function(key, value) {
@@ -205,7 +214,7 @@ let disableForm = function() {
 let validateCompletion = function() {
   $('input').on('keyup change', function() {
     let $form = $('form');
-    let $inputs = $form.find('input').not('input[type=radio]');
+    let $inputs = $form.find('input');
     let $submit = $('button[type=submit]');
     let valid = true;
     $.each( $inputs, function(key, value) {
@@ -301,7 +310,7 @@ $('#passwordConfirm').on('keyup change', function() {
   validateCompletion();
 });
 
-$('#password').on('keyup change', function() {
+$('#enterPassword').on('keyup change', function() {
   validatePassword( $(this) );
 });
 
@@ -331,9 +340,13 @@ Specific to menu view
 $('.difficulty').hide();
 $('#createSession').on('click', function() {
   $('.difficulty').show();
+  $(this).addClass('valid');
+  $('#joinSession').addClass('valid');
 });
 $('#joinSession').on('click', function() {
   $('.difficulty').hide();
+  $(this).addClass('valid');
+  $('#createSession').addClass('valid');
 });
 
 
@@ -691,6 +704,9 @@ const showTargets = function(action) {
   if (action === "feint") {
     action = player.lastCardUsed.cssClass;
   }
+  if (["jammer", "incinerate", "intercept", "divertShields", "countermeasures", "jump", "hardsix", "guidedMissile"].includes(action)) {
+    return;
+  }
   if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
     if (player.effects.status == "Free") {
       selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
@@ -709,7 +725,7 @@ const showTargets = function(action) {
   if (["immelman", "evade", "barrelRoll"].includes(action)) {
     selectTargets("playerPursuers");
   }
-  if (["repairDrone"].includes(action)) {
+  if (["repairDrone", "healthPack"].includes(action)) {
     selectAlly("all");
   }
 }
@@ -740,7 +756,6 @@ $discardButton.on("click", function() {
   $cancelButton.show();
   disableSelect();
 });
-
 
 $fireButton.on("click", function() {
   clearButtons();
@@ -848,37 +863,5 @@ $confirmTargetButton.on("click", function() {
 $confirmAdvButton.on("click", function() {
   sendPacket();
 });
-
-let turns = function() {
-  let turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player === FriendlyBase) {
-        continue;
-      } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
-        let cardChoice = player.hand(cardChoiceIndex);
-      }
-    }
-    this.turnNumber ++;
-  }
-}
 
 //# sourceMappingURL=game.js.map
