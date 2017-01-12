@@ -1,4 +1,23 @@
+// function getCookie(cname) {
+//     var name = cname + "=";
+//     var decodedCookie = decodeURIComponent(document.cookie);
+//     var ca = decodedCookie.split(';');
+//     for(var i = 0; i <ca.length; i++) {
+//         var c = ca[i];
+//         while (c.charAt(0) == ' ') {
+//             c = c.substring(1);
+//         }
+//         if (c.indexOf(name) == 0) {
+//             return c.substring(name.length, c.length);
+//         }
+//     }
+//     return "";
+// }
+
+// var sock = io('/' + getCookie('gameName'));
+
 var sock = io();
+
 var user;
 var userTurn = false;
 
@@ -17,6 +36,7 @@ sock.on("end", centerMessage);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
 sock.on("openGame", openGame);
+sock.on("closeGame", closeGame);
 sock.on("firstPlayer", onFirst);
 sock.on("start", onStart);
 
@@ -54,8 +74,13 @@ function onMessage(text) {
 function openGame() {
   $("#play").removeClass("disabled");
   $("#play").addClass("enabled");
-  $("#info").removeClass("menu");
   $("#play").text("LAUNCH");
+}
+
+function closeGame() {
+  $("#play").addClass("disabled");
+  $("#play").removeClass("enabled");
+  $("#play").text("STANDBY");
 }
 
 function onChat(text) {

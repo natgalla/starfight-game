@@ -55,18 +55,20 @@ UserSchema.pre('save', function(next) {
   mongoose.models['User'].findOne({callsign: user.callsign}, function(err, results) {
     if(err) {
       return next(err);
-    } else if(results) {
+    } else if(user.isNew && results) {
       let err = new Error('This callsign is not available');
       err.status = 400;
       return next(err);
-    } else {
+    } else if(user.isNew) {
       bcrypt.hash(user.password, 10, function(err, hash) {
         if (err) {
           return next(err);
         }
         user.password = hash;
-        next();
+        return next();
       });
+    } else {
+      return next();
     }
   })
 });

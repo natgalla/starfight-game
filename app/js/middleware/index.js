@@ -14,5 +14,15 @@ function requiresLogin(req, res, next) {
   return next();
 }
 
+function requiresGameSession(req, res, next) {
+  if (!req.session.gameId) {
+    let err = new Error('You must create or join a game');
+    err.status = 403;
+    return next(err);
+  }
+  return next();
+}
+
 module.exports.loggedOut = loggedOut;
 module.exports.requiresLogin = requiresLogin;
+module.exports.requiresGameSession = requiresGameSession;

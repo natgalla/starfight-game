@@ -2,6 +2,12 @@
 Effects
 ********************/
 
+$(".title").hide();
+$("#subtitle").hide();
+$(".title").fadeIn(1200, function() {
+  $("#subtitle").fadeIn(1000);
+});
+
 let header = $('.formHeader').text();
 let error = $('.error').text();
 
@@ -210,6 +216,13 @@ $('#joinSession').on('click', function() {
   $('.difficulty').hide();
   $(this).addClass('valid');
   $('#createSession').addClass('valid');
+});
+
+$('#gameInfo').on('submit', function() {
+  if (validateNormalCharacters($('#sessionName').val())) {
+    console.log($('#sessionName').val());
+    window.gameName = $('#sessionName').val();
+  }
 });
 
 

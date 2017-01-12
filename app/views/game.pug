@@ -1,7 +1,6 @@
 extends ./layout.pug
 
 block content
-  h1#title Starfire
   #room.menu
     #info
       ul#status
@@ -10,6 +9,7 @@ block content
           h3.formHeader Stand by for launch...
           input(type="text", name="message", id="message")
           button(type="submit", id="sendMessage") SEND
+          p Your game name is: #{gameName}
   #playArea
     #wingmen
       ul.wingman-hand#wingman1-hand

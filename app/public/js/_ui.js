@@ -72,8 +72,6 @@ const clearButtons = function() {
   $buttons.children().hide();
 }
 
-
-
 const updateSummaries = function() {
   $("#enemyBase").html(enemyBase.summary);
   let wingman = 1;
@@ -100,7 +98,6 @@ const updateSummaries = function() {
     }
   }
 }
-
 
 const updateTacticalCards = function() {
   // update and show all tactical hands
@@ -203,29 +200,26 @@ const update = function() {
 CARD SELECTION
 ********************/
 
-
 const deselect = function() {
   // remove "selected" class from all cards when a card is clicked
   $(".selected").removeClass("selected");
 }
 
-
 const detarget = function() {
   $(".target").removeClass("target");
   $(".enemy").off("click");
   $(".assist").removeClass("assist");
+  $(".assist").off("click");
   $(".playerSummary").off("click");
   $(".friendlyBase").off("click");
   $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");
 }
 
-
 const getCardFunction = function(className) {
   let card = document.querySelector(className);
   return card.classList()[1]; // classlist will be .tactical .[action] ...
 }
-
 
 const getFriendly = function(className) {
   // determine which Friendly holds the selected card
@@ -257,7 +251,6 @@ const getFriendly = function(className) {
 CARD BINDING
 ********************/
 
-
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
   $("#playerHand .tactical").on("click", function() {
@@ -279,13 +272,11 @@ const enableSelect = function() {
   });
 }
 
-
 const disableSelect = function() {
   //disable clicking other cards while an action is being taken
   $(".tactical").not(".selected").addClass("disabled");
   $(".tactical").off("click");
 }
-
 
 const selectAlly = function(scope) {
   if (scope === "all") {
@@ -344,7 +335,9 @@ const showTargets = function(action) {
     action = player.lastCardUsed.cssClass;
   }
   if (["jammer", "incinerate", "intercept", "divertShields", "countermeasures", "jump", "hardsix", "guidedMissile"].includes(action)) {
-    return;
+    clearButtons();
+    $confirmTargetButton.show();
+    $cancelButton.show();
   }
   if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
     if (player.effects.status == "Free") {
@@ -375,7 +368,6 @@ const showTargets = function(action) {
 BUTTON FUNCTIONS
 ********************/
 
-
 $useButton.on("click", function() {
   clearButtons();
   buttonPressed = "use";
@@ -384,7 +376,6 @@ $useButton.on("click", function() {
   action = $(".selected")[0].classList[1];
   showTargets(action);
 });
-
 
 $discardButton.on("click", function() {
   clearButtons();
@@ -414,16 +405,14 @@ $evadeButton.on("click", function() {
   showTargets(action);
 });
 
-const cancel = function() {
+$cancelButton.on("click", function() {
   clearOverlay();
   clearButtons();
   deselect();
   detarget();
   action = "";
   enableSelect();
-}
-
-$cancelButton.on("click", cancel);
+});
 
 $(document).keyup(function(e) {
   if (e.keyCode == 27) {
@@ -439,7 +428,7 @@ $cicButton.on("click", function() {
   $cancelButton.show();
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay[0], "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
   $overlay.append($marketList);
   FriendlyBase.market.forEach( function(card) {
     let advCard;
@@ -467,7 +456,7 @@ $cicButton.on("click", function() {
       $(this).siblings().removeClass("purchasing");
       $(this).addClass("purchasing");
       action = $(this)[0].classList[1]; // $(this).attr("class").split(" ")[1]
-      if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone"].includes(action)) {
+      if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone", "healthPack"].includes(action)) {
         $confirmAdvButton.hide();
         showTargets(action);
       } else {
@@ -487,13 +476,11 @@ const sendPacket = function() { //for server version: modify to send packet to s
     purchaseIndex: $(".purchasing").index(),
   }
   sock.emit("turn", JSON.stringify(turnInfo));
-
   clearOverlay();
   detarget();
   clearButtons();
   update();
 }
-
 
 $confirmTargetButton.on("click", function() {
   sendPacket();

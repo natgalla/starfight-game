@@ -4,6 +4,8 @@ var User = require('../models/user');
 var Game = require('../models/game');
 var mid = require('../middleware');
 
+let gameTitle = 'Contact!';
+
 function validateNormalCharacters(string) {
   let valid = true;
   for (let i=0; i < string.length; i++) {
@@ -17,11 +19,11 @@ function validateNormalCharacters(string) {
 
 // Login view
 router.get('/', function(req, res) {
-  return res.redirect('/login');
+  return res.render('index', { gameTitle: gameTitle });
 });
 
 router.get('/login', mid.loggedOut, function(req, res) {
-  return res.render('login', { title: '| Log In' });
+  return res.render('login', { title: '| Log In', gameTitle: gameTitle });
 });
 
 router.post('/login', function(req, res, next) {
@@ -46,7 +48,7 @@ router.post('/login', function(req, res, next) {
 
 // Register view
 router.get('/register', mid.loggedOut, function(req, res) {
-  return res.render('register', { title: '| Register' });
+  return res.render('register', { title: '| Register', gameTitle: gameTitle });
 });
 
 router.post('/register', function(req, res, next) {
@@ -112,6 +114,7 @@ router.get('/profile', mid.requiresLogin, function(req, res, next) {
       return res.render('profile',
         {
           title: '| Profile',
+          gameTitle: gameTitle,
           callsign: user.callsign,
           wins: user.meta.wins,
           losses: user.meta.losses,
@@ -128,7 +131,7 @@ router.get('/logout', mid.requiresLogin, function(req, res, next) {
       if(err) {
         return next(err);
       } else {
-        return res.render('logout');
+        return res.render('logout', { gameTitle: gameTitle });
       }
     });
   }
@@ -136,7 +139,7 @@ router.get('/logout', mid.requiresLogin, function(req, res, next) {
 
 // Menu view
 router.get('/menu', mid.requiresLogin, function(req, res, next) {
-  return res.render('menu', { title: '| Menu' });
+  return res.render('menu', { title: '| Menu', gameTitle: gameTitle });
 });
 
 router.post('/menu', function(req, res, next) {
@@ -202,15 +205,17 @@ router.post('/menu', function(req, res, next) {
           }
           let query = { gameName: req.body.sessionName };
           let update;
-          if (game[0].users.user3) {
-            update = { "users.user4": user.callsign, $inc: { players: 1 }, "meta.locked": true };
-          } else if (game[0].users.user2) {
-            update = { "users.user3": user.callsign, $inc: { players: 1 } };
-          } else {
+          if (game[0].users.user1 === undefined) {
+            update = { "users.user1": user.callsign, $inc: { players: 1 } };
+          } else if (!game[0].users.user2 || game[0].users.user2 === undefined) {
             update = { "users.user2": user.callsign, $inc: { players: 1 } };
+          } else if (!game[0].users.user3 || game[0].users.user3 === undefined) {
+            update = { "users.user3": user.callsign, $inc: { players: 1 } };
+          } else if (!game[0].users.user4 || game[0].users.user4 === undefined) {
+            update = { "users.user4": user.callsign, $inc: { players: 1 }, "meta.locked": true };
           }
           Game.update(query, update, function() {
-            req.session.gameId = game._id;
+            req.session.gameId = game[0]._id;
             return res.redirect('game');
           });
         });
@@ -223,9 +228,29 @@ router.post('/menu', function(req, res, next) {
   }
 });
 
+// Game.find({}, function(err, gameSessions) {
+//   if (err) {
+//     console.error(err);
+//   }
+//   console.log(gameSessions);
+//   gameSessions.forEach(function(gameSession) {
+//     if (gameSession._id != gameSession.gameName) {
+//       router.get('/' + gameSession._id, mid.requiresLogin, function(req, res, next) {
+//         return res.render('game');
+//       })
+//     }
+//   })
+// })
+
 // Game view
-router.get('/game', mid.requiresLogin, function(req, res, next) {
-  return res.render('game');
+router.get('/game', mid.requiresLogin, mid.requiresGameSession, function(req, res, next) {
+  Game.findById(req.session.gameId, function(err, gameSession) {
+    res.cookie('gameName', req.session.gameId)
+    return res.render('game', {
+      game: req.session.gameId,
+      gameName: gameSession.gameName
+    });
+  });
 });
 
 module.exports = router;

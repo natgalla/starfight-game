@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var gulp = require('gulp'),
   concat = require('gulp-concat'),
@@ -6,10 +6,10 @@ var gulp = require('gulp'),
   rename = require('gulp-rename'),
     sass = require('gulp-sass'),
     maps = require('gulp-sourcemaps'),
-    del = require('del');
+     del = require('del');
 
 
-gulp.task("concatScripts", function() {
+gulp.task('concatScripts', function() {
     return gulp.src([
         'js/server/_tactical.js',
         'js/server/_enemies.js',
@@ -25,7 +25,7 @@ gulp.task("concatScripts", function() {
     .pipe(gulp.dest('js'));
 });
 
-gulp.task("concatServerScripts", function() {
+gulp.task('concatServerScripts', function() {
     return gulp.src([
         'js/server/_tactical.js',
         'js/server/_enemies.js',
@@ -40,7 +40,7 @@ gulp.task("concatServerScripts", function() {
     .pipe(gulp.dest(__dirname));
 });
 
-gulp.task("concatGameScripts", function() {
+gulp.task('concatGameScripts', function() {
     return gulp.src([
         'public/js/jquery.min.js',
         'public/js/_client.js',
@@ -54,7 +54,7 @@ gulp.task("concatGameScripts", function() {
     .pipe(gulp.dest('js'));
 });
 
-gulp.task("concatMenuScripts", function() {
+gulp.task('concatMenuScripts', function() {
     return gulp.src([
         'public/js/jquery.min.js',
         'public/js/_typeWord.js',
@@ -66,15 +66,15 @@ gulp.task("concatMenuScripts", function() {
     .pipe(gulp.dest('js'));
 });
 
-gulp.task("minifyScripts", ["concatGameScripts", "concatMenuScripts", "concatServerScripts"], function() {
-  return gulp.src("js/app.js")
+gulp.task('minifyScripts', ['concatGameScripts', 'concatMenuScripts', 'concatServerScripts'], function() {
+  return gulp.src('js/app.js')
     .pipe(uglify())
     .pipe(rename('app.min.js'))
     .pipe(gulp.dest('js'));
 });
 
 gulp.task('compileSass', function() {
-  return gulp.src("scss/main.scss")
+  return gulp.src('scss/main.scss')
       .pipe(maps.init())
       .pipe(sass())
       .pipe(maps.write('./'))
@@ -87,22 +87,22 @@ gulp.task('watchFiles', function() {
       'js/server/*.js',
       'public/js/*.js'
     ],
-    ["concatGameScripts", "concatMenuScripts", "concatServerScripts"]);
+    ['concatGameScripts', 'concatMenuScripts', 'concatServerScripts']);
 });
 
 gulp.task('clean', function() {
   return del(['dist', 'public/css/main.css*', 'js/game*.js*', 'js/menu*.js*', 'server*.js*']);
 });
 
-gulp.task("build", [/* 'minifyScripts', */ 'concatServerScripts',
+gulp.task('build', [/* 'minifyScripts', */ 'concatServerScripts',
                     'concatGameScripts', 'concatMenuScripts', 'compileSass'],
   function() {
-    return gulp.src(["js/game.js", "js/menu.js", "public/img/**", "public/css/**", "views/**", "app.js", "index.html"], { base: "./" })
-               .pipe(gulp.dest("dist"));
+    return gulp.src(['js/game.js', 'js/menu.js', 'public/img/**', 'public/css/**', 'views/**', 'app.js', 'index.html'], { base: './' })
+               .pipe(gulp.dest('dist'));
 });
 
 gulp.task('serve', ['watchFiles']);
 
-gulp.task("default", ["clean"], function() {
+gulp.task('default', ['clean'], function() {
   gulp.start('build');
 });

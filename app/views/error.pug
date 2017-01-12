@@ -1,13 +1,12 @@
 extends ./layout.pug
 
 block content
-  h1#title Starfire
   .menu#error
     h3.formHeader ERROR
     p.error >>  #{statusMessage}
     .link
       p
-        a(href=backUrl) Go back
+        a(href=backUrl) #{backPrompt}
 
 block js
   include ./partials/_auth.pug

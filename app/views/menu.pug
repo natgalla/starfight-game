@@ -1,10 +1,9 @@
 extends ./layout.pug
 
 block content
-  h1#title Starfire
   .menu#gameMenu
-    h3.formHeader Create or join game
-    form(action='/menu' method='post' onsubmit='return validateForm();')
+    h3.formHeader Create or join game?
+    form#gameInfo(action='/menu' method='post' onsubmit='return validateForm();')
       .create
         input.session#createSession(type='radio' name='session'  value='create')
         label(for='createSession') New Game

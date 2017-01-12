@@ -657,6 +657,10 @@ input[type="checkbox"] {
       width: 300px; } }
   .menu h3 {
     text-align: center; }
+  .menu#logout {
+    text-align: center; }
+    .menu#logout p {
+      margin-top: 3em; }
   .menu#error {
     text-align: center; }
     .menu#error p {
@@ -805,7 +809,7 @@ input[type="checkbox"] {
   height: 165px;
   transform: rotateX(10deg);
   border-top: 3px solid magenta;
-  border-bottom: 5px solid #ff66ff;
+  border-bottom: 5px solid magenta;
   border-radius: 1em;
   padding: 10px 40px;
   background: rgba(0, 0, 0, 0.8); }

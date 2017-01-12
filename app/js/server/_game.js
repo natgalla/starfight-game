@@ -3,7 +3,7 @@
 // let enemies = require("./enemies");
 
 const Game = function() {
-  this.name = "Starfire";
+  this.name = "Starfighter";
   this.difficulty = 3;
   this.roundNumber = 0;
   this.friendlies = [FriendlyBase];
