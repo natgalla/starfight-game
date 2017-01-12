@@ -63,7 +63,7 @@ let reset = function() {
   game = new Game();
 }
 
-let startGame = function(game) {
+let buildGame = function(game) {
   // build tactical deck
   game.addToDeck(game.tacticalDeck, missile, 6);
   game.addToDeck(game.tacticalDeck, scatterShot, 4);
@@ -115,7 +115,8 @@ let startGame = function(game) {
   // set rules dependent on amount of players
   enemyBase.startingEnemies = game.friendlies.length * 2;
   enemyBase.enemiesPerTurn = game.friendlies.length;
+}
 
-  // start first round
+let launchGame = function() {
   game.round();
 }

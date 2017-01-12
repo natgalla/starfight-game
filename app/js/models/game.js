@@ -11,6 +11,12 @@ let GameSchema = new mongoose.Schema({
     user4: String
   },
   players: { type: Number, default: 1 },
+  state: {
+    currentTurn: { type: Number, default: 1 },
+    game: { type: Array, default: [] },
+    friendlies: { type: Array, default: [] },
+    enemyBase: { type: Array, default: [] }
+  },
   difficulty: { type: Number, default: 3 },
   meta: {
     createTime: { type: Date, default: Date.now },

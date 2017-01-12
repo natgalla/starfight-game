@@ -865,7 +865,7 @@ $cicButton.on("click", function() {
   });
 });
 
-const sendPacket = function() { //for server version: modify to send packet to server
+const sendPacket = function() { // needs update for database version
   let turnInfo = {
     player: getPlayer(),
     button: buttonPressed,

@@ -2,17 +2,17 @@
 // let tactical = require("./tactical");
 // let enemies = require("./enemies");
 
-const Game = function() {
+const Game = function(id, difficulty) {
   this.name = "Starfighter";
-  this.difficulty = 3;
+  this.difficulty = difficulty;
   this.roundNumber = 0;
-  this.friendlies = [FriendlyBase];
+  this.friendlies = [];
   this.tacticalDeck = {
     name: "Tactical deck",
     cards: [],
     discard: []
   };
-  this.gameID = 1;
+  this.gameID = id;
   this.win = false;
   this.lose = false;
 }
