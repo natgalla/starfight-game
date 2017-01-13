@@ -24,13 +24,6 @@ const Friendly = function(id, name, maxArmor) {
     divertShields: 0,
     status: "Pursued"
   };
-  this.market = [];
-  this.marketSize = 4;
-  this.advTactics = {
-    name: "Advanced tactics",
-    cards: [],
-    discard: []
-  };
   this.currentArmor = maxArmor;
   this.summary = "<h3>" + this.name + "</h3>"
             + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
@@ -69,18 +62,6 @@ Friendly.prototype.updateSummary = function() {
   }
 }
 
-Friendly.prototype.removeAdvTactic = function(index) {
-  game.moveCard(index, this.market, game.tacticalDeck.discard);
-}
-
-Friendly.prototype.addAdvTactic = function() {
-  let addToMarket = this.marketSize - this.market.length;
-  for (let i = 0; i < addToMarket; i++) {
-    game.checkDeck(this.advTactics);
-    this.market.push(this.advTactics.cards.pop());
-  }
-}
-
 Friendly.prototype.checkShields = function(damage) {
   if (this.effects.divertShields > 0) {
     let difference = this.effects.divertShields - damage;
@@ -94,7 +75,7 @@ Friendly.prototype.checkShields = function(damage) {
       damage = 0;
       this.effects.divertShields = 0;
     }
-    io.sockets.emit("msg", this.name + "'s shields reduce damage to "
+    io.to(currentGame).emit("msg", this.name + "'s shields reduce damage to "
                 + damage);
   }
   return damage;
@@ -102,7 +83,7 @@ Friendly.prototype.checkShields = function(damage) {
 
 Friendly.prototype.checkDamageNegation = function(damage) {
   if (this.effects.emp) {
-    io.sockets.emit("msg", this.name + " is protected by EMP.");
+    io.to(currentGame).emit("msg", this.name + " is protected by EMP.");
     this.effects.emp = false;
     return 0;
   } else {
@@ -118,11 +99,11 @@ Friendly.prototype.takeDamage = function(damage) {
       this.currentArmor = 0;
     }
     if (this.currentArmor === 0) {
-      io.sockets.emit("msg", this.name + " has been destroyed. Players lose.");
+      io.to(currentGame).emit("msg", this.name + " has been destroyed. Players lose.");
       this.effects.dead = true;
       game.lose = true;
     } else {
-      io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
+      io.to(currentGame).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
     }
   }
@@ -227,7 +208,7 @@ Player.prototype.increaseMerit = function(amount) {
     merit += 1;
   }
   this.merit += merit;
-  io.sockets.emit("msg", this.name + " receives " + merit + " merit.");
+  io.to(currentGame).emit("msg", this.name + " receives " + merit + " merit.");
 }
 
 // calculate damage // only returning 0
@@ -251,21 +232,21 @@ Player.prototype.calcDamage = function(dice) {
 Player.prototype.checkDamageNegation = function(damage) {
   if (damage > 0) {
     if (this.effects.emp) {
-      io.sockets.emit("msg", this.name + " is protected by EMP.");
+      io.to(currentGame).emit("msg", this.name + " is protected by EMP.");
       this.effects.emp = false;
       return 0;
     } else {
       damage = this.checkShields(damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
-        io.sockets.emit("msg", this.name + " deploys countermeasures to avoid "
+        io.to(currentGame).emit("msg", this.name + " deploys countermeasures to avoid "
                     + counterDamage + " damage.");
         damage -= counterDamage;
         this.effects.countermeasures = false;
       }
       if (damage < 0) {
         damage = 0;
-        io.sockets.emit("msg", "All damage to " + this.name + " negated.");
+        io.to(currentGame).emit("msg", "All damage to " + this.name + " negated.");
       } else {
         return damage;
       }
@@ -282,7 +263,7 @@ Player.prototype.takeDamage = function(damage) {
       this.currentArmor = 0;
       this.effects.dead = true;
       this.effects.status = "KIA";
-      io.sockets.emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
+      io.to(currentGame).emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
       while (this.hand.length > 0) {
         game.moveCard(0, this.hand, game.tacticalDeck.discard);
       }
@@ -301,11 +282,11 @@ Player.prototype.takeDamage = function(damage) {
         }
       }
       if (alldead) {
-        io.sockets.emit("msg", "All pilots destroyed. Players lose.");
+        io.to(currentGame).emit("msg", "All pilots destroyed. Players lose.");
         game.lose = true;
       }
     } else {
-      io.sockets.emit("msg", this.name + " takes " + damage + " damage. Current armor: "
+      io.to(currentGame).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
     }
   }
@@ -314,10 +295,10 @@ Player.prototype.takeDamage = function(damage) {
 Player.prototype.checkKill = function(friendly, index) {
   // if kill: award merit, insert placeholder
   if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
-    io.sockets.emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
+    io.to(currentGame).emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
     this.increaseMerit(friendly.pursuers[index].merit);
-    game.moveCard(index, friendly.pursuers, enemyBase.enemyDeck.discard);
+    game.moveCard(index, friendly.pursuers, game.enemyDeck.discard);
     friendly.insertPlaceholder(index);
   }
 }
@@ -334,10 +315,10 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   if (friendly === enemyBase) {
     if (damage > 0) {
       enemyBase.takeDamage(damage);
-      io.sockets.emit("msg", this.name + " deals " + damage + " damage to enemy base.");
+      io.to(currentGame).emit("msg", this.name + " deals " + damage + " damage to enemy base.");
       this.increaseMerit(1);
     } else {
-      io.sockets.emit("msg", "No damage to enemy base");
+      io.to(currentGame).emit("msg", "No damage to enemy base");
     }
   } else {
     if (friendly.pursuers[index] === empty
@@ -350,14 +331,14 @@ Player.prototype.doDamage = function(friendly, index, damage) {
         if (enemyArmor < 0) {
           enemyArmor = 0;
         }
-        io.sockets.emit("msg", this.name + " deals " + damage + " damage to "
+        io.to(currentGame).emit("msg", this.name + " deals " + damage + " damage to "
                     + friendly.pursuers[index].name + " pursuing "
                     + friendly.name + ". Current armor: "
                     + enemyArmor
                     + "/" + friendly.pursuers[index].armor);
         this.checkKill(friendly, index);
       } else {
-        io.sockets.emit("msg", "No damage to target.");
+        io.to(currentGame).emit("msg", "No damage to target.");
       }
     }
   }
@@ -383,14 +364,14 @@ Player.prototype.evade = function(friendly, pursuerIndex) {
   let evadeRoll = Math.floor(Math.random() * 6) + 1;
   let pursuer = this.pursuers[pursuerIndex];
   if (evadeRoll >= pursuer.targeting) {
-    io.sockets.emit("msg", this.name + " shakes " + pursuer.name + " to friendly base.");
+    io.to(currentGame).emit("msg", this.name + " shakes " + pursuer.name + " to friendly base.");
     game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
     game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
     this.adjustPursuerDamage();
     FriendlyBase.adjustPursuerDamage();
   } else {
-    io.sockets.emit("msg", this.name + " can't shake 'em!")
+    io.to(currentGame).emit("msg", this.name + " can't shake 'em!")
   }
 }
 
@@ -419,7 +400,7 @@ Player.prototype.bomb = function(friendly, pursuerIndex, damage, collateral) { /
       collateral = 2;
     }
     let friendlyFire = 0;
-    if (friendly === enemyBase) {
+    if (friendly.id === enemyBase.id) {
       baseDamage = damage+(collateral*2);
       this.doDamage(enemyBase, pursuerIndex, baseDamage);
     } else {
@@ -471,7 +452,7 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
     if (this != friendly) {
       this.increaseMerit(meritReward);
     }
-    io.sockets.emit("msg", this.name + " repairs " + repairPoints + " damage on "
+    io.to(currentGame).emit("msg", this.name + " repairs " + repairPoints + " damage on "
                 + friendly.name + ". Current armor: "
                 + friendly.currentArmor + "/" + friendly.maxArmor)
   } else {
@@ -481,7 +462,7 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
 
 Player.prototype.drawFire = function(friendly, index) {
   // choose an ally's pursuer and bring it to you
-  io.sockets.emit("msg", friendly.pursuers[index].name + " moves from " + friendly.name
+  io.to(currentGame).emit("msg", friendly.pursuers[index].name + " moves from " + friendly.name
               + " to " + this.name + ".");
   this.increaseMerit(friendly.pursuers[index].merit);
   game.moveCard(index, friendly.pursuers, this.pursuers);
@@ -496,7 +477,7 @@ Player.prototype.feint = function(friendly, pursuerIndex) {
   if (this.lastCardUsed) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
-    io.sockets.emit("msg", this.name + " uses feint to play " + card.name)
+    io.to(currentGame).emit("msg", this.name + " uses feint to play " + card.name)
     this[action](friendly, pursuerIndex);
   } else {
     console.error("No action to feint");
@@ -508,7 +489,7 @@ Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
     friendly = this;
   }
   // move pursuer at pursuerIndex to friendly base
-  io.sockets.emit("msg", this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
+  io.to(currentGame).emit("msg", this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
               + FriendlyBase.name + ".");
   game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
   game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
@@ -536,23 +517,23 @@ PLAYER ADVANCED TACTICAL FUNCTIONS
 
 Player.prototype.medalOfHonor = function() {
   this.effects.medalOfHonor = true;
-  io.sockets.emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
+  io.to(currentGame).emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
 }
 
 Player.prototype.daredevil = function() {
   // allow player to attack enemy base if they have one or no pursuers
   this.effects.daredevil = true;
-  io.sockets.emit("msg", this.name + " can now attack the enemy base with one pursuer.");
+  io.to(currentGame).emit("msg", this.name + " can now attack the enemy base with one pursuer.");
 }
 
 Player.prototype.medic = function() {
   this.effects.medic = true;
-  io.sockets.emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
+  io.to(currentGame).emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
 }
 
 Player.prototype.sharpShooter = function() {
   this.effects.sharpShooter = true;
-  io.sockets.emit("msg", this.name + " is now better at hurting things.");
+  io.to(currentGame).emit("msg", this.name + " is now better at hurting things.");
 }
 
 Player.prototype.healthPack = function(friendly, index) {
@@ -564,59 +545,59 @@ Player.prototype.healthPack = function(friendly, index) {
 
 Player.prototype.intercept = function() {
   enemyBase.effects.intercepted = true;
-  io.sockets.emit("msg", intercept.description);
+  io.to(currentGame).emit("msg", intercept.description);
 }
 
 Player.prototype.jammer = function() {
   enemyBase.effects.jammed = true;
-  io.sockets.emit("msg", jammer.description);
+  io.to(currentGame).emit("msg", jammer.description);
 }
 
 Player.prototype.emp = function(friendly) {
   friendly.effects.emp = true;
-  io.sockets.emit("msg", this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
+  io.to(currentGame).emit("msg", this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
               + friendly.name + " will not be damaged this round.");
 }
 
 Player.prototype.countermeasures = function() {
   this.effects.countermeasures = true;
-  io.sockets.emit("msg", this.name + " prepares countermeasures...")
+  io.to(currentGame).emit("msg", this.name + " prepares countermeasures...")
 }
 
 Player.prototype.divertShields = function() {
   this.effects.divertShields = 5;
-  io.sockets.emit("msg", this.name + " powers up shields. Next 5 damage will be negated.")
+  io.to(currentGame).emit("msg", this.name + " powers up shields. Next 5 damage will be negated.")
 }
 
 Player.prototype.jump = function() {
   // shake all pursuers
-  io.sockets.emit("msg", this.name + " shakes " + this.pursuers.length
+  io.to(currentGame).emit("msg", this.name + " shakes " + this.pursuers.length
               + " pursuers to the friendly base.");
   for (let i = 0; i = this.pursuers.length; i++) {
-    enemyBase.enemyDeck.discard.push(this.pursuers.pop());
+    game.enemyDeck.discard.push(this.pursuers.pop());
   }
 }
 
 Player.prototype.hardSix = function() {
-  io.sockets.emit("msg", "Sometimes you gotta roll the hard six.");
+  io.to(currentGame).emit("msg", "Sometimes you gotta roll the hard six.");
   this.missile(enemyBase, undefined);
   this.takeDamage(this.calcDamage(4));
 }
 
 Player.prototype.snapshot = function(friendly, pursuerIndex) {
-  io.sockets.emit("msg", this.name + " destroys " + friendly.pursuers[pursuerIndex].name
+  io.to(currentGame).emit("msg", this.name + " destroys " + friendly.pursuers[pursuerIndex].name
               + " pursuing " + friendly.name);
-  game.moveCard(pursuerIndex, friendly.pursuers, enemyBase.enemyDeck.discard);
+  game.moveCard(pursuerIndex, friendly.pursuers, game.enemyDeck.discard);
   this.insertPlaceholder(pursuerIndex);
 }
 
 Player.prototype.guidedMissile = function() {
-  io.sockets.emit("msg", this.name + " fires a guided missile at " + enemyBase.name);
+  io.to(currentGame).emit("msg", this.name + " fires a guided missile at " + enemyBase.name);
   enemyBase.takeDamage(6);
 }
 
 Player.prototype.incinerate = function() {
-  io.sockets.emit("msg", this.name + " prepares afterburner...");
+  io.to(currentGame).emit("msg", this.name + " prepares afterburner...");
   this.effects.incinerator = true;
 }
 
@@ -637,9 +618,9 @@ Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
   if (this.merit >= choice.cost) {
     this.merit -= choice.cost;
     this[action](friendly, pursuerIndex);
-    FriendlyBase.removeAdvTactic(advTactic);
+    game.removeAdvTactic(advTactic);
   } else {
-    io.sockets.emit("msg", this.name + " does not have enough merit.");
+    io.to(currentGame).emit("msg", this.name + " does not have enough merit.");
   }
 }
 
@@ -655,7 +636,7 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   }
   let card = this.hand[cardIndex];
   let action = card.cssClass;
-  io.sockets.emit("msg", this.name + " uses " + card.name)
+  io.to(currentGame).emit("msg", this.name + " uses " + card.name)
   this[action](friendly, pursuerIndex);
   if (action != "feint") {
     this.lastCardUsed = card;

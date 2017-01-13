@@ -12,6 +12,7 @@ var gulp = require('gulp'),
 gulp.task('concatScripts', function() {
     return gulp.src([
         'js/server/_tactical.js',
+        'js/server/_deck.js',
         'js/server/_enemies.js',
         'js/server/_friendlies.js',
         'js/server/_game.js',
@@ -28,6 +29,7 @@ gulp.task('concatScripts', function() {
 gulp.task('concatServerScripts', function() {
     return gulp.src([
         'js/server/_tactical.js',
+        'js/server/_deck.js',
         'js/server/_enemies.js',
         'js/server/_friendlies.js',
         'js/server/_game.js',

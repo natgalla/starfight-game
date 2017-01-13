@@ -207,30 +207,37 @@ function onConnection(socket) {
                 io.to(currentGame).emit('msg', 'Waiting for second player...')
               } else {
                 waitingPlayer1 = null;
-              }
-              gameSession.state.friendlies.splice(game.friendlies.indexOf(player));
-              gameSession.state.friendlies.join();
-              for (person in gameSession.users) {
-                if (gameSession.users[person] === user.callsign) {
-                  gameSession.users[person] = undefined;
-                  gameSession.players -= 1;
+                let playerIndex;
+                for (let i = 0; i < game.state.friendlies.length; i++) {
+                  let friendly = game.state.friendlies[i];
+                  if (friendly.id === player.id) {
+                    playerIndex = i;
+                  }
                 }
+                gameSession.state.friendlies.splice(playerIndex);
+                gameSession.state.friendlies.join();
               }
-              if (gameSession.players === 0) {
-                gameSession.gameName = gameSession._id;
-                gameSession.state.game = [];
-                gameSession.state.friendlies = [];
-                gameSession.meta.aborted = true;
-                console.log('Game id:' + gameSession._id + ' aborted');
-              }
-              gameSession.save(function(err) {
-                if (err) {
-                  console.error(err);
-                } else {
-                  console.log('user removed');
-                }
-              });
             }
+            for (person in gameSession.users) {
+              if (gameSession.users[person] === user.callsign) {
+                gameSession.users[person] = undefined;
+                gameSession.players -= 1;
+              }
+            }
+            if (gameSession.players === 0) {
+              gameSession.gameName = gameSession._id;
+              gameSession.state.game = [];
+              gameSession.state.friendlies = [];
+              gameSession.meta.aborted = true;
+              console.log('Game id:' + gameSession._id + ' aborted');
+            }
+            gameSession.save(function(err) {
+              if (err) {
+                console.error(err);
+              } else {
+                console.log('user removed');
+              }
+            });
           });
           socket.leave(currentUser)
           console.log('user disconnected');
@@ -243,10 +250,28 @@ function onConnection(socket) {
       if (err) {
         console.error(err);
       }
-      if (!gameSession.state.friendlies.includes(Player2)) {
+      let p1 = false;
+      let p2 = false;
+      let p3 = false;
+      let p4 = false;
+      for (let i = 0; i < gameSession.state.friendlies.length; i++) {
+        let player = gameSession.state.friendlies[i];
+        if (player.id === 'Player1') {
+          p1 = true;
+        } else if (player.id === 'Player2') {
+          p2 = true;
+        } else if (player.id === 'Player3') {
+          p3 = true;
+        } else if (player.id === 'Player4') {
+          p4 = true;
+        } else {
+          continue;
+        }
+      }
+      if (!p2) {
         Player2 = new Player('Player2');
         join(Player2);
-      } else if (!gameSession.state.friendlies.includes(Player3)) {
+      } else if (!p3) {
         Player3 = new Player('Player3');
         join(Player3);
       } else {
@@ -288,15 +313,27 @@ function onConnection(socket) {
         if (err) {
           console.error(err);
         }
-        if (gameSession.state.friendlies.includes(Player2)) {
+        if (gameSession.users.user2) {
           let update = { 'meta.locked': true, 'meta.startTime': new Date(), 'meta.endTime': new Date() };
           GameSession.update(gameSession, update, function() {
             io.to(currentGame).emit('start');
             clearSockets();
-            let game = new Game(gameSession._id, gameSession.difficulty);
+            game = new Game(gameSession._id, gameSession.difficulty);
+
+            // can't use since database objects don't have their methods.
+            // need to have the actual friendly objects in the game object,
+            // and only update their properties
+            // write a function that does this and can be used for turns as well
+            // v
             game.friendlies = gameSession.state.friendlies;
-            buildGame(game);
-            updateObjects();
+            game.buildDecks();
+            gameSession.state.game.push(game);
+            gameSession.save(function(err) {
+              if (err) {
+                console.error(err)
+              }
+              updateObjects();
+            });
           });
         }
       });
@@ -304,7 +341,7 @@ function onConnection(socket) {
   }
 }
 
-function updateObjects() { //needs update for database version
+function updateObjects() { // needs update for database version
   game.update();
   gameData = {
     turn: currentTurn,

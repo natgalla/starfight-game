@@ -63,60 +63,6 @@ let reset = function() {
   game = new Game();
 }
 
-let buildGame = function(game) {
-  // build tactical deck
-  game.addToDeck(game.tacticalDeck, missile, 6);
-  game.addToDeck(game.tacticalDeck, scatterShot, 4);
-  game.addToDeck(game.tacticalDeck, drawFire, 3);
-  game.addToDeck(game.tacticalDeck, feint, 4);
-  game.addToDeck(game.tacticalDeck, barrelRoll, 2);
-  game.addToDeck(game.tacticalDeck, immelman, 3);
-  game.addToDeck(game.tacticalDeck, repairDrone, 2);
-
-  game.tacticalDeck.size = game.tacticalDeck.cards.length;
-
-  game.shuffle(game.tacticalDeck);
-
-  // build advanced tactical deck
-  game.addToDeck(FriendlyBase.advTactics, healthPack, 5);
-  game.addToDeck(FriendlyBase.advTactics, heatSeeker, 6);
-  game.addToDeck(FriendlyBase.advTactics, bomb, 3);
-  game.addToDeck(FriendlyBase.advTactics, snapshot, 3);
-  game.addToDeck(FriendlyBase.advTactics, guidedMissile, 3);
-  game.addToDeck(FriendlyBase.advTactics, incinerate, 3);
-  game.addToDeck(FriendlyBase.advTactics, jammer, 6);
-  game.addToDeck(FriendlyBase.advTactics, intercept, 3);
-  game.addToDeck(FriendlyBase.advTactics, emp, 2);
-  game.addToDeck(FriendlyBase.advTactics, countermeasures, 3);
-  game.addToDeck(FriendlyBase.advTactics, divertShields, 2);
-  game.addToDeck(FriendlyBase.advTactics, jump, 1);
-  game.addToDeck(FriendlyBase.advTactics, hardSix, 4);
-
-  FriendlyBase.advTactics.size = FriendlyBase.advTactics.cards.length;
-
-  game.shuffle(FriendlyBase.advTactics);
-
-  // build enemy deck
-  game.addToDeck(enemyBase.enemyDeck, ace, 4);
-  game.addToDeck(enemyBase.enemyDeck, heavy, 9);
-  game.addToDeck(enemyBase.enemyDeck, medium, 12);
-  game.addToDeck(enemyBase.enemyDeck, light, 15);
-  game.addToDeck(enemyBase.enemyDeck, empty, game.setEmpties(8, 4, 0));
-
-  enemyBase.enemyDeck.size = enemyBase.enemyDeck.cards.length;
-
-  game.shuffle(enemyBase.enemyDeck);
-
-  // build enemy base deck
-  game.buildEnemyBaseDeck();
-
-  enemyBase.enemyBaseDeck.size = enemyBase.enemyBaseDeck.cards.length;
-
-  // set rules dependent on amount of players
-  enemyBase.startingEnemies = game.friendlies.length * 2;
-  enemyBase.enemiesPerTurn = game.friendlies.length;
-}
-
 let launchGame = function() {
   game.round();
 }

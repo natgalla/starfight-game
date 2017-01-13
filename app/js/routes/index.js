@@ -245,9 +245,13 @@ router.post('/menu', function(req, res, next) {
 // Game view
 router.get('/game', mid.requiresLogin, mid.requiresGameSession, function(req, res, next) {
   Game.findById(req.session.gameId, function(err, gameSession) {
-    res.cookie('gameName', req.session.gameId)
+    if (err) {
+      return next(err);
+    }
+    // res.cookie('gameName', req.session.gameId)
     return res.render('game', {
       game: req.session.gameId,
+      gameTitle: gameTitle,
       gameName: gameSession.gameName
     });
   });
