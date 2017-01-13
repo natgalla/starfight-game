@@ -4,7 +4,7 @@ let GameSchema = new mongoose.Schema({
   gameName: {
     type: String,
   },
-  users: { // should this be an array?
+  users: {
     user1: String,
     user2: String,
     user3: String,
@@ -14,7 +14,6 @@ let GameSchema = new mongoose.Schema({
   state: {
     currentTurn: { type: Number, default: 1 },
     game: { type: Array, default: [] },
-    friendlies: { type: Array, default: [] },
     enemyBase: { type: Array, default: [] }
   },
   difficulty: { type: Number, default: 3 },

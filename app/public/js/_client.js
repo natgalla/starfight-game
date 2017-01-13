@@ -17,6 +17,7 @@
 // var sock = io('/' + getCookie('gameName'));
 
 var sock = io();
+var room;
 
 var user;
 var userTurn = false;
@@ -47,6 +48,8 @@ $("#chat").submit(function() {
 })
 
 function getUpdate(packet) {
+  console.log('received update from server');
+  console.dir(packet);
   turn = packet.turn;
   game = packet.game;
   Player1 = packet.Player1;
@@ -62,8 +65,9 @@ function getUpdate(packet) {
   update();
 }
 
-function assignPlayer(player) {
-  user = player;
+function assignPlayer(info) {
+  user = info.player;
+  room = info.room;
   console.log(user.name + " joined game as " + user.id);
 }
 

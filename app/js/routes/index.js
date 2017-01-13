@@ -179,9 +179,6 @@ router.post('/menu', function(req, res, next) {
             return next(error);
           } else {
             req.session.gameId = game._id;
-            // game.difficulty = Number(req.body.difficulty);
-            // create a namespace using the gameName or _id
-            // redirect to the new namespace
             return res.redirect('game');
           }
         });

@@ -105,7 +105,7 @@ const updateTacticalCards = function() {
   for (let i = 0; i < game.friendlies.length; i++) {
     let $wingmanHand = $("#wingman" + wingman + "-hand");
     let player = game.friendlies[i];
-    if (player.id === "FriendlyBase") {
+    if (player.id === FriendlyBase.id) {
       continue;
     } else if (player.id === user.id) {
       $("#playerHand").empty();
@@ -160,7 +160,7 @@ const updateEnemyCards = function() {
   let wingman = 1;
   const $playerPursuers = $("#playerPursuers");
   const $basePursuers = $("#basePursuers");
-  for(let i=0; i<game.friendlies.length; i++) {
+  for(let i=0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
@@ -428,9 +428,9 @@ $cicButton.on("click", function() {
   $cancelButton.show();
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append(typeWord($overlay, "Incoming transmition from base command...", "p", undefined, 30));
   $overlay.append($marketList);
-  FriendlyBase.market.forEach( function(card) {
+  game.market.forEach( function(card) {
     let advCard;
     if (getPlayer().merit >= card.cost) {
       advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
@@ -475,6 +475,7 @@ const sendPacket = function() { // needs update for database version
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
+  console.log(turnInfo);
   sock.emit("turn", JSON.stringify(turnInfo));
   clearOverlay();
   detarget();

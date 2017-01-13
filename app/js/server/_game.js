@@ -298,8 +298,8 @@ Game.prototype.round = function() {
       return;
     } else {
       player.resetCardsUsed();
-      this.replaceCards(player.tacticalCardsPerTurn,
-                        this.tacticalDeck, player.hand);
+      game.replaceCards(player.tacticalCardsPerTurn,
+                        game.tacticalDeck, player.hand);
     }
   });
   // refresh play area
@@ -336,7 +336,7 @@ Game.prototype.postRound = function() {
   }
   // replace the active enemy base card & run the new card's function
   this.replaceEnemyBaseCard();
-  enemyBase.updateSummary();
+  // enemyBase.updateSummary();
 }
 
 Game.prototype.newRound = function() {

@@ -18,7 +18,7 @@ EnemyBase.prototype.updateSummary = function() {
                     + "<p>Armor: " + this.currentArmor + "/"
                     + this.maxArmor + "</p>"
                     + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
-  } else if (this.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
+  } else if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
     this.summary = "<h3>" + this.name + "</h3>"
                     + "<p>Armor: " + this.currentArmor + "/"
                     + this.maxArmor + "</p>"

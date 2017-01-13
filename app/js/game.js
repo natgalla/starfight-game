@@ -22,6 +22,7 @@ void 0!==c?null===c?void r.removeAttr(a,b):e&&"set"in e&&void 0!==(d=e.set(a,c,b
 // var sock = io('/' + getCookie('gameName'));
 
 var sock = io();
+var room;
 
 var user;
 var userTurn = false;
@@ -52,6 +53,8 @@ $("#chat").submit(function() {
 })
 
 function getUpdate(packet) {
+  console.log('received update from server');
+  console.dir(packet);
   turn = packet.turn;
   game = packet.game;
   Player1 = packet.Player1;
@@ -67,8 +70,9 @@ function getUpdate(packet) {
   update();
 }
 
-function assignPlayer(player) {
-  user = player;
+function assignPlayer(info) {
+  user = info.player;
+  room = info.room;
   console.log(user.name + " joined game as " + user.id);
 }
 
@@ -504,7 +508,7 @@ const updateTacticalCards = function() {
   for (let i = 0; i < game.friendlies.length; i++) {
     let $wingmanHand = $("#wingman" + wingman + "-hand");
     let player = game.friendlies[i];
-    if (player.id === "FriendlyBase") {
+    if (player.id === FriendlyBase.id) {
       continue;
     } else if (player.id === user.id) {
       $("#playerHand").empty();
@@ -559,7 +563,7 @@ const updateEnemyCards = function() {
   let wingman = 1;
   const $playerPursuers = $("#playerPursuers");
   const $basePursuers = $("#basePursuers");
-  for(let i=0; i<game.friendlies.length; i++) {
+  for(let i=0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
@@ -827,9 +831,9 @@ $cicButton.on("click", function() {
   $cancelButton.show();
   $overlay.empty();
   let $marketList = $("<ul>");
-  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append(typeWord($overlay, "Incoming transmition from base command...", "p", undefined, 30));
   $overlay.append($marketList);
-  FriendlyBase.market.forEach( function(card) {
+  game.market.forEach( function(card) {
     let advCard;
     if (getPlayer().merit >= card.cost) {
       advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
@@ -874,6 +878,7 @@ const sendPacket = function() { // needs update for database version
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
+  console.log(turnInfo);
   sock.emit("turn", JSON.stringify(turnInfo));
   clearOverlay();
   detarget();
