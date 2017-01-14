@@ -18,7 +18,7 @@ void 0!==c?null===c?void r.removeAttr(a,b):e&&"set"in e&&void 0!==(d=e.set(a,c,b
 //     }
 //     return "";
 // }
-
+//
 // var sock = io('/' + getCookie('gameName'));
 
 var sock = io();

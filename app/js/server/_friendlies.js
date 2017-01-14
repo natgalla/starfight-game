@@ -612,7 +612,7 @@ Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
-  let choice = FriendlyBase.market[advTactic];
+  let choice = game.market[advTactic];
   this.lastCardUsed = choice;
   let action = choice.cssClass;
   if (this.merit >= choice.cost) {

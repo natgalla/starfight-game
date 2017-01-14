@@ -247,7 +247,7 @@ Game.prototype.replaceEnemyBaseCard = function() {
     this.replaceCards(this.enemyBaseCardsPerTurn, this.enemyBaseDeck,
                       this.currentEnemyBaseCard);
     let ebCard = this.currentEnemyBaseCard[0];
-    this[ebCard.cssClass]();
+    enemyBase[ebCard.cssClass]();
   }
 }
 
@@ -269,7 +269,7 @@ Game.prototype.round = function() {
     this.replaceCards(this.marketSize, this.advTactics,
                       this.market);
   } else {
-    let newEnemies = enemyBase.enemiesPerTurn;
+    let newEnemies = this.enemiesPerTurn;
     if (enemyBase.effects.intercepted === true) {
       newEnemies -= 1;
       enemyBase.effects.intercepted = false;

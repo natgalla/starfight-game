@@ -109,11 +109,6 @@ server.listen(port, () => console.log('Ready. Listening at http://localhost:' + 
 // game logic
 io.on('connect', onConnection);
 
-function createGame(sessionName) {
-  let nsp = io.of('/' + sessionName);
-  nsp.on('connection', onConnection);
-}
-
 function getUser(userId, callback) {
   User.findById(userId, function(error, user) {
     if (error) {
@@ -144,7 +139,7 @@ function getGameSessions(callback) {
   });
 }
 
-function loadGameState(gameId, specs, callback) {
+function loadGameState(gameId, callback) {
   getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
@@ -167,7 +162,6 @@ function loadGameState(gameId, specs, callback) {
       player.merit = friendly.merit;
       player.effects = friendly.effects;
     }
-    game.roundNumber = gameState.roundNumber;
     for (let i = 0; i < gameState.friendlies.length; i++) {
       let friendly = gameState.friendlies[i];
       if (friendly.id === FriendlyBase.id) {
@@ -186,6 +180,7 @@ function loadGameState(gameId, specs, callback) {
         updatePlayer(Player4, friendly);
       }
     }
+    game.roundNumber = gameState.roundNumber;
     game.tacticalDeck = gameState.tacticalDeck;
     game.advTactics = gameState.advTactics;
     game.enemyBaseDeck = gameState.enemyBaseDeck;
@@ -197,6 +192,7 @@ function loadGameState(gameId, specs, callback) {
     game.gameID = gameState.gameID;
     game.win = gameState.win;
     game.lose = gameState.lose;
+    game.enemiesPerTurn = gameState.enemiesPerTurn;
 
     let ebState = gameSession.state.enemyBase[0];
     enemyBase.currentArmor = ebState.currentArmor;
@@ -234,9 +230,11 @@ function saveGameState(gameId, game, enemyBase, currentTurn) {
     gameSession.state.game[0].gameID = game.gameID;
     gameSession.state.game[0].win = game.win;
     gameSession.state.game[0].lose = game.lose;
+    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
 
     gameSession.state.enemyBase[0].currentArmor = enemyBase.currentArmor;
     gameSession.state.enemyBase[0].effects = enemyBase.effects;
+    gameSession.state.enemyBase[0].summary = enemyBase.summary;
 
     gameSession.save(function(err) {
       if (err) {
@@ -249,6 +247,8 @@ function saveGameState(gameId, game, enemyBase, currentTurn) {
 }
 
 function onConnection(socket) {
+  console.log(socket.nsp.name);
+  // let nsp = io.of('/' + socket.nsp.name);
   let gameId = currentGame;
   let userId = currentUser;
   let join = function(player) {
@@ -423,26 +423,13 @@ function updateObjects(gameId, gameSession) {
       gameData.Player4 = friendly;
     }
   }
-  if (game.friendlies.includes(Player1)) {
-    gameData.Player1 = Player1;
-  }
-  if (game.friendlies.includes(Player2)) {
-    gameData.Player2 = Player2;
-  }
-  if (game.friendlies.includes(Player3)) {
-    gameData.Player3 = Player3;
-  }
-  if (game.friendlies.includes(Player4)) {
-    gameData.Player4 = Player4;
-  }
   io.to(gameId).emit('update', gameData);
 }
 
 function turn(data) {
-  console.log(data);
   let gameId = data.room;
   let specs = data.turnInfo;
-  loadGameState(gameId, specs, function(gameSession) {
+  loadGameState(gameId, function(gameSession) {
     let getPlayer = function(id) {
       if (id === 'Player1') {
         return Player1;
@@ -480,7 +467,7 @@ function turn(data) {
     });
     let currentTurn = gameSession.state.currentTurn;
     if (cardsLeft === 0) {
-      game.postRound(); // throwing error: can't read property 'jammed' of undefined
+      game.postRound();
       game.round();
       currentTurn = 0;
     } else {
@@ -504,7 +491,6 @@ function turn(data) {
     if (game.win) {
       saveGameState(gameId, game, enemyBase, currentTurn);
       io.to(gameId).emit('end', 'Victory!');
-      reset();
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
           console.error(err);
@@ -527,6 +513,9 @@ function turn(data) {
             if (gameSession.users[user]) {
               let query = { callsign: gameSession.users[user] };
               User.find(query, function(err, player) {
+                if (err) {
+                  console.error(err);
+                }
                 let wins = player.meta.wins + 1;
                 player.meta.wins = wins;
                 if (wins = 21) {

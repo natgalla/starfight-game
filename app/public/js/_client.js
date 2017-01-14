@@ -13,7 +13,7 @@
 //     }
 //     return "";
 // }
-
+//
 // var sock = io('/' + getCookie('gameName'));
 
 var sock = io();
