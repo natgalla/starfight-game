@@ -1460,8 +1460,8 @@ function getGameSessions(callback) {
   });
 }
 
-function loadGameState(callback) {
-  getGameSession(currentGame, function(err, gameSession) {
+function loadGameState(gameId, callback) {
+  getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
@@ -1526,8 +1526,8 @@ function loadGameState(callback) {
   });
 }
 
-function saveGameState(game, enemyBase, currentTurn) {
-  getGameSession(currentGame, function(err, gameSession) {
+function saveGameState(gameId, game, enemyBase, currentTurn) {
+  getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
@@ -1557,41 +1557,45 @@ function saveGameState(game, enemyBase, currentTurn) {
       if (err) {
         console.error(err);
       } else {
-        updateObjects(gameSession);
+        updateObjects(gameId, gameSession);
       }
     });
   });
 }
 
 function onConnection(socket) {
+  let gameId = currentGame;
+  let userId = currentUser;
   let join = function(player) {
-    if(currentGame) {
-      socket.join(currentGame);
-      console.log('A user joined room ' + currentGame);
+    if(gameId) {
+      gameId
+      socket.join(gameId);
+      console.log('A user joined room ' + gameId);
     }
-    if (currentUser) {
-      getUser(currentUser, function(err, user) {
+    if (userId) {
+      userId = currentUser;
+      getUser(userId, function(err, user) {
         if (err) {
           console.error(err);
         }
         player.name = user.callsign;
-        console.log('Assigning ' + user.callsign + ' to ' + player.id);
-        socket.emit('assign', { player: player, room: currentGame } );
+        console.log('Game: ' + gameId + ' Assigning ' + user.callsign + ' to ' + player.id);
+        socket.emit('assign', { player: player, room: gameId } );
         socket.on('turn', turn);
-        socket.on('chat', function(message) {
-          io.to(currentGame).emit('chatMessage', message);
+        socket.on('chat', function(data) {
+          io.to(data.room).emit('chatMessage', data.message);
         });
-        io.to(currentGame).emit('msg', player.name + ' joined the game.');
+        io.to(gameId).emit('msg', player.name + ' joined the game.');
         socket.on('disconnect', function() {
-          GameSession.findById(currentGame, function(err, gameSession) {
+          GameSession.findById(gameId, function(err, gameSession) {
             if (err) {
               console.error(err);
             }
             if (gameSession.locked) {
               player.effects.dead = true;
-              saveGameState(game, enemyBase);
+              saveGameState(gameId, game, enemyBase);
             } else {
-              io.to(currentGame).emit('msg', player.name + ' left.');
+              io.to(gameId).emit('msg', player.name + ' left.');
             }
             for (person in gameSession.users) {
               if (gameSession.users[person] === user.callsign) {
@@ -1600,8 +1604,8 @@ function onConnection(socket) {
               }
             }
             if (gameSession.players === 1) {
-              io.to(currentGame).emit('closeGame');
-              io.to(currentGame).emit('msg', 'Waiting for second player...')
+              io.to(gameId).emit('closeGame');
+              io.to(gameId).emit('msg', 'Waiting for second player...')
             } else if (gameSession.players === 0) {
               gameSession.gameName = gameSession._id;
               gameSession.state.game = [];
@@ -1616,18 +1620,18 @@ function onConnection(socket) {
               }
             });
           });
-          socket.leave(currentUser)
+          socket.leave(userId)
           console.log('user disconnected');
         });
       });
     }
   }
-  let addPlayer = function() {
-    getGameSession(currentGame, function(err, gameSession) {
+  let addPlayer = function(gameId, userId) {
+    getGameSession(gameId, function(err, gameSession) {
       if (err) {
         console.error(err);
       }
-      getUser(currentUser, function(err, user) {
+      getUser(userId, function(err, user) {
         if (err) {
           console.error(err);
         }
@@ -1647,33 +1651,34 @@ function onConnection(socket) {
       });
     });
   }
-  getGameSession(currentGame, function(err, gameSession) {
+  getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
     if (gameSession.players === 4) {
-      addPlayer();
-      io.to(currentGame).emit('msg', 'Game full');
+      addPlayer(gameId, userId);
+      io.to(gameId).emit('msg', 'Game full');
     } else if (gameSession.players === 3) {
-      addPlayer();
+      addPlayer(gameId, userId);
     } else if (gameSession.players === 2) {
-      addPlayer();
-      io.to(currentGame).emit('msg', 'Game ready');
-      io.to(currentGame).emit('openGame');
+      addPlayer(gameId, userId);
+      io.to(gameId).emit('msg', 'Game ready');
+      io.to(gameId).emit('openGame');
     } else {
       Player1 = new Player('Player1');
       join(Player1);
       socket.emit('msg', 'Waiting for second player...');
       socket.emit('firstPlayer');
-      socket.on('startGame', function() {
-        getGameSession(currentGame, function(err, gameSession) {
+      socket.on('startGame', function(data) {
+        let gameId = data.room;
+        getGameSession(gameId, function(err, gameSession) {
           if (err) {
             console.error(err);
           }
           if (gameSession.players >= 2) {
             let update = { 'meta.locked': true, 'meta.startTime': new Date(), 'meta.endTime': new Date() };
             GameSession.update(gameSession, update, function() {
-              io.to(currentGame).emit('start');
+              io.to(gameId).emit('start');
               game = new Game(gameSession._id, gameSession.difficulty);
               enemyBase = new EnemyBase();
               game.friendlies = [FriendlyBase]
@@ -1701,7 +1706,7 @@ function onConnection(socket) {
                 if (err) {
                   console.error(err)
                 }
-                saveGameState(game, enemyBase);
+                saveGameState(gameId, game, enemyBase);
               });
             });
           } else {
@@ -1713,7 +1718,7 @@ function onConnection(socket) {
   });
 }
 
-function updateObjects(gameSession) { // needs update for database version
+function updateObjects(gameId, gameSession) {
   let gameData = {
     turn: gameSession.state.currentTurn,
     game: gameSession.state.game[0],
@@ -1745,12 +1750,14 @@ function updateObjects(gameSession) { // needs update for database version
   if (game.friendlies.includes(Player4)) {
     gameData.Player4 = Player4;
   }
-  io.to(currentGame).emit('update', gameData);
+  io.to(gameId).emit('update', gameData);
 }
 
-function turn(data) { // needs update for database version
-  loadGameState(function(gameSession) {
-    let specs = JSON.parse(data);
+function turn(data) {
+  console.log(data);
+  let gameId = data.room;
+  loadGameState(gameId, function(gameSession) {
+    let specs = data.turnInfo;
     let getPlayer = function(id) {
       if (id === 'Player1') {
         return Player1;
@@ -1810,10 +1817,10 @@ function turn(data) { // needs update for database version
       resetTurns();
     }
     if (game.win) {
-      saveGameState(game, enemyBase, currentTurn);
-      io.to(currentGame).emit('end', 'Victory!');
+      saveGameState(gameId, game, enemyBase, currentTurn);
+      io.to(gameId).emit('end', 'Victory!');
       reset();
-      getGameSession(currentGame, function(err, gameSession) {
+      getGameSession(gameId, function(err, gameSession) {
         if (err) {
           console.error(err);
         }
@@ -1870,10 +1877,10 @@ function turn(data) { // needs update for database version
         });
       });
     } else if (game.lose) {
-      saveGameState(game, enemyBase, currentTurn);
-      io.to(currentGame).emit('end', 'Defeat!');
+      saveGameState(gameId, game, enemyBase, currentTurn);
+      io.to(gameId).emit('end', 'Defeat!');
       reset();
-      getGameSession(currentGame, function(err, gameSession) {
+      getGameSession(gameId, function(err, gameSession) {
         if (err) {
           console.error(err);
         }
@@ -1904,7 +1911,7 @@ function turn(data) { // needs update for database version
         });
       });
     } else {
-      saveGameState(game, enemyBase, currentTurn);
+      saveGameState(gameId, game, enemyBase, currentTurn);
     }
   });
 }

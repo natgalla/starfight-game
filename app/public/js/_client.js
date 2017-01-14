@@ -42,14 +42,12 @@ sock.on("firstPlayer", onFirst);
 sock.on("start", onStart);
 
 $("#chat").submit(function() {
-  sock.emit("chat", user.name + ": " + $("#message").val());
+  sock.emit("chat", { room: room, message: user.name + ": " + $("#message").val() });
   $("#message").val("");
   return false;
 })
 
 function getUpdate(packet) {
-  console.log('received update from server');
-  console.dir(packet);
   turn = packet.turn;
   game = packet.game;
   Player1 = packet.Player1;
@@ -68,7 +66,6 @@ function getUpdate(packet) {
 function assignPlayer(info) {
   user = info.player;
   room = info.room;
-  console.log(user.name + " joined game as " + user.id);
 }
 
 function onMessage(text) {
@@ -96,7 +93,7 @@ function onFirst() {
   $("#room").append($play);
   $play.on("click", function() {
     if($(this).hasClass("enabled")) {
-      sock.emit("startGame");
+      sock.emit("startGame", {room: room});
     }
   });
 }
