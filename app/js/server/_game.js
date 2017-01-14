@@ -240,7 +240,7 @@ Game.prototype.buildEnemyBaseDeck = function() {
 }
 
 Game.prototype.replaceEnemyBaseCard = function() {
-  if (this.effects.jammed === true) {
+  if (enemyBase.effects.jammed === true) { // throwing error: can't read property 'jammed' of undefined
     this.enemyBaseDeck.discard.push(this.currentEnemyBaseCard.pop());
     enemyBase.effects.jammed = false;
   } else {

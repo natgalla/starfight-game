@@ -144,7 +144,7 @@ function getGameSessions(callback) {
   });
 }
 
-function loadGameState(gameId, callback) {
+function loadGameState(gameId, specs, callback) {
   getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
@@ -218,6 +218,7 @@ function saveGameState(gameId, game, enemyBase, currentTurn) {
     if (currentTurn === undefined) {
       currentTurn = 1;
     }
+    game.update();
     gameSession.state.currentTurn = currentTurn;
 
     gameSession.state.game[0].roundNumber = game.roundNumber;
@@ -440,8 +441,8 @@ function updateObjects(gameId, gameSession) {
 function turn(data) {
   console.log(data);
   let gameId = data.room;
-  loadGameState(gameId, function(gameSession) {
-    let specs = data.turnInfo;
+  let specs = data.turnInfo;
+  loadGameState(gameId, specs, function(gameSession) {
     let getPlayer = function(id) {
       if (id === 'Player1') {
         return Player1;
@@ -479,7 +480,7 @@ function turn(data) {
     });
     let currentTurn = gameSession.state.currentTurn;
     if (cardsLeft === 0) {
-      game.postRound();
+      game.postRound(); // throwing error: can't read property 'jammed' of undefined
       game.round();
       currentTurn = 0;
     } else {
