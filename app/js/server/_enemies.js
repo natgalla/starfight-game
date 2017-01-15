@@ -12,7 +12,7 @@ const EnemyBase = function() {
           + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
 }
 
-EnemyBase.prototype.updateSummary = function() {
+EnemyBase.prototype.updateSummary = function(game) {
   if (game.roundNumber === 1) {
     this.summary = "<h3>" + this.name + "</h3>"
                     + "<p>Armor: " + this.currentArmor + "/"
@@ -33,13 +33,13 @@ EnemyBase.prototype.updateSummary = function() {
   }
 }
 
-EnemyBase.prototype.takeDamage = function(damage) {
+EnemyBase.prototype.takeDamage = function(game, damage) {
   this.currentArmor -= damage;
   if (this.currentArmor < 0) {
     this.currentArmor = 0;
   }
   if (this.currentArmor === 0) {
-    io.to(currentGame).emit("msg", this.name + " destroyed! Players win.");
+    io.to(game.gameID).emit("msg", this.name + " destroyed! Players win.");
     game.win = true;
   }
   this.updateSummary();
@@ -50,32 +50,32 @@ EnemyBase.prototype.takeDamage = function(damage) {
 ENEMY BASE CARD FUNCTIONS
 *************************/
 
-EnemyBase.prototype.reinforce = function() {
-  io.to(currentGame).emit("msg", this.name + " will launch one extra enemy card into play each round.");
+EnemyBase.prototype.reinforce = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " will launch one extra enemy card into play each round.");
   this.enemiesPerTurn += 1;
 }
 
-EnemyBase.prototype.repair = function() {
+EnemyBase.prototype.repair = function(game) {
   this.currentArmor += 5;
   if (this.currentArmor > this.maxArmor) {
     this.currentArmor = this.maxArmor;
   }
-  io.to(currentGame).emit("msg", this.name + " Repairs 5 damage. Current armor: "
+  io.to(game.gameID).emit("msg", this.name + " Repairs 5 damage. Current armor: "
               + this.currentArmor + "/" + this.maxArmor);
 }
 
-EnemyBase.prototype.fireHeavy = function() {
-  io.to(currentGame).emit("msg", this.name + " fires heavy weapons.");
+EnemyBase.prototype.fireHeavy = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " fires heavy weapons.");
   FriendlyBase.takeDamage(5);
 }
 
-EnemyBase.prototype.fireLight = function() {
-  io.to(currentGame).emit("msg", this.name + " fires light weapons.");
+EnemyBase.prototype.fireLight = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " fires light weapons.");
   FriendlyBase.takeDamage(3);
 }
 
-EnemyBase.prototype.deploy = function() {
-  io.to(currentGame).emit("msg", this.name + " launches an extra fighter.");
+EnemyBase.prototype.deploy = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " launches an extra fighter.");
   this.effects.deploy = true;
 }
 

@@ -42,16 +42,16 @@ let deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card int
 let repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
 let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
 
-let enemyBase = new EnemyBase();
+// let enemyBase = new EnemyBase();
 
 // define friendlies
-let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-let Player1;
-let Player2;
-let Player3;
-let Player4;
+// let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+// let Player1;
+// let Player2;
+// let Player3;
+// let Player4;
 
-let game = new Game();
+// let game = new Game();
 
 let reset = function() {
   FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);

@@ -73,7 +73,7 @@ const clearButtons = function() {
 }
 
 const updateSummaries = function() {
-  $("#enemyBase").html(enemyBase.summary);
+  $("#enemyBase").html(game.enemyBase.summary);
   let wingman = 1;
   const showSummary = function(player) {
     // show player summary
@@ -239,7 +239,7 @@ const getFriendly = function(className) {
   } else if ($card.hasClass("FriendlyBase") || $friendly.hasClass("FriendlyBase")) {
     return FriendlyBase;
   } else if ($card.attr("id") === "enemyBase") {
-    return enemyBase;
+    return game.enemyBase;
   } else {
     return undefined;
   }

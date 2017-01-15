@@ -1,21 +1,3 @@
-// function getCookie(cname) {
-//     var name = cname + "=";
-//     var decodedCookie = decodeURIComponent(document.cookie);
-//     var ca = decodedCookie.split(';');
-//     for(var i = 0; i <ca.length; i++) {
-//         var c = ca[i];
-//         while (c.charAt(0) == ' ') {
-//             c = c.substring(1);
-//         }
-//         if (c.indexOf(name) == 0) {
-//             return c.substring(name.length, c.length);
-//         }
-//     }
-//     return "";
-// }
-//
-// var sock = io('/' + getCookie('gameName'));
-
 var sock = io();
 var room;
 
@@ -28,7 +10,6 @@ var Player2;
 var Player3;
 var Player4;
 var FriendlyBase;
-var enemyBase;
 var turn;
 
 sock.on("msg", onMessage);
@@ -50,15 +31,20 @@ $("#chat").submit(function() {
 function getUpdate(packet) {
   turn = packet.turn;
   game = packet.game;
-  Player1 = packet.Player1;
-  Player2 = packet.Player2;
-  FriendlyBase = packet.FriendlyBase;
-  enemyBase = packet.enemyBase;
-  if (packet.Player3) {
-    Player3 = packet.Player3;
-  }
-  if (packet.Player4) {
-    Player4 = packet.Player4;
+
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly.id === 'FriendlyBase') {
+      FriendlyBase = friendly;
+    } else if (friendly.id === 'Player1') {
+      Player1 = friendly;
+    } else if (friendly.id === 'Player2') {
+      Player2 = friendly;
+    } else if (friendly.id === 'Player3') {
+      Player3 = friendly;
+    } else if (friendly.id === 'Player4') {
+      Player4 = friendly;
+    }
   }
   update();
 }

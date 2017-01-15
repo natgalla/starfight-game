@@ -139,82 +139,14 @@ function getGameSessions(callback) {
   });
 }
 
-function loadGameState(gameId, callback) {
-  getGameSession(gameId, function(err, gameSession) {
-    if (err) {
-      console.error(err);
-    }
-    let game = new Game();
-    let FriendlyBase = new Friendly();
-    let Player1 = new Player();
-    let Player2 = new Player();
-    let Player3 = new Player();
-    let Player4 = new Player();
-    let enemyBase = new EnemyBase();
-    let gameState = gameSession.state.game[0];
-    let updatePlayer = function(player, friendly) {
-      player.name = friendly.name;
-      player.currentArmor = friendly.currentArmor;
-      player.lastCardUsed = friendly.lastCardUsed;
-      player.hand = friendly.hand;
-      player.pursuers = friendly.pursuers;
-      player.pursuerDamage = friendly.pursuerDamage;
-      player.merit = friendly.merit;
-      player.effects = friendly.effects;
-    }
-    for (let i = 0; i < gameState.friendlies.length; i++) {
-      let friendly = gameState.friendlies[i];
-      if (friendly.id === FriendlyBase.id) {
-        FriendlyBase.pursuers = friendly.pursuers;
-        FriendlyBase.pursuerDamage = friendly.pursuerDamage;
-        FriendlyBase.effects = friendly.effects.
-        FriendlyBase.currentArmor = friendly.currentArmor;
-        gameSession.friendlies.push(friendly);
-      } else if (friendly.id === Player1.id) {
-        updatePlayer(Player1, friendly);
-      } else if (friendly.id === Player2.id) {
-        updatePlayer(Player2, friendly);
-      } else if (friendly.id === Player3.id) {
-        updatePlayer(Player3, friendly);
-      } else if (friendly.id === Player4.id) {
-        updatePlayer(Player4, friendly);
-      }
-    }
-    game.roundNumber = gameState.roundNumber;
-    game.tacticalDeck = gameState.tacticalDeck;
-    game.advTactics = gameState.advTactics;
-    game.enemyBaseDeck = gameState.enemyBaseDeck;
-    game.enemyDeck = gameState.enemyDeck;
-    game.market = gameState.market;
-    game.enemiesActive = gameState.enemiesActive;
-    game.enemiesPerTurn = gameState.enemiesPerTurn;
-    game.currentEnemyBaseCard = gameState.currentEnemyBaseCard;
-    game.gameID = gameState.gameID;
-    game.win = gameState.win;
-    game.lose = gameState.lose;
-    game.enemiesPerTurn = gameState.enemiesPerTurn;
-
-    let ebState = gameSession.state.enemyBase[0];
-    enemyBase.currentArmor = ebState.currentArmor;
-    enemyBase.effects = ebState.effects;
-
-    game.update();
-
-    if(callback) {
-      callback(gameSession);
-    }
-  });
-}
-
-function saveGameState(gameId, game, enemyBase, currentTurn) {
-  getGameSession(gameId, function(err, gameSession) {
+function saveGameState(gameId, game, currentTurn) {
+  GameSession.findById(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
     if (currentTurn === undefined) {
       currentTurn = 1;
     }
-    game.update();
     gameSession.state.currentTurn = currentTurn;
 
     gameSession.state.game[0].roundNumber = game.roundNumber;
@@ -231,87 +163,77 @@ function saveGameState(gameId, game, enemyBase, currentTurn) {
     gameSession.state.game[0].win = game.win;
     gameSession.state.game[0].lose = game.lose;
     gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
+    gameSession.state.game[0].enemyBase.currentArmor = game.enemyBase.currentArmor;
+    gameSession.state.game[0].enemyBase.effects = game.enemyBase.effects;
+    gameSession.state.game[0].enemyBase.summary = game.enemyBase.summary;
 
-    gameSession.state.enemyBase[0].currentArmor = enemyBase.currentArmor;
-    gameSession.state.enemyBase[0].effects = enemyBase.effects;
-    gameSession.state.enemyBase[0].summary = enemyBase.summary;
-
-    gameSession.save(function(err) {
+    gameSession.save(function(err, updatedSession) {
       if (err) {
         console.error(err);
       } else {
-        updateObjects(gameId, gameSession);
+        updateObjects(gameId, updatedSession);
       }
     });
   });
 }
 
 function onConnection(socket) {
-  console.log(socket.nsp.name);
-  // let nsp = io.of('/' + socket.nsp.name);
   let gameId = currentGame;
   let userId = currentUser;
-  let join = function(player) {
-    if(gameId) {
-      gameId
-      socket.join(gameId);
-      console.log('A user joined room ' + gameId);
-    }
-    if (userId) {
-      userId = currentUser;
-      getUser(userId, function(err, user) {
-        if (err) {
-          console.error(err);
-        }
-        player.name = user.callsign;
-        console.log('Game: ' + gameId + ' Assigning ' + user.callsign + ' to ' + player.id);
-        socket.emit('assign', { player: player, room: gameId } );
-        socket.on('turn', turn);
-        socket.on('chat', function(data) {
-          io.to(data.room).emit('chatMessage', data.message);
-        });
-        io.to(gameId).emit('msg', player.name + ' joined the game.');
-        socket.on('disconnect', function() {
-          GameSession.findById(gameId, function(err, gameSession) {
+  function join(player) {
+    socket.join(gameId);
+    getUser(userId, function(err, user) {
+      if (err) {
+        console.error(err);
+      }
+      player.name = user.callsign;
+      console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
+      socket.emit('assign', { player: player, room: gameId } );
+      socket.on('turn', turn);
+      socket.on('chat', function(data) {
+        io.to(data.room).emit('chatMessage', data.message);
+      });
+      io.to(gameId).emit('msg', player.name + ' joined the game.');
+      socket.on('disconnect', function() {
+        GameSession.findById(gameId, function(err, gameSession) {
+          if (err) {
+            console.error(err);
+          }
+          if (gameSession.locked) {
+            player.effects.dead = true;
+            saveGameState(gameId, game);
+          } else {
+            io.to(gameId).emit('msg', player.name + ' left.');
+          }
+          for (person in gameSession.users) {
+            if (gameSession.users[person] === user.callsign) {
+              gameSession.users[person] = undefined;
+              gameSession.players -= 1;
+            }
+          }
+          if (gameSession.players === 1) {
+            io.to(gameId).emit('closeGame');
+            io.to(gameId).emit('msg', 'Waiting for second player...')
+          } else if (gameSession.players === 0) {
+            gameSession.gameName = gameSession._id;
+            gameSession.state.game = [];
+            gameSession.meta.aborted = true;
+            console.log('Game id:' + gameSession._id + ' aborted');
+          }
+          gameSession.save(function(err) {
             if (err) {
               console.error(err);
-            }
-            if (gameSession.locked) {
-              player.effects.dead = true;
-              saveGameState(gameId, game, enemyBase);
             } else {
-              io.to(gameId).emit('msg', player.name + ' left.');
+              console.log('user removed');
             }
-            for (person in gameSession.users) {
-              if (gameSession.users[person] === user.callsign) {
-                gameSession.users[person] = undefined;
-                gameSession.players -= 1;
-              }
-            }
-            if (gameSession.players === 1) {
-              io.to(gameId).emit('closeGame');
-              io.to(gameId).emit('msg', 'Waiting for second player...')
-            } else if (gameSession.players === 0) {
-              gameSession.gameName = gameSession._id;
-              gameSession.state.game = [];
-              gameSession.meta.aborted = true;
-              console.log('Game id:' + gameSession._id + ' aborted');
-            }
-            gameSession.save(function(err) {
-              if (err) {
-                console.error(err);
-              } else {
-                console.log('user removed');
-              }
-            });
           });
-          socket.leave(userId)
-          console.log('user disconnected');
         });
+        socket.leave(gameId)
+        console.log('user disconnected');
       });
-    }
+    });
   }
-  let addPlayer = function(gameId, userId) {
+  function addPlayer(gameId, userId) {
     getGameSession(gameId, function(err, gameSession) {
       if (err) {
         console.error(err);
@@ -321,16 +243,16 @@ function onConnection(socket) {
           console.error(err);
         }
         if (gameSession.users.user1 === user.callsign) {
-          Player1 = new Player('Player1');
+          let Player1 = new Player('Player1');
           join(Player1);
         } else if (gameSession.users.user2 === user.callsign) {
-          Player2 = new Player('Player2');
+          let Player2 = new Player('Player2');
           join(Player2);
         } else if (gameSession.users.user3 === user.callsign) {
-          Player3 = new Player('Player3');
+          let Player3 = new Player('Player3');
           join(Player3);
         } else if (gameSession.users.user4 === user.callsign) {
-          Player4 = new Player('Player4');
+          let Player4 = new Player('Player4');
           join(Player4);
         }
       });
@@ -350,7 +272,7 @@ function onConnection(socket) {
       io.to(gameId).emit('msg', 'Game ready');
       io.to(gameId).emit('openGame');
     } else {
-      Player1 = new Player('Player1');
+      let Player1 = new Player('Player1');
       join(Player1);
       socket.emit('msg', 'Waiting for second player...');
       socket.emit('firstPlayer');
@@ -364,11 +286,15 @@ function onConnection(socket) {
             let update = { 'meta.locked': true, 'meta.startTime': new Date(), 'meta.endTime': new Date() };
             GameSession.update(gameSession, update, function() {
               io.to(gameId).emit('start');
-              game = new Game(gameSession._id, gameSession.difficulty);
-              enemyBase = new EnemyBase();
-              game.friendlies = [FriendlyBase]
+              let game = new Game(gameSession._id, gameSession.difficulty);
+              let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+              let Player1;
+              let Player2;
+              let Player3;
+              let Player4;
+              game.friendlies = [FriendlyBase];
               if (gameSession.users.user1) {
-                Player2 = new Player('Player2', gameSession.users.user2);
+                Player1 = new Player('Player1', gameSession.users.user1);
                 game.friendlies.push(Player1);
               }
               if (gameSession.users.user2) {
@@ -386,12 +312,11 @@ function onConnection(socket) {
               game.buildDecks();
               game.round();
               gameSession.state.game.push(game);
-              gameSession.state.enemyBase.push(enemyBase);
-              gameSession.save(function(err) {
+              gameSession.save(function(err, updatedSession) {
                 if (err) {
                   console.error(err)
                 }
-                saveGameState(gameId, game, enemyBase);
+                updateObjects(gameId, updatedSession);
               });
             });
           } else {
@@ -407,21 +332,6 @@ function updateObjects(gameId, gameSession) {
   let gameData = {
     turn: gameSession.state.currentTurn,
     game: gameSession.state.game[0],
-    enemyBase: gameSession.state.enemyBase[0]
-  }
-  for (let i = 0; i < gameSession.state.game[0].friendlies.length; i++) {
-    let friendly = gameSession.state.game[0].friendlies[i];
-    if (friendly.id === "FriendlyBase") {
-      gameData.FriendlyBase = friendly;
-    } else if (friendly.id === "Player1") {
-      gameData.Player1 = friendly;
-    } else if (friendly.id === "Player2") {
-      gameData.Player2 = friendly;
-    } else if (friendly.id === "Player3") {
-      gameData.Player3 = friendly;
-    } else if (friendly.id === "Player4") {
-      gameData.Player4 = friendly;
-    }
   }
   io.to(gameId).emit('update', gameData);
 }
@@ -429,20 +339,70 @@ function updateObjects(gameId, gameSession) {
 function turn(data) {
   let gameId = data.room;
   let specs = data.turnInfo;
-  loadGameState(gameId, function(gameSession) {
+  getGameSession(gameId, function(err, gameSession) {
+    if (err) {
+      console.error(err);
+    }
+    let game = new Game();
+    let FriendlyBase = new Friendly('FriendlyBase', 'Friendly Base', 30);
+    let Player1 = new Player('Player1');
+    let Player2 = new Player('Player2');
+    let Player3 = new Player('Player3');
+    let Player4 = new Player('Player4');
+    let gameState = gameSession.state.game[0];
+    let loadPlayer = function(player, friendly) {
+      player.name = friendly.name;
+      player.currentArmor = friendly.currentArmor;
+      player.lastCardUsed = friendly.lastCardUsed;
+      player.hand = friendly.hand;
+      player.pursuers = friendly.pursuers;
+      player.pursuerDamage = friendly.pursuerDamage;
+      player.merit = friendly.merit;
+      player.effects = friendly.effects;
+      game.friendlies.push(player);
+    }
+    for (let i = 0; i < gameState.friendlies.length; i++) {
+      let friendly = gameState.friendlies[i];
+      if (friendly.id === 'FriendlyBase') {
+        FriendlyBase.pursuers = friendly.pursuers;
+        FriendlyBase.pursuerDamage = friendly.pursuerDamage;
+        FriendlyBase.effects = friendly.effects;
+        FriendlyBase.currentArmor = friendly.currentArmor;
+        game.friendlies.push(FriendlyBase);
+      } else if (friendly.id === 'Player1') {
+        loadPlayer(Player1, friendly);
+      } else if (friendly.id === 'Player2') {
+        loadPlayer(Player2, friendly);
+      } else if (friendly.id === 'Player3') {
+        loadPlayer(Player3, friendly);
+      } else if (friendly.id === 'Player4') {
+        loadPlayer(Player4, friendly);
+      }
+    }
+    game.roundNumber = gameState.roundNumber;
+    game.tacticalDeck = gameState.tacticalDeck;
+    game.advTactics = gameState.advTactics;
+    game.enemyBaseDeck = gameState.enemyBaseDeck;
+    game.enemyDeck = gameState.enemyDeck;
+    game.market = gameState.market;
+    game.enemiesActive = gameState.enemiesActive;
+    game.enemiesPerTurn = gameState.enemiesPerTurn;
+    game.currentEnemyBaseCard = gameState.currentEnemyBaseCard;
+    game.gameID = gameState.gameID;
+    game.win = gameState.win;
+    game.lose = gameState.lose;
+    game.enemiesPerTurn = gameState.enemiesPerTurn;
+    game.enemyBase.currentArmor = gameState.enemyBase.currentArmor;
+    game.enemyBase.effects = gameState.enemyBase.effects;
+
     let getPlayer = function(id) {
-      if (id === 'Player1') {
-        return Player1;
-      } else if (id === 'Player2') {
-        return Player2;
-      } else if (id === 'Player3') {
-        return Player3;
-      } else if (id === 'Player4') {
-        return Player4;
-      } else if (id === 'FriendlyBase') {
-        return FriendlyBase;
-      } else if (id === 'enemyBase') {
-        return enemyBase;
+      for (let i=0; i < game.friendlies.length; i++) {
+        let friendly = game.friendlies[i];
+        if (id === friendly.id) {
+          return friendly;
+        } else if (id === game.enemyBase.id) {
+          return game.enemyBase;
+        }
       }
     }
     let friendly = undefined;
@@ -451,20 +411,21 @@ function turn(data) {
       friendly = getPlayer(specs.friendly.id);
     }
     if (specs.button === 'use') {
-      player.useTactic(specs.cardIndex, friendly, specs.pursuerIndex);
+      game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
     } else {
-      player.discard(specs.cardIndex, specs.button, friendly,
+      game = player.discard(game, specs.cardIndex, specs.button, friendly,
                                             specs.pursuerIndex,
                                             specs.purchaseIndex);
     }
     let cardsLeft = 0;
     game.friendlies.forEach((friendly) => {
-      if (friendly === FriendlyBase) {
+      if (friendly.id === 'FriendlyBase') {
         cardsLeft += 0;
       } else {
         cardsLeft += friendly.hand.length;
       }
     });
+    console.log(cardsLeft);
     let currentTurn = gameSession.state.currentTurn;
     if (cardsLeft === 0) {
       game.postRound();
@@ -484,12 +445,12 @@ function turn(data) {
     }
     resetTurns();
     while (game.friendlies[currentTurn].id === 'FriendlyBase'
-        || game.friendlies[currentTurn].effects.dead) {
+          || game.friendlies[currentTurn].effects.dead) {
       currentTurn += 1;
       resetTurns();
     }
     if (game.win) {
-      saveGameState(gameId, game, enemyBase, currentTurn);
+      // saveGameState(gameId, game, currentTurn);
       io.to(gameId).emit('end', 'Victory!');
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
@@ -504,14 +465,14 @@ function turn(data) {
         gameSession.meta.won = true;
         gameSession.meta.endTime = endTime;
         gameSession.meta.elapsedTime = min;
-        gameSession.save(function(err, updated) {
+        gameSession.save(function(err, updatedSession) {
           if (err) {
             console.error(err);
           }
           for (let i = 1; i < 5; i++) {
             let user = 'user' + i;
-            if (gameSession.users[user]) {
-              let query = { callsign: gameSession.users[user] };
+            if (updatedSession.users[user]) {
+              let query = { callsign: updatedSession.users[user] };
               User.find(query, function(err, player) {
                 if (err) {
                   console.error(err);
@@ -533,13 +494,13 @@ function turn(data) {
                 } else if (wins = 3) {
                   player.meta.rank = 'Lieutenant';
                 }
-                player.save(function(err, updated) {
+                player.save(function(err, updatedUser) {
                   if (err) {
                     console.error(err);
                   } else {
-                    console.log(gameSession.users[user] + " updated");
-                    if (updated.meta.wins < 22 && updated.meta.wins%3 === 0) {
-                      console.log(updated.callsign + " promoted to " + updated.meta.rank);
+                    console.log(updatedSession.users[user] + " updated");
+                    if (updatedUser.meta.wins < 22 && updatedUser.meta.wins%3 === 0) {
+                      console.log(updatedUser.callsign + " promoted to " + updatedUser.meta.rank);
                     }
                   }
                 });
@@ -551,9 +512,8 @@ function turn(data) {
         });
       });
     } else if (game.lose) {
-      saveGameState(gameId, game, enemyBase, currentTurn);
+      // saveGameState(gameId, game, currentTurn);
       io.to(gameId).emit('end', 'Defeat!');
-      reset();
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
           console.error(err);
@@ -566,17 +526,17 @@ function turn(data) {
         gameSession.meta.lost = true;
         gameSession.meta.endTime = endTime;
         gameSession.meta.elapsedTime = min;
-        gameSession.save(function(err, updated) {
+        gameSession.save(function(err, updatedSession) {
           if (err) {
             console.error(err);
           }
           for (let i = 1; i < 5; i++) {
             let user = 'user' + i;
-            if (gameSession.users[user]) {
-              let query = { callsign: gameSession.users[user] };
+            if (updatedSession.users[user]) {
+              let query = { callsign: updatedSession.users[user] };
               let update = { $inc: { 'meta.losses': 1 }};
               User.update(query, update, function() {
-                console.log(gameSession.users[user] + " updated");
+                console.log(updatedSession.users[user] + " updated");
               });
             } else {
               continue;
@@ -585,7 +545,7 @@ function turn(data) {
         });
       });
     } else {
-      saveGameState(gameId, game, enemyBase, currentTurn);
+      saveGameState(gameId, game, currentTurn);
     }
   });
 }
