@@ -1,5 +1,5 @@
-var sock = io();
-var room;
+var room = getCookie('gameName');
+var sock = io('/', { query: "room=" + room });
 
 var user;
 var userTurn = false;
@@ -10,6 +10,22 @@ var Player2;
 var Player3;
 var Player4;
 var FriendlyBase;
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
 
 sock.on("msg", onMessage);
 sock.on("chatMessage", onChat);

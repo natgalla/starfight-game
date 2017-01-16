@@ -2,14 +2,14 @@ extends ./layout.pug
 
 block content
   .menu#gameMenu
-    h3.formHeader Create or join game?
+    h3.formHeader Create or join a base
     form#gameInfo(action='/menu' method='post' onsubmit='return validateForm();')
       .create
         input.session#createSession(type='radio' name='session'  value='create')
-        label(for='createSession') New Game
+        label(for='createSession') New Base
       .join
         input.session#joinSession(type='radio' name='session' value='join')
-        label(for='joinSession') Join Game
+        label(for='joinSession') Join Base
       .difficulty
         input.difficultyChoice.valid(type='radio' name='difficulty' id='two' value='2')
         label(for='two') Easy
@@ -20,7 +20,7 @@ block content
         input.difficultyChoice.valid(type='radio' name='difficulty' id='five' value='5')
         label(for='five') Brutal
       .session
-        label(for='sessionName') Game name: 
+        label(for='sessionName') Base name: 
         input#sessionName(type='text' name='sessionName')
       .submit
         button.disabled(type='submit' value='confirm') CONFIRM

@@ -225,20 +225,6 @@ router.post('/menu', function(req, res, next) {
   }
 });
 
-// Game.find({}, function(err, gameSessions) {
-//   if (err) {
-//     console.error(err);
-//   }
-//   console.log(gameSessions);
-//   gameSessions.forEach(function(gameSession) {
-//     if (gameSession._id != gameSession.gameName) {
-//       router.get('/' + gameSession._id, mid.requiresLogin, function(req, res, next) {
-//         return res.render('game');
-//       })
-//     }
-//   })
-// })
-
 // Game view
 router.get('/game', mid.requiresLogin, mid.requiresGameSession, function(req, res, next) {
   Game.findById(req.session.gameId, function(err, gameSession) {

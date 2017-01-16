@@ -14,7 +14,6 @@ let GameSession = require('./js/models/game');
 let MongoStore = require('connect-mongo')(session);
 let gameTitle = "Contact!";
 let currentUser;
-let currentGame;
 
 // mongodb connection
 mongoose.connect('mongodb://localhost:27017/starfire');
@@ -38,7 +37,6 @@ app.use(function (req, res, next) {
   res.locals.currentUser = req.session.userId;
   res.locals.currentGame = req.session.gameId;
   currentUser = req.session.userId;
-  currentGame = req.session.gameId;
   next();
 })
 
@@ -110,8 +108,6 @@ function getGameSession(gameId, callback) {
     if (error) {
       callback(err, null);
     } else if (game === null) {
-      io.to(gameId).emit('msg', 'An error has occurred with this game session.\
-                                 Please exit and again.');
       console.error('Error fetching game session');
     } else {
       callback(null, game);
@@ -225,7 +221,7 @@ function saveGame(game) {
 }
 
 function onConnection(socket) {
-  let gameId = currentGame;
+  let gameId = socket.request._query['room'];
   let userId = currentUser;
   function join(player) {
     socket.join(gameId);
@@ -239,18 +235,22 @@ function onConnection(socket) {
         socket.on('turn', turn);
         socket.on('chat', function(data) {
           io.to(data.room).emit('chatMessage', data.message);
+          if (data.message.toLowerCase().includes('what do you hear')) {
+            io.to(data.room).emit('msg', "Nothin' but the wind");
+          }
+          if (data.message.toLowerCase().includes('good hunting')) {
+            io.to(data.room).emit('msg', "So say we all!");
+          }
         });
         io.to(gameId).emit('msg', player.name + ' joined the game.');
-        socket.on('disconnect', function(data) {
+        socket.on('disconnect', function() {
           getGameSession(gameId, function(err, gameSession) {
             if (err) {
               console.error(err);
             } else {
-              if (gameSession.locked) {
-                player.effects.dead = true;
-                saveGame(game);
-              } else {
-                io.to(gameId).emit('msg', player.name + ' left.');
+              io.to(gameId).emit('msg', player.name + ' left.');
+              if (gameSession.meta.locked && gameSession.state.game === []) {
+                gameSession.meta.locked = false;
               }
               for (person in gameSession.users) {
                 if (gameSession.users[person] === user.callsign) {
@@ -265,13 +265,13 @@ function onConnection(socket) {
                 gameSession.gameName = gameSession._id;
                 gameSession.state.game = [];
                 gameSession.meta.aborted = true;
-                console.log('Game id:' + gameSession._id + ' aborted');
+                console.log('Game ' + gameSession._id + ' aborted');
               }
-              gameSession.save(function(err) {
+              gameSession.save(function(err, updatedSession) {
                 if (err) {
                   console.error(err);
                 } else {
-                  console.log('user removed');
+                  console.log('user removed from ' + updatedSession._id);
                 }
               });
             }
@@ -316,6 +316,8 @@ function onConnection(socket) {
       if (gameSession.players === 4) {
         addPlayer(gameId, userId);
         io.to(gameId).emit('msg', 'Game full');
+        gameSession.meta.locked = true;
+        gameSession.save();
       } else if (gameSession.players === 3) {
         addPlayer(gameId, userId);
       } else if (gameSession.players === 2) {
@@ -342,7 +344,7 @@ function onConnection(socket) {
                 GameSession.update(gameSession, update, function() {
                   io.to(gameId).emit('start');
                   let game = new Game(gameSession._id, gameSession.gameName, gameSession.difficulty);
-                  let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+                  let FriendlyBase = new Friendly("FriendlyBase", gameSession.gameName, 30);
                   let Player1;
                   let Player2;
                   let Player3;
@@ -401,7 +403,7 @@ function turn(data) {
       console.error(err);
     } else {
       let game = new Game(gameSession._id, gameSession.gameName, gameSession.difficulty)
-      let FriendlyBase = new Friendly('FriendlyBase', 'Friendly Base', 30);
+      let FriendlyBase = new Friendly('FriendlyBase', gameSession.gameName, 30);
       let Player1 = new Player('Player1');
       let Player2 = new Player('Player2');
       let Player3 = new Player('Player3');
