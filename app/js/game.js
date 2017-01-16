@@ -15,7 +15,6 @@ var Player2;
 var Player3;
 var Player4;
 var FriendlyBase;
-var turn;
 
 sock.on("msg", onMessage);
 sock.on("chatMessage", onChat);
@@ -34,9 +33,7 @@ $("#chat").submit(function() {
 })
 
 function getUpdate(packet) {
-  turn = packet.turn;
   game = packet.game;
-
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === 'FriendlyBase') {
@@ -94,6 +91,7 @@ function onStart() {
   $("#room").remove();
   $("#title").remove();
   $(".copyright").hide();
+  $(".nameReminder").remove();
   $("h3").hide();
   $("#info").addClass("messages");
   $("#playArea").fadeIn();
@@ -573,7 +571,7 @@ const update = function() {
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
-  if (game.friendlies[turn].id === user.id) {
+  if (game.friendlies[game.currentTurn].id === user.id) {
     enableSelect();
   } else {
     disableSelect();

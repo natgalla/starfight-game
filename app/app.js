@@ -59,23 +59,14 @@ const EnemyBase = function() {
 }
 
 EnemyBase.prototype.updateSummary = function(game) {
-  if (game.roundNumber === 1) {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
-  } else if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + game.enemiesPerTurn + "</p>"
-                    + "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
-  } else {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + this.enemiesPerTurn + "</p>"
-                    + game.currentEnemyBaseCard[0].card;
+  this.summary = "<h3>" + this.name + "</h3>"
+               + "<p>Armor: " + this.currentArmor + "/"
+                               + this.maxArmor + "</p>"
+               + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
+  if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
+    this.summary += "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
+  } else if (game.roundNumber > 1) {
+    this.summary += game.currentEnemyBaseCard[0].card;
   }
 }
 
@@ -88,7 +79,7 @@ EnemyBase.prototype.takeDamage = function(game, damage) {
     io.to(game.gameID).emit("msg", this.name + " destroyed! Players win.");
     game.win = true;
   }
-  this.updateSummary();
+  this.updateSummary(game);
 }
 
 
@@ -261,7 +252,6 @@ Friendly.prototype.checkDamageNegation = function(game, damage) {
 }
 
 Friendly.prototype.takeDamage = function(game, damage) {
-  // take damage
   if (damage > 0) {
     this.currentArmor -= damage;
     if (this.currentArmor < 0) {
@@ -405,7 +395,7 @@ Player.prototype.checkDamageNegation = function(game, damage) {
       this.effects.emp = false;
       return 0;
     } else {
-      damage = this.checkShields(damage);
+      damage = this.checkShields(game, damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
         io.to(game.gameID).emit("msg", this.name + " deploys countermeasures to avoid "
@@ -481,16 +471,19 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
   if (index === undefined) {
     index = 0;
   }
+  if (friendly.id === "FriendlyBase") {
+    friendly = game.friendlies[game.findFriendlyBase()];
+  }
   if (friendly.id === "enemyBase") {
     if (damage > 0) {
-      game.enemyBase.takeDamage(damage);
+      game.enemyBase.takeDamage(game, damage);
       io.to(game.gameID).emit("msg", this.name + " deals " + damage + " damage to enemy base.");
       this.increaseMerit(game, 1);
     } else {
       io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index].cssClass === "emptySpace"
+    if (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
       || friendly.pursuers[index].cssClass === "destroyed") {
       console.error("No enemy at index " + index);
     } else {
@@ -595,7 +588,7 @@ Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collatera
     } else {
       friendlyFire += collateral;
     }
-    friendly.takeDamage(game, friendly.checkShields(friendlyFire));
+    friendly.takeDamage(game, friendly.checkShields(game, friendlyFire));
   }
 }
 
@@ -644,7 +637,7 @@ Player.prototype.feint = function(game, friendly, pursuerIndex) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
     io.to(game.gameID).emit("msg", this.name + " uses feint to play " + card.name)
-    this[action](friendly, pursuerIndex);
+    this[action](game, friendly, pursuerIndex);
   } else {
     console.error("No action to feint");
   }
@@ -759,7 +752,7 @@ Player.prototype.snapshot = function(game, friendly, pursuerIndex) {
 
 Player.prototype.guidedMissile = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires a guided missile at " + game.enemyBase.name);
-  game.enemyBase.takeDamage(6);
+  game.enemyBase.takeDamage(game, 6);
 }
 
 Player.prototype.incinerate = function(game) {
@@ -808,13 +801,7 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
     this.lastCardUsed = card;
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard)
-  if (friendly === this) {
-    this.updateSummary();
-  } else {
-    this.updateSummary();
-    friendly.updateSummary();
-  }
-  game.update();
+  game.nextTurn();
   return game;
 }
 
@@ -831,13 +818,7 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     this[action](game, friendly, pursuerIndex);
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
-  if (friendly === this) {
-    this.updateSummary();
-  } else {
-    this.updateSummary();
-    friendly.updateSummary();
-  }
-  game.update();
+  game.nextTurn();
   return game;
 }
 
@@ -849,6 +830,7 @@ const Game = function(id, difficulty) {
   this.name = 'Contact!';
   this.difficulty = difficulty;
   this.roundNumber = 0;
+  this.currentTurn = 1;
   this.friendlies = [];
   this.enemyBase = new EnemyBase();
   this.tacticalDeck = new Deck('Tactical Deck');
@@ -1185,15 +1167,49 @@ Game.prototype.postRound = function() {
       let enemy = friendly.pursuers[x];
       damage += enemy.power;
     }
-    friendly.takeDamage(this, friendly.checkDamageNegation(damage));
+    friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
   this.replaceEnemyBaseCard();
-  this.enemyBase.updateSummary(this);
+}
+
+Game.prototype.resetTurns = function() {
+  if (this.currentTurn >= this.friendlies.length
+      || (this.currentTurn === this.friendlies.length-1
+      && this.friendlies[this.currentTurn].id === 'FriendlyBase')
+      || (this.currentTurn === this.friendlies.length-1
+      && this.friendlies[this.currentTurn].effects.dead)) {
+    this.currentTurn = 0;
+  }
+}
+
+Game.prototype.nextTurn = function() {
+  this.update();
+  let cardsLeft = 0;
+  this.friendlies.forEach((friendly) => {
+    if (friendly.id === 'FriendlyBase') {
+      cardsLeft += 0;
+    } else {
+      cardsLeft += friendly.hand.length;
+    }
+  });
+  if (cardsLeft === 0) {
+    this.newRound();
+    this.currentTurn = 0;
+  } else {
+    this.currentTurn += 1;
+  }
+  this.resetTurns();
+  while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
+        || this.friendlies[this.currentTurn].effects.dead) {
+    this.currentTurn += 1;
+    this.resetTurns();
+  }
 }
 
 Game.prototype.newRound = function() {
   this.postRound();
   this.round();
+  this.update();
 }
 
 Game.prototype.buildDecks = function() {
@@ -1463,39 +1479,17 @@ function getGameSessions(callback) {
   });
 }
 
-function saveGameState(gameId, game, currentTurn) {
-  GameSession.findById(gameId, function(err, gameSession) {
+function saveGameState(game) {
+  GameSession.findById(game.gameID, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
-    if (currentTurn === undefined) {
-      currentTurn = 1;
-    }
-    gameSession.state.currentTurn = currentTurn;
-
-    gameSession.state.game[0].roundNumber = game.roundNumber;
-    gameSession.state.game[0].friendlies = game.friendlies;
-    gameSession.state.game[0].tacticalDeck = game.tacticalDeck;
-    gameSession.state.game[0].advTactics = game.advTactics;
-    gameSession.state.game[0].enemyBaseDeck = game.enemyBaseDeck;
-    gameSession.state.game[0].enemyDeck = game.enemyDeck;
-    gameSession.state.game[0].market = game.market;
-    gameSession.state.game[0].enemiesActive = game.enemiesActive;
-    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
-    gameSession.state.game[0].currentEnemyBaseCard = game.currentEnemyBaseCard;
-    gameSession.state.game[0].gameID = game.gameID;
-    gameSession.state.game[0].win = game.win;
-    gameSession.state.game[0].lose = game.lose;
-    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
-    gameSession.state.game[0].enemyBase.currentArmor = game.enemyBase.currentArmor;
-    gameSession.state.game[0].enemyBase.effects = game.enemyBase.effects;
-    gameSession.state.game[0].enemyBase.summary = game.enemyBase.summary;
-
+    gameSession.state.game = [game];
     gameSession.save(function(err, updatedSession) {
       if (err) {
         console.error(err);
       } else {
-        updateObjects(gameId, updatedSession);
+        updateObjects(game.gameID, updatedSession);
       }
     });
   });
@@ -1525,7 +1519,7 @@ function onConnection(socket) {
           }
           if (gameSession.locked) {
             player.effects.dead = true;
-            saveGameState(gameId, game);
+            saveGameState(game);
           } else {
             io.to(gameId).emit('msg', player.name + ' left.');
           }
@@ -1654,7 +1648,6 @@ function onConnection(socket) {
 
 function updateObjects(gameId, gameSession) {
   let gameData = {
-    turn: gameSession.state.currentTurn,
     game: gameSession.state.game[0],
   }
   io.to(gameId).emit('update', gameData);
@@ -1704,6 +1697,7 @@ function turn(data) {
       }
     }
     game.roundNumber = gameState.roundNumber;
+    game.currentTurn = gameState.currentTurn;
     game.tacticalDeck = gameState.tacticalDeck;
     game.advTactics = gameState.advTactics;
     game.enemyBaseDeck = gameState.enemyBaseDeck;
@@ -1741,40 +1735,8 @@ function turn(data) {
                                             specs.pursuerIndex,
                                             specs.purchaseIndex);
     }
-    let cardsLeft = 0;
-    game.friendlies.forEach((friendly) => {
-      if (friendly.id === 'FriendlyBase') {
-        cardsLeft += 0;
-      } else {
-        cardsLeft += friendly.hand.length;
-      }
-    });
-    console.log(cardsLeft);
-    let currentTurn = gameSession.state.currentTurn;
-    if (cardsLeft === 0) {
-      game.postRound();
-      game.round();
-      currentTurn = 0;
-    } else {
-      currentTurn += 1;
-    }
-    let resetTurns = function() {
-      if (currentTurn >= game.friendlies.length
-          || (currentTurn === game.friendlies.length-1
-          && game.friendlies[currentTurn].id === 'FriendlyBase')
-          || (currentTurn === game.friendlies.length-1
-          && game.friendlies[currentTurn].effects.dead)) {
-        currentTurn = 0;
-      }
-    }
-    resetTurns();
-    while (game.friendlies[currentTurn].id === 'FriendlyBase'
-          || game.friendlies[currentTurn].effects.dead) {
-      currentTurn += 1;
-      resetTurns();
-    }
     if (game.win) {
-      // saveGameState(gameId, game, currentTurn);
+      // saveGameState(game);
       io.to(gameId).emit('end', 'Victory!');
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
@@ -1783,7 +1745,6 @@ function turn(data) {
         let endTime = new Date();
         let ms = endTime - gameSession.meta.startTime;
         let min = Math.round(ms/1000/60);
-        gameSession.state.currentTurn = currentTurn;
         gameSession.gameName = gameSession._id;
         gameSession.meta.rounds = gameSession.state.game.roundNumber;
         gameSession.meta.won = true;
@@ -1836,7 +1797,7 @@ function turn(data) {
         });
       });
     } else if (game.lose) {
-      // saveGameState(gameId, game, currentTurn);
+      // saveGameState(game);
       io.to(gameId).emit('end', 'Defeat!');
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
@@ -1869,7 +1830,7 @@ function turn(data) {
         });
       });
     } else {
-      saveGameState(gameId, game, currentTurn);
+      saveGameState(game);
     }
   });
 }

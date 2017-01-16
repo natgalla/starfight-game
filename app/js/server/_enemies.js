@@ -13,23 +13,14 @@ const EnemyBase = function() {
 }
 
 EnemyBase.prototype.updateSummary = function(game) {
-  if (game.roundNumber === 1) {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
-  } else if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + game.enemiesPerTurn + "</p>"
-                    + "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
-  } else {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + this.enemiesPerTurn + "</p>"
-                    + game.currentEnemyBaseCard[0].card;
+  this.summary = "<h3>" + this.name + "</h3>"
+               + "<p>Armor: " + this.currentArmor + "/"
+                               + this.maxArmor + "</p>"
+               + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
+  if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
+    this.summary += "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
+  } else if (game.roundNumber > 1) {
+    this.summary += game.currentEnemyBaseCard[0].card;
   }
 }
 
@@ -42,7 +33,7 @@ EnemyBase.prototype.takeDamage = function(game, damage) {
     io.to(game.gameID).emit("msg", this.name + " destroyed! Players win.");
     game.win = true;
   }
-  this.updateSummary();
+  this.updateSummary(game);
 }
 
 

@@ -187,7 +187,7 @@ const update = function() {
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
-  if (game.friendlies[turn].id === user.id) {
+  if (game.friendlies[game.currentTurn].id === user.id) {
     enableSelect();
   } else {
     disableSelect();

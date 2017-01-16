@@ -15,8 +15,6 @@ var Player2;
 var Player3;
 var Player4;
 var FriendlyBase;
-var enemyBase;
-var turn;
 
 sock.on("msg", onMessage);
 sock.on("chatMessage", onChat);
@@ -35,17 +33,20 @@ $("#chat").submit(function() {
 })
 
 function getUpdate(packet) {
-  turn = packet.turn;
   game = packet.game;
-  Player1 = packet.Player1;
-  Player2 = packet.Player2;
-  FriendlyBase = packet.FriendlyBase;
-  enemyBase = packet.enemyBase;
-  if (packet.Player3) {
-    Player3 = packet.Player3;
-  }
-  if (packet.Player4) {
-    Player4 = packet.Player4;
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly.id === 'FriendlyBase') {
+      FriendlyBase = friendly;
+    } else if (friendly.id === 'Player1') {
+      Player1 = friendly;
+    } else if (friendly.id === 'Player2') {
+      Player2 = friendly;
+    } else if (friendly.id === 'Player3') {
+      Player3 = friendly;
+    } else if (friendly.id === 'Player4') {
+      Player4 = friendly;
+    }
   }
   update();
 }
@@ -90,6 +91,7 @@ function onStart() {
   $("#room").remove();
   $("#title").remove();
   $(".copyright").hide();
+  $(".nameReminder").remove();
   $("h3").hide();
   $("#info").addClass("messages");
   $("#playArea").fadeIn();
@@ -455,7 +457,7 @@ const clearButtons = function() {
 }
 
 const updateSummaries = function() {
-  $("#enemyBase").html(enemyBase.summary);
+  $("#enemyBase").html(game.enemyBase.summary);
   let wingman = 1;
   const showSummary = function(player) {
     // show player summary
@@ -569,7 +571,7 @@ const update = function() {
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();
-  if (game.friendlies[turn].id === user.id) {
+  if (game.friendlies[game.currentTurn].id === user.id) {
     enableSelect();
   } else {
     disableSelect();
@@ -621,7 +623,7 @@ const getFriendly = function(className) {
   } else if ($card.hasClass("FriendlyBase") || $friendly.hasClass("FriendlyBase")) {
     return FriendlyBase;
   } else if ($card.attr("id") === "enemyBase") {
-    return enemyBase;
+    return game.enemyBase;
   } else {
     return undefined;
   }

@@ -58,7 +58,7 @@ const EnemyBase = function() {
           + "<p>Armor: " + this.currentArmor + "/" + this.maxArmor + "</p>"
 }
 
-EnemyBase.prototype.updateSummary = function() {
+EnemyBase.prototype.updateSummary = function(game) {
   if (game.roundNumber === 1) {
     this.summary = "<h3>" + this.name + "</h3>"
                     + "<p>Armor: " + this.currentArmor + "/"
@@ -79,13 +79,13 @@ EnemyBase.prototype.updateSummary = function() {
   }
 }
 
-EnemyBase.prototype.takeDamage = function(damage) {
+EnemyBase.prototype.takeDamage = function(game, damage) {
   this.currentArmor -= damage;
   if (this.currentArmor < 0) {
     this.currentArmor = 0;
   }
   if (this.currentArmor === 0) {
-    io.to(currentGame).emit("msg", this.name + " destroyed! Players win.");
+    io.to(game.gameID).emit("msg", this.name + " destroyed! Players win.");
     game.win = true;
   }
   this.updateSummary();
@@ -96,32 +96,32 @@ EnemyBase.prototype.takeDamage = function(damage) {
 ENEMY BASE CARD FUNCTIONS
 *************************/
 
-EnemyBase.prototype.reinforce = function() {
-  io.to(currentGame).emit("msg", this.name + " will launch one extra enemy card into play each round.");
+EnemyBase.prototype.reinforce = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " will launch one extra enemy card into play each round.");
   this.enemiesPerTurn += 1;
 }
 
-EnemyBase.prototype.repair = function() {
+EnemyBase.prototype.repair = function(game) {
   this.currentArmor += 5;
   if (this.currentArmor > this.maxArmor) {
     this.currentArmor = this.maxArmor;
   }
-  io.to(currentGame).emit("msg", this.name + " Repairs 5 damage. Current armor: "
+  io.to(game.gameID).emit("msg", this.name + " Repairs 5 damage. Current armor: "
               + this.currentArmor + "/" + this.maxArmor);
 }
 
-EnemyBase.prototype.fireHeavy = function() {
-  io.to(currentGame).emit("msg", this.name + " fires heavy weapons.");
+EnemyBase.prototype.fireHeavy = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " fires heavy weapons.");
   FriendlyBase.takeDamage(5);
 }
 
-EnemyBase.prototype.fireLight = function() {
-  io.to(currentGame).emit("msg", this.name + " fires light weapons.");
+EnemyBase.prototype.fireLight = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " fires light weapons.");
   FriendlyBase.takeDamage(3);
 }
 
-EnemyBase.prototype.deploy = function() {
-  io.to(currentGame).emit("msg", this.name + " launches an extra fighter.");
+EnemyBase.prototype.deploy = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " launches an extra fighter.");
   this.effects.deploy = true;
 }
 
@@ -205,7 +205,7 @@ const Friendly = function(id, name, maxArmor) {
 FRIENDLY BASE UTILITY METHODS
 **************************/
 
-Friendly.prototype.adjustPursuerDamage = function() { // Player should inherit
+Friendly.prototype.adjustPursuerDamage = function() {
   while (this.pursuerDamage.length < this.pursuers.length) {
     this.pursuerDamage.push(0);
   }
@@ -231,7 +231,7 @@ Friendly.prototype.updateSummary = function() {
   }
 }
 
-Friendly.prototype.checkShields = function(damage) {
+Friendly.prototype.checkShields = function(game, damage) {
   if (this.effects.divertShields > 0) {
     let difference = this.effects.divertShields - damage;
     if (difference > 0) {
@@ -244,15 +244,15 @@ Friendly.prototype.checkShields = function(damage) {
       damage = 0;
       this.effects.divertShields = 0;
     }
-    io.to(currentGame).emit("msg", this.name + "'s shields reduce damage to "
+    io.to(game.gameID).emit("msg", this.name + "'s shields reduce damage to "
                 + damage);
   }
   return damage;
 }
 
-Friendly.prototype.checkDamageNegation = function(damage) {
+Friendly.prototype.checkDamageNegation = function(game, damage) {
   if (this.effects.emp) {
-    io.to(currentGame).emit("msg", this.name + " is protected by EMP.");
+    io.to(game.gameID).emit("msg", this.name + " is protected by EMP.");
     this.effects.emp = false;
     return 0;
   } else {
@@ -260,7 +260,7 @@ Friendly.prototype.checkDamageNegation = function(damage) {
   }
 }
 
-Friendly.prototype.takeDamage = function(damage) {
+Friendly.prototype.takeDamage = function(game, damage) {
   // take damage
   if (damage > 0) {
     this.currentArmor -= damage;
@@ -268,17 +268,17 @@ Friendly.prototype.takeDamage = function(damage) {
       this.currentArmor = 0;
     }
     if (this.currentArmor === 0) {
-      io.to(currentGame).emit("msg", this.name + " has been destroyed. Players lose.");
+      io.to(game.gameID).emit("msg", this.name + " has been destroyed. Players lose.");
       this.effects.dead = true;
       game.lose = true;
     } else {
-      io.to(currentGame).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
+      io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
     }
   }
 }
 
-Friendly.prototype.insertPlaceholder = function(index) { // Player should inherit
+Friendly.prototype.insertPlaceholder = function(index) {
   //removes an enemy card from the fray and inserts a "destroyed" place holder
   this.pursuers.splice(index, 0, placeHolder);
   this.pursuers.join();
@@ -371,13 +371,13 @@ Player.prototype.damageRoll = function(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-Player.prototype.increaseMerit = function(amount) {
+Player.prototype.increaseMerit = function(game, amount) {
   let merit = amount;
   if (this.effects.medalOfHonor === true) {
     merit += 1;
   }
   this.merit += merit;
-  io.to(currentGame).emit("msg", this.name + " receives " + merit + " merit.");
+  io.to(game.gameID).emit("msg", this.name + " receives " + merit + " merit.");
 }
 
 // calculate damage // only returning 0
@@ -398,24 +398,24 @@ Player.prototype.calcDamage = function(dice) {
     return damage;
 }
 
-Player.prototype.checkDamageNegation = function(damage) {
+Player.prototype.checkDamageNegation = function(game, damage) {
   if (damage > 0) {
     if (this.effects.emp) {
-      io.to(currentGame).emit("msg", this.name + " is protected by EMP.");
+      io.to(game.gameID).emit("msg", this.name + " is protected by EMP.");
       this.effects.emp = false;
       return 0;
     } else {
       damage = this.checkShields(damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
-        io.to(currentGame).emit("msg", this.name + " deploys countermeasures to avoid "
+        io.to(game.gameID).emit("msg", this.name + " deploys countermeasures to avoid "
                     + counterDamage + " damage.");
         damage -= counterDamage;
         this.effects.countermeasures = false;
       }
       if (damage < 0) {
         damage = 0;
-        io.to(currentGame).emit("msg", "All damage to " + this.name + " negated.");
+        io.to(game.gameID).emit("msg", "All damage to " + this.name + " negated.");
       } else {
         return damage;
       }
@@ -425,14 +425,14 @@ Player.prototype.checkDamageNegation = function(damage) {
   }
 }
 
-Player.prototype.takeDamage = function(damage) {
+Player.prototype.takeDamage = function(game, damage) {
   if (damage > 0) {
     this.currentArmor -= damage;
     if (this.currentArmor <= 0) {
       this.currentArmor = 0;
       this.effects.dead = true;
       this.effects.status = "KIA";
-      io.to(currentGame).emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
+      io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
       while (this.hand.length > 0) {
         game.moveCard(0, this.hand, game.tacticalDeck.discard);
       }
@@ -451,28 +451,28 @@ Player.prototype.takeDamage = function(damage) {
         }
       }
       if (alldead) {
-        io.to(currentGame).emit("msg", "All pilots destroyed. Players lose.");
+        io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
         game.lose = true;
       }
     } else {
-      io.to(currentGame).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
+      io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
     }
   }
 }
 
-Player.prototype.checkKill = function(friendly, index) {
+Player.prototype.checkKill = function(game, friendly, index) {
   // if kill: award merit, insert placeholder
   if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
-    io.to(currentGame).emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
+    io.to(game.gameID).emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
-    this.increaseMerit(friendly.pursuers[index].merit);
+    this.increaseMerit(game, friendly.pursuers[index].merit);
     game.moveCard(index, friendly.pursuers, game.enemyDeck.discard);
     friendly.insertPlaceholder(index);
   }
 }
 
-Player.prototype.doDamage = function(friendly, index, damage) {
+Player.prototype.doDamage = function(game, friendly, index, damage) {
   // if damage is more than 0, deal damage to a selected enemy, check for kill
   // does not allow damage to empty space or place holders
   if (friendly === undefined) {
@@ -481,17 +481,17 @@ Player.prototype.doDamage = function(friendly, index, damage) {
   if (index === undefined) {
     index = 0;
   }
-  if (friendly === enemyBase) {
+  if (friendly.id === "enemyBase") {
     if (damage > 0) {
-      enemyBase.takeDamage(damage);
-      io.to(currentGame).emit("msg", this.name + " deals " + damage + " damage to enemy base.");
-      this.increaseMerit(1);
+      game.enemyBase.takeDamage(damage);
+      io.to(game.gameID).emit("msg", this.name + " deals " + damage + " damage to enemy base.");
+      this.increaseMerit(game, 1);
     } else {
-      io.to(currentGame).emit("msg", "No damage to enemy base");
+      io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index] === empty
-      || friendly.pursuers[index] === placeHolder) {
+    if (friendly.pursuers[index].cssClass === "emptySpace"
+      || friendly.pursuers[index].cssClass === "destroyed") {
       console.error("No enemy at index " + index);
     } else {
       if (damage > 0) {
@@ -500,14 +500,14 @@ Player.prototype.doDamage = function(friendly, index, damage) {
         if (enemyArmor < 0) {
           enemyArmor = 0;
         }
-        io.to(currentGame).emit("msg", this.name + " deals " + damage + " damage to "
+        io.to(game.gameID).emit("msg", this.name + " deals " + damage + " damage to "
                     + friendly.pursuers[index].name + " pursuing "
                     + friendly.name + ". Current armor: "
                     + enemyArmor
                     + "/" + friendly.pursuers[index].armor);
-        this.checkKill(friendly, index);
+        this.checkKill(game, friendly, index);
       } else {
-        io.to(currentGame).emit("msg", "No damage to target.");
+        io.to(game.gameID).emit("msg", "No damage to target.");
       }
     }
   }
@@ -519,13 +519,13 @@ Player.prototype.doDamage = function(friendly, index, damage) {
 PLAYER TACTICAL FUNCTIONS
 **************************/
 
-Player.prototype.fire = function(friendly, pursuerIndex) {
+Player.prototype.fire = function(game, friendly, pursuerIndex) {
   // deal damage equal to 4 combat dice to target
   let damage = this.calcDamage(4);
-  this.doDamage(friendly, pursuerIndex, damage);
+  this.doDamage(game, friendly, pursuerIndex, damage);
 }
 
-Player.prototype.evade = function(friendly, pursuerIndex) {
+Player.prototype.evade = function(game, friendly, pursuerIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
@@ -533,76 +533,73 @@ Player.prototype.evade = function(friendly, pursuerIndex) {
   let evadeRoll = Math.floor(Math.random() * 6) + 1;
   let pursuer = this.pursuers[pursuerIndex];
   if (evadeRoll >= pursuer.targeting) {
-    io.to(currentGame).emit("msg", this.name + " shakes " + pursuer.name + " to friendly base.");
-    game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
-    game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
+    io.to(game.gameID).emit("msg", this.name + " shakes " + pursuer.name + " to friendly base.");
+    game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
+    game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
     this.adjustPursuerDamage();
-    FriendlyBase.adjustPursuerDamage();
+    game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
   } else {
-    io.to(currentGame).emit("msg", this.name + " can't shake 'em!")
+    io.to(game.gameID).emit("msg", this.name + " can't shake 'em!")
   }
 }
 
-Player.prototype.missile = function(friendly, pursuerIndex) {
+Player.prototype.missile = function(game, friendly, pursuerIndex) {
   // deal damage equal to 5 combat dice to target
   let damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
-  this.doDamage(friendly, pursuerIndex, damage);
+  this.doDamage(game, friendly, pursuerIndex, damage);
 }
 
-Player.prototype.heatSeeker = function(friendly, pursuerIndex) {
+Player.prototype.heatSeeker = function(game, friendly, pursuerIndex) {
   // deal 5 damage to target
-  this.doDamage(friendly, pursuerIndex, 5);
+  this.doDamage(game, friendly, pursuerIndex, 5);
 }
 
-Player.prototype.bomb = function(friendly, pursuerIndex, damage, collateral) { // throwing error when attack enemyBase
-    // deal 6 damage to target and 2 damage to each adjacent targeting
-    // if there is no adjacent target, collateral damage is applied to pursued ally
-    // flat 10 damage to enemyBase
-    if (pursuerIndex === undefined) {
-      pursuerIndex = 0;
+Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collateral) {
+  // deal 6 damage to target and 2 damage to each adjacent targeting
+  // if there is no adjacent target, collateral damage is applied to pursued ally
+  // flat 10 damage to enemyBase
+  if (pursuerIndex === undefined) {
+    pursuerIndex = 0;
+  }
+  if (damage === undefined) {
+    damage = 6;
+  }
+  if (collateral === undefined) {
+    collateral = 2;
+  }
+  let friendlyFire = 0;
+  if (friendly.id === "enemyBase") {
+    baseDamage = damage+(collateral*2);
+    this.doDamage(game, game.enemyBase, pursuerIndex, baseDamage);
+  } else {
+    let adjacentLeft = pursuerIndex - 1;
+    let adjacentRight = pursuerIndex + 1;
+    while (adjacentLeft >= 0 && friendly.pursuers[adjacentLeft].cssClass === 'destroyed') {
+      adjacentLeft -= 1;
     }
-    if (damage === undefined) {
-      damage = 6;
+    while (adjacentRight < friendly.pursuers.length
+            && friendly.pursuers[adjacentRight].cssClass === 'destroyed') {
+      adjacentRight += 1;
     }
-    if (collateral === undefined) {
-      collateral = 2;
-    }
-    let friendlyFire = 0;
-    if (friendly.id === enemyBase.id) {
-      baseDamage = damage+(collateral*2);
-      this.doDamage(enemyBase, pursuerIndex, baseDamage);
+    if (adjacentRight < friendly.pursuers.length
+        && friendly.pursuers[adjacentRight].cssClass != 'emptySpace') {
+      this.doDamage(game, friendly, adjacentRight, collateral);
     } else {
-      let adjacentLeft = pursuerIndex - 1;
-      let adjacentRight = pursuerIndex + 1;
-      if (friendly.pursuers[adjacentLeft] === placeHolder) {
-        while (friendly.pursuers[adjacentLeft] === placeHolder) {
-          adjacentLeft -= 1;
-        }
-      }
-      if (friendly.pursuers[adjacentRight] === placeHolder) {
-        while (friendly.pursuers[adjacentRight] === placeHolder) {
-          adjacentRight += 1;
-        }
-      }
-      if (adjacentRight < friendly.pursuers.length &&
-        friendly.pursuers[adjacentRight] != empty) {
-          this.doDamage(friendly, adjacentRight, collateral);
-      } else {
-          friendlyFire += collateral;
-      }
-      this.doDamage(friendly, pursuerIndex, damage);
-      if (adjacentLeft > -1 &&
-        friendly.pursuers[adjacentLeft] != empty) {
-          this.doDamage(friendly, adjacentLeft, collateral);
-      } else {
-          friendlyFire += collateral;
-      }
-      friendly.takeDamage(friendly.checkShields(friendlyFire));
+      friendlyFire += collateral;
     }
+    this.doDamage(game, friendly, pursuerIndex, damage);
+    if (adjacentLeft > -1 &&
+      friendly.pursuers[adjacentLeft].cssClass != 'emptySpace') {
+        this.doDamage(game, friendly, adjacentLeft, collateral);
+    } else {
+      friendlyFire += collateral;
+    }
+    friendly.takeDamage(game, friendly.checkShields(friendlyFire));
+  }
 }
 
-Player.prototype.repairDrone = function(friendly, index, repairPoints, meritReward) {
+Player.prototype.repairDrone = function(game, friendly, index, repairPoints, meritReward) {
   // repair a selected ally, can choose self, award merit if not self
   if (index === undefined) {
     index = 0;
@@ -619,21 +616,21 @@ Player.prototype.repairDrone = function(friendly, index, repairPoints, meritRewa
       friendly.currentArmor = friendly.maxArmor;
     }
     if (this != friendly) {
-      this.increaseMerit(meritReward);
+      this.increaseMerit(game, meritReward);
     }
-    io.to(currentGame).emit("msg", this.name + " repairs " + repairPoints + " damage on "
+    io.to(game.gameID).emit("msg", this.name + " repairs " + repairPoints + " damage on "
                 + friendly.name + ". Current armor: "
                 + friendly.currentArmor + "/" + friendly.maxArmor)
   } else {
-    console.error(friendly.name + " is already at maximum armor.");
+    io.to(game.gameID).emit("msg", friendly.name + " is already at maximum armor.");
   }
 }
 
-Player.prototype.drawFire = function(friendly, index) {
+Player.prototype.drawFire = function(game, friendly, index) {
   // choose an ally's pursuer and bring it to you
-  io.to(currentGame).emit("msg", friendly.pursuers[index].name + " moves from " + friendly.name
+  io.to(game.gameID).emit("msg", friendly.pursuers[index].name + " moves from " + friendly.name
               + " to " + this.name + ".");
-  this.increaseMerit(friendly.pursuers[index].merit);
+  this.increaseMerit(game, friendly.pursuers[index].merit);
   game.moveCard(index, friendly.pursuers, this.pursuers);
   game.moveCard(index, friendly.pursuerDamage, this.pursuerDamage);
   friendly.insertPlaceholder(index);
@@ -641,41 +638,41 @@ Player.prototype.drawFire = function(friendly, index) {
   friendly.adjustPursuerDamage();
 }
 
-Player.prototype.feint = function(friendly, pursuerIndex) {
+Player.prototype.feint = function(game, friendly, pursuerIndex) {
   // choose a tCard previously used this round and play it again
   if (this.lastCardUsed) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
-    io.to(currentGame).emit("msg", this.name + " uses feint to play " + card.name)
+    io.to(game.gameID).emit("msg", this.name + " uses feint to play " + card.name)
     this[action](friendly, pursuerIndex);
   } else {
     console.error("No action to feint");
   }
 }
 
-Player.prototype.barrelRoll = function(friendly, pursuerIndex) {
+Player.prototype.barrelRoll = function(game, friendly, pursuerIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
   // move pursuer at pursuerIndex to friendly base
-  io.to(currentGame).emit("msg", this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
-              + FriendlyBase.name + ".");
-  game.moveCard(pursuerIndex, this.pursuers, FriendlyBase.pursuers);
-  game.moveCard(pursuerIndex, this.pursuerDamage, FriendlyBase.pursuerDamage);
+  io.to(game.gameID).emit("msg", this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
+              + game.friendlies[game.findFriendlyBase()].name + ".");
+  game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
+  game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
   this.insertPlaceholder(pursuerIndex);
   this.adjustPursuerDamage();
-  FriendlyBase.adjustPursuerDamage();
+  game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
 }
 
-Player.prototype.scatterShot = function(friendly, pursuerIndex) {
+Player.prototype.scatterShot = function(game, friendly, pursuerIndex) {
   // deal a small amount of damage to 3 adjacent targets
-  this.bomb(friendly, pursuerIndex, 2, 1)
+  this.bomb(game, friendly, pursuerIndex, 2, 1)
 }
 
-Player.prototype.immelman = function(friendly, index) {
+Player.prototype.immelman = function(game, friendly, index) {
   // bind click events to the player's pursuers
   // have them choose a pursuer
-  this.missile(this, index);
+  this.missile(game, this, index);
 }
 
 
@@ -684,89 +681,89 @@ Player.prototype.immelman = function(friendly, index) {
 PLAYER ADVANCED TACTICAL FUNCTIONS
 **************************/
 
-Player.prototype.medalOfHonor = function() {
+Player.prototype.medalOfHonor = function(game) {
   this.effects.medalOfHonor = true;
-  io.to(currentGame).emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
+  io.to(game.gameID).emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
 }
 
-Player.prototype.daredevil = function() {
+Player.prototype.daredevil = function(game) {
   // allow player to attack enemy base if they have one or no pursuers
   this.effects.daredevil = true;
-  io.to(currentGame).emit("msg", this.name + " can now attack the enemy base with one pursuer.");
+  io.to(game.gameID).emit("msg", this.name + " can now attack the enemy base with one pursuer.");
 }
 
-Player.prototype.medic = function() {
+Player.prototype.medic = function(game) {
   this.effects.medic = true;
-  io.to(currentGame).emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
+  io.to(game.gameID).emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
 }
 
-Player.prototype.sharpShooter = function() {
+Player.prototype.sharpShooter = function(game) {
   this.effects.sharpShooter = true;
-  io.to(currentGame).emit("msg", this.name + " is now better at hurting things.");
+  io.to(game.gameID).emit("msg", this.name + " is now better at hurting things.");
 }
 
-Player.prototype.healthPack = function(friendly, index) {
+Player.prototype.healthPack = function(game, friendly, index) {
   if (index === undefined) {
     index = 0;
   }
   this.repairDrone(friendly, index, 5, 0);
 }
 
-Player.prototype.intercept = function() {
-  enemyBase.effects.intercepted = true;
-  io.to(currentGame).emit("msg", intercept.description);
+Player.prototype.intercept = function(game) {
+  game.enemyBase.effects.intercepted = true;
+  io.to(game.gameID).emit("msg", intercept.description);
 }
 
-Player.prototype.jammer = function() {
-  enemyBase.effects.jammed = true;
-  io.to(currentGame).emit("msg", jammer.description);
+Player.prototype.jammer = function(game) {
+  game.enemyBase.effects.jammed = true;
+  io.to(game.gameID).emit("msg", jammer.description);
 }
 
-Player.prototype.emp = function(friendly) {
+Player.prototype.emp = function(game, friendly) {
   friendly.effects.emp = true;
-  io.to(currentGame).emit("msg", this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
+  io.to(game.gameID).emit("msg", this.name + " blasts " + friendly.name + "'s pursuers with an EMP. "
               + friendly.name + " will not be damaged this round.");
 }
 
-Player.prototype.countermeasures = function() {
+Player.prototype.countermeasures = function(game) {
   this.effects.countermeasures = true;
-  io.to(currentGame).emit("msg", this.name + " prepares countermeasures...")
+  io.to(game.gameID).emit("msg", this.name + " prepares countermeasures...")
 }
 
-Player.prototype.divertShields = function() {
+Player.prototype.divertShields = function(game) {
   this.effects.divertShields = 5;
-  io.to(currentGame).emit("msg", this.name + " powers up shields. Next 5 damage will be negated.")
+  io.to(game.gameID).emit("msg", this.name + " powers up shields. Next 5 damage will be negated.")
 }
 
-Player.prototype.jump = function() {
+Player.prototype.jump = function(game) {
   // shake all pursuers
-  io.to(currentGame).emit("msg", this.name + " shakes " + this.pursuers.length
+  io.to(game.gameID).emit("msg", this.name + " shakes " + this.pursuers.length
               + " pursuers to the friendly base.");
   for (let i = 0; i = this.pursuers.length; i++) {
     game.enemyDeck.discard.push(this.pursuers.pop());
   }
 }
 
-Player.prototype.hardSix = function() {
-  io.to(currentGame).emit("msg", "Sometimes you gotta roll the hard six.");
-  this.missile(enemyBase, undefined);
-  this.takeDamage(this.calcDamage(4));
+Player.prototype.hardSix = function(game) {
+  io.to(game.gameID).emit("msg", "Sometimes you gotta roll the hard six.");
+  this.missile(game.enemyBase, undefined);
+  this.takeDamage(game, this.calcDamage(4));
 }
 
-Player.prototype.snapshot = function(friendly, pursuerIndex) {
-  io.to(currentGame).emit("msg", this.name + " destroys " + friendly.pursuers[pursuerIndex].name
+Player.prototype.snapshot = function(game, friendly, pursuerIndex) {
+  io.to(game.gameID).emit("msg", this.name + " destroys " + friendly.pursuers[pursuerIndex].name
               + " pursuing " + friendly.name);
   game.moveCard(pursuerIndex, friendly.pursuers, game.enemyDeck.discard);
   this.insertPlaceholder(pursuerIndex);
 }
 
-Player.prototype.guidedMissile = function() {
-  io.to(currentGame).emit("msg", this.name + " fires a guided missile at " + enemyBase.name);
-  enemyBase.takeDamage(6);
+Player.prototype.guidedMissile = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " fires a guided missile at " + game.enemyBase.name);
+  game.enemyBase.takeDamage(6);
 }
 
-Player.prototype.incinerate = function() {
-  io.to(currentGame).emit("msg", this.name + " prepares afterburner...");
+Player.prototype.incinerate = function(game) {
+  io.to(game.gameID).emit("msg", this.name + " prepares afterburner...");
   this.effects.incinerator = true;
 }
 
@@ -775,7 +772,7 @@ Player.prototype.incinerate = function() {
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
 **************************/
 
-Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
+Player.prototype.useAdvTactic = function(game, advTactic, friendly, pursuerIndex) {
   // takes the index of a market card and uses that card if the player has enough merit
   // optional arguments 'friendly' and 'pursuerIndex' defines a target for the card
   if (friendly === undefined) {
@@ -789,11 +786,11 @@ Player.prototype.useAdvTactic = function(advTactic, friendly, pursuerIndex) {
     this[action](friendly, pursuerIndex);
     game.removeAdvTactic(advTactic);
   } else {
-    io.to(currentGame).emit("msg", this.name + " does not have enough merit.");
+    io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
   }
 }
 
-Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
+Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   // takes the index of a card in hand and uses that card
   // optional argument 'friendly' defines a player target for the card
   // optional argument 'pursuerIndex' defines an enemy target in friendly.hand
@@ -805,22 +802,17 @@ Player.prototype.useTactic = function(cardIndex, friendly, pursuerIndex) {
   }
   let card = this.hand[cardIndex];
   let action = card.cssClass;
-  io.to(currentGame).emit("msg", this.name + " uses " + card.name)
-  this[action](friendly, pursuerIndex);
+  io.to(game.gameID).emit("msg", this.name + " uses " + card.name)
+  this[action](game, friendly, pursuerIndex);
   if (action != "feint") {
     this.lastCardUsed = card;
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard)
-  if (friendly === this) {
-    this.updateSummary();
-  } else {
-    this.updateSummary();
-    friendly.updateSummary();
-  }
-  game.update();
+  game.nextTurn();
+  return game;
 }
 
-Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, advIndex) {
+Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIndex, advIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
@@ -828,33 +820,30 @@ Player.prototype.discard = function(cardIndex, action, friendly, pursuerIndex, a
     pursuerIndex = 0;
   }
   if (action === "useAdvTactic") {
-    this.useAdvTactic(advIndex, friendly, pursuerIndex);
+    this.useAdvTactic(game, advIndex, friendly, pursuerIndex);
   } else {
-    this[action](friendly, pursuerIndex);
+    this[action](game, friendly, pursuerIndex);
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
-  if (friendly === this) {
-    this.updateSummary();
-  } else {
-    this.updateSummary();
-    friendly.updateSummary();
-  }
-  game.update();
+  game.nextTurn();
+  return game;
 }
 
-// let friendlies = require("./friendlies");
-// let tactical = require("./tactical");
-// let enemies = require("./enemies");
+// let friendlies = require('./friendlies');
+// let tactical = require('./tactical');
+// let enemies = require('./enemies');
 
 const Game = function(id, difficulty) {
-  this.name = "Starfighter";
+  this.name = 'Contact!';
   this.difficulty = difficulty;
   this.roundNumber = 0;
+  this.currentTurn = 1;
   this.friendlies = [];
-  this.tacticalDeck = new Deck("Tactical Deck");
-  this.advTactics = new Deck("Advanced tactics");
-  this.enemyBaseDeck = new Deck("Enemy Base Deck");
-  this.enemyDeck = new Deck("Enemy Deck");
+  this.enemyBase = new EnemyBase();
+  this.tacticalDeck = new Deck('Tactical Deck');
+  this.advTactics = new Deck('Advanced tactics');
+  this.enemyBaseDeck = new Deck('Enemy Base Deck');
+  this.enemyDeck = new Deck('Enemy Deck');
   this.market = [];
   this.marketSize = 4;
   this.enemyBaseCardsPerTurn = 1;
@@ -912,6 +901,15 @@ Game.prototype.shuffle = function(deck) {
   }
 }
 
+Game.prototype.findFriendlyBase = function() {
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    if (friendly.id === 'FriendlyBase') {
+      return i;
+    }
+  }
+}
+
 Game.prototype.checkDeck = function(deck) {
   // if deck is empty, replace with discard and shuffle
   if (deck.cards.length === 0) {
@@ -920,7 +918,7 @@ Game.prototype.checkDeck = function(deck) {
     }
     this.shuffle(deck);
     deck.shuffles += 1;
-    console.log(deck.name + " shuffled.");
+    console.log(deck.name + ' shuffled.');
   }
 }
 
@@ -945,7 +943,7 @@ Game.prototype.sortByMerit = function() {
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];
     // 1. Find the friendly base and set baseIndex to its location.
-    if (friendly === FriendlyBase) {
+    if (friendly.id === 'FriendlyBase') {
       baseIndex = i;
     // 2. Determine who has the highest merit.
     } else if (friendly.merit > highestMerit) {
@@ -1009,7 +1007,7 @@ Game.prototype.distributeEnemies = function(source) {
       } else {
         if (source.length > 0 && friendly.effects.incinerator) {
           friendly.pursuers.push(source.pop());
-          io.to(currentGame).emit("msg", friendly.name + " incinerates " + friendly.pursuers[friendly.pursuers.length-1].name);
+          io.to(this.id).emit('msg', friendly.name + ' incinerates ' + friendly.pursuers[friendly.pursuers.length-1].name);
           this.enemyDeck.discard.push(friendly.pursuers.pop());
           friendly.effects.incinerator = false;
         } else if (source.length > 0) {
@@ -1029,8 +1027,8 @@ Game.prototype.turns = function() {
     let tacticalCards = 0;
     for (let i = 0; i < this.friendlies.length; i++) {
       let player = this.friendlies[i];
-      console.log(this.gameID + "." + this.roundNumber + "." + this.turnNumber
-                  + ": " + player.name);
+      console.log(this.gameID + '.' + this.roundNumber + '.' + this.turnNumber
+                  + ': ' + player.name);
       if (player === friendlyBase) {
         continue;
       } else {
@@ -1043,10 +1041,10 @@ Game.prototype.turns = function() {
     }
     for (let i = 0; i < this.friendlies.length; i++) {
       let player = this.friendlies[i];
-      if (player === FriendlyBase) {
+      if (player.id === 'FriendlyBase') {
         continue;
       } else {
-        let cardChoiceIndex = $("#playerHand").children().index($(".selected"));
+        let cardChoiceIndex = $('#playerHand').children().index($('.selected'));
         let cardChoice = player.hand(cardChoiceIndex);
       }
     }
@@ -1056,7 +1054,7 @@ Game.prototype.turns = function() {
 
 //build enemy base deck
 Game.prototype.buildEnemyBaseDeck = function() {
-  this.enemyBaseDeck = new Deck("Enemy Base Deck");
+  this.enemyBaseDeck = new Deck('Enemy Base Deck');
   this.addToDeck(this.enemyBaseDeck, fireLight, 3);
   this.addToDeck(this.enemyBaseDeck, fireHeavy, 2);
   this.addToDeck(this.enemyBaseDeck, deploy, 2);
@@ -1065,7 +1063,7 @@ Game.prototype.buildEnemyBaseDeck = function() {
   let subDeckSize = Math.floor(deckSize/this.difficulty);
   let splitDecks = {};
   for (let i = 0; i < this.difficulty; i++) {
-    let key = "d" + i;
+    let key = 'd' + i;
     if (this.enemyBaseDeck.cards.length > subDeckSize + 1) {
       splitDecks[key] = this.enemyBaseDeck.cards.splice(0, subDeckSize);
     } else {
@@ -1084,14 +1082,14 @@ Game.prototype.buildEnemyBaseDeck = function() {
 }
 
 Game.prototype.replaceEnemyBaseCard = function() {
-  if (enemyBase.effects.jammed === true) { // throwing error: can't read property 'jammed' of undefined
+  if (this.enemyBase.effects.jammed === true) {
     this.enemyBaseDeck.discard.push(this.currentEnemyBaseCard.pop());
-    enemyBase.effects.jammed = false;
+    this.enemyBase.effects.jammed = false;
   } else {
     this.replaceCards(this.enemyBaseCardsPerTurn, this.enemyBaseDeck,
                       this.currentEnemyBaseCard);
     let ebCard = this.currentEnemyBaseCard[0];
-    enemyBase[ebCard.cssClass]();
+    this.enemyBase[ebCard.cssClass](this);
   }
 }
 
@@ -1100,12 +1098,12 @@ Game.prototype.update = function() {
     let friendly = this.friendlies[i];
     friendly.updateSummary();
   }
-  enemyBase.updateSummary();
+  this.enemyBase.updateSummary(this);
 }
 
 Game.prototype.round = function() {
   this.roundNumber++;
-  console.log("Round: " + this.gameID + "." + this.roundNumber);
+  console.log('Round: ' + this.gameID + '.' + this.roundNumber);
   // add enemies and game.advTactics tactics into play
   if (this.roundNumber === 1) {
     this.replaceCards(this.startingEnemies, this.enemyDeck,
@@ -1114,16 +1112,16 @@ Game.prototype.round = function() {
                       this.market);
   } else {
     let newEnemies = this.enemiesPerTurn;
-    if (enemyBase.effects.intercepted === true) {
+    if (this.enemyBase.effects.intercepted === true) {
       newEnemies -= 1;
-      enemyBase.effects.intercepted = false;
+      this.enemyBase.effects.intercepted = false;
     }
     for (let i = 0; i < newEnemies; i++) {
       this.addEnemy();
     }
-    if (enemyBase.effects.deploy === true) {
+    if (this.enemyBase.effects.deploy === true) {
       this.addEnemy();
-      enemyBase.effects.deploy = false;
+      this.enemyBase.effects.deploy = false;
     }
     this.addAdvTactic();
   }
@@ -1137,16 +1135,16 @@ Game.prototype.round = function() {
   }
 
   // replace tactical cards from last turn
-  this.friendlies.forEach( function(player) {
-    if (player === FriendlyBase || player.effects.dead) {
-      return;
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let player = this.friendlies[i];
+    if (player.id === 'FriendlyBase' || player.effects.dead) {
+      continue;
     } else {
       player.resetCardsUsed();
-      game.replaceCards(player.tacticalCardsPerTurn,
-                        game.tacticalDeck, player.hand);
+      this.replaceCards(player.tacticalCardsPerTurn,
+                        this.tacticalDeck, player.hand);
     }
-  });
-  // refresh play area
+  }
 }
 
 Game.prototype.postRound = function() {
@@ -1176,11 +1174,43 @@ Game.prototype.postRound = function() {
       let enemy = friendly.pursuers[x];
       damage += enemy.power;
     }
-    friendly.takeDamage(friendly.checkDamageNegation(damage));
+    friendly.takeDamage(this, friendly.checkDamageNegation(damage));
   }
-  // replace the active enemy base card & run the new card's function
   this.replaceEnemyBaseCard();
-  // enemyBase.updateSummary();
+  this.enemyBase.updateSummary(this);
+}
+
+Game.prototype.nextTurn = function() {
+  this.update();
+  let cardsLeft = 0;
+  this.friendlies.forEach((friendly) => {
+    if (friendly.id === 'FriendlyBase') {
+      cardsLeft += 0;
+    } else {
+      cardsLeft += friendly.hand.length;
+    }
+  });
+  if (cardsLeft === 0) {
+    this.newRound();
+    this.currentTurn = 0;
+  } else {
+    this.currentTurn += 1;
+  }
+  let resetTurns = function() {
+    if (this.currentTurn >= this.friendlies.length
+        || (this.currentTurn === this.friendlies.length-1
+        && this.friendlies[this.currentTurn].id === 'FriendlyBase')
+        || (this.currentTurn === this.friendlies.length-1
+        && this.friendlies[this.currentTurn].effects.dead)) {
+      this.currentTurn = 0;
+    }
+  }
+  resetTurns();
+  while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
+        || this.game.friendlies[this.currentTurn].effects.dead) {
+    this.currentTurn += 1;
+    resetTurns();
+  }
 }
 
 Game.prototype.newRound = function() {
@@ -1190,7 +1220,7 @@ Game.prototype.newRound = function() {
 
 Game.prototype.buildDecks = function() {
   // build tactical deck
-  this.tacticalDeck = new Deck("Tactical Deck");
+  this.tacticalDeck = new Deck('Tactical Deck');
   this.addToDeck(this.tacticalDeck, missile, 6);
   this.addToDeck(this.tacticalDeck, scatterShot, 4);
   this.addToDeck(this.tacticalDeck, drawFire, 3);
@@ -1204,7 +1234,7 @@ Game.prototype.buildDecks = function() {
   this.shuffle(this.tacticalDeck);
 
   // build advanced tactical deck
-  this.advTactics = new Deck("Advanced Tactics");
+  this.advTactics = new Deck('Advanced Tactics');
   this.addToDeck(this.advTactics, healthPack, 5);
   this.addToDeck(this.advTactics, heatSeeker, 6);
   this.addToDeck(this.advTactics, bomb, 3);
@@ -1224,7 +1254,7 @@ Game.prototype.buildDecks = function() {
   this.shuffle(this.advTactics);
 
   // build enemy deck
-  this.enemyDeck = new Deck("Enemy Deck");
+  this.enemyDeck = new Deck('Enemy Deck');
   this.addToDeck(this.enemyDeck, ace, 4);
   this.addToDeck(this.enemyDeck, heavy, 9);
   this.addToDeck(this.enemyDeck, medium, 12);
@@ -1455,108 +1485,17 @@ function getGameSessions(callback) {
   });
 }
 
-function loadGameState(gameId, callback) {
-  getGameSession(gameId, function(err, gameSession) {
+function saveGameState(game) {
+  GameSession.findById(game.gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
-    let game = new Game();
-    let FriendlyBase = new Friendly();
-    let Player1 = new Player();
-    let Player2 = new Player();
-    let Player3 = new Player();
-    let Player4 = new Player();
-    let enemyBase = new EnemyBase();
-    let gameState = gameSession.state.game[0];
-    let updatePlayer = function(player, friendly) {
-      player.name = friendly.name;
-      player.currentArmor = friendly.currentArmor;
-      player.lastCardUsed = friendly.lastCardUsed;
-      player.hand = friendly.hand;
-      player.pursuers = friendly.pursuers;
-      player.pursuerDamage = friendly.pursuerDamage;
-      player.merit = friendly.merit;
-      player.effects = friendly.effects;
-    }
-    for (let i = 0; i < gameState.friendlies.length; i++) {
-      let friendly = gameState.friendlies[i];
-      if (friendly.id === FriendlyBase.id) {
-        FriendlyBase.pursuers = friendly.pursuers;
-        FriendlyBase.pursuerDamage = friendly.pursuerDamage;
-        FriendlyBase.effects = friendly.effects.
-        FriendlyBase.currentArmor = friendly.currentArmor;
-        gameSession.friendlies.push(friendly);
-      } else if (friendly.id === Player1.id) {
-        updatePlayer(Player1, friendly);
-      } else if (friendly.id === Player2.id) {
-        updatePlayer(Player2, friendly);
-      } else if (friendly.id === Player3.id) {
-        updatePlayer(Player3, friendly);
-      } else if (friendly.id === Player4.id) {
-        updatePlayer(Player4, friendly);
-      }
-    }
-    game.roundNumber = gameState.roundNumber;
-    game.tacticalDeck = gameState.tacticalDeck;
-    game.advTactics = gameState.advTactics;
-    game.enemyBaseDeck = gameState.enemyBaseDeck;
-    game.enemyDeck = gameState.enemyDeck;
-    game.market = gameState.market;
-    game.enemiesActive = gameState.enemiesActive;
-    game.enemiesPerTurn = gameState.enemiesPerTurn;
-    game.currentEnemyBaseCard = gameState.currentEnemyBaseCard;
-    game.gameID = gameState.gameID;
-    game.win = gameState.win;
-    game.lose = gameState.lose;
-    game.enemiesPerTurn = gameState.enemiesPerTurn;
-
-    let ebState = gameSession.state.enemyBase[0];
-    enemyBase.currentArmor = ebState.currentArmor;
-    enemyBase.effects = ebState.effects;
-
-    game.update();
-
-    if(callback) {
-      callback(gameSession);
-    }
-  });
-}
-
-function saveGameState(gameId, game, enemyBase, currentTurn) {
-  getGameSession(gameId, function(err, gameSession) {
-    if (err) {
-      console.error(err);
-    }
-    if (currentTurn === undefined) {
-      currentTurn = 1;
-    }
-    game.update();
-    gameSession.state.currentTurn = currentTurn;
-
-    gameSession.state.game[0].roundNumber = game.roundNumber;
-    gameSession.state.game[0].friendlies = game.friendlies;
-    gameSession.state.game[0].tacticalDeck = game.tacticalDeck;
-    gameSession.state.game[0].advTactics = game.advTactics;
-    gameSession.state.game[0].enemyBaseDeck = game.enemyBaseDeck;
-    gameSession.state.game[0].enemyDeck = game.enemyDeck;
-    gameSession.state.game[0].market = game.market;
-    gameSession.state.game[0].enemiesActive = game.enemiesActive;
-    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
-    gameSession.state.game[0].currentEnemyBaseCard = game.currentEnemyBaseCard;
-    gameSession.state.game[0].gameID = game.gameID;
-    gameSession.state.game[0].win = game.win;
-    gameSession.state.game[0].lose = game.lose;
-    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
-
-    gameSession.state.enemyBase[0].currentArmor = enemyBase.currentArmor;
-    gameSession.state.enemyBase[0].effects = enemyBase.effects;
-    gameSession.state.enemyBase[0].summary = enemyBase.summary;
-
-    gameSession.save(function(err) {
+    gameSession.state.game = [game];
+    gameSession.save(function(err, updatedSession) {
       if (err) {
         console.error(err);
       } else {
-        updateObjects(gameId, gameSession);
+        updateObjects(game.gameId, updatedSession);
       }
     });
   });
@@ -1579,10 +1518,46 @@ function onConnection(socket) {
         io.to(data.room).emit('chatMessage', data.message);
       });
       io.to(gameId).emit('msg', player.name + ' joined the game.');
-      socket.on('disconnect', disconnect);
-    }
+      socket.on('disconnect', function() {
+        GameSession.findById(gameId, function(err, gameSession) {
+          if (err) {
+            console.error(err);
+          }
+          if (gameSession.locked) {
+            player.effects.dead = true;
+            saveGameState(game);
+          } else {
+            io.to(gameId).emit('msg', player.name + ' left.');
+          }
+          for (person in gameSession.users) {
+            if (gameSession.users[person] === user.callsign) {
+              gameSession.users[person] = undefined;
+              gameSession.players -= 1;
+            }
+          }
+          if (gameSession.players === 1) {
+            io.to(gameId).emit('closeGame');
+            io.to(gameId).emit('msg', 'Waiting for second player...')
+          } else if (gameSession.players === 0) {
+            gameSession.gameName = gameSession._id;
+            gameSession.state.game = [];
+            gameSession.meta.aborted = true;
+            console.log('Game id:' + gameSession._id + ' aborted');
+          }
+          gameSession.save(function(err) {
+            if (err) {
+              console.error(err);
+            } else {
+              console.log('user removed');
+            }
+          });
+        });
+        socket.leave(gameId)
+        console.log('user disconnected');
+      });
+    });
   }
-  let addPlayer = function(gameId, userId) {
+  function addPlayer(gameId, userId) {
     getGameSession(gameId, function(err, gameSession) {
       if (err) {
         console.error(err);
@@ -1636,11 +1611,14 @@ function onConnection(socket) {
             GameSession.update(gameSession, update, function() {
               io.to(gameId).emit('start');
               let game = new Game(gameSession._id, gameSession.difficulty);
-              let enemyBase = new EnemyBase();
               let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+              let Player1;
+              let Player2;
+              let Player3;
+              let Player4;
               game.friendlies = [FriendlyBase];
               if (gameSession.users.user1) {
-                Player2 = new Player('Player2', gameSession.users.user2);
+                Player1 = new Player('Player1', gameSession.users.user1);
                 game.friendlies.push(Player1);
               }
               if (gameSession.users.user2) {
@@ -1656,14 +1634,13 @@ function onConnection(socket) {
                 game.friendlies.push(Player4);
               }
               game.buildDecks();
-              game.round(); // FriendlyBase is not defined?
+              game.round();
               gameSession.state.game.push(game);
-              gameSession.state.enemyBase.push(enemyBase);
-              gameSession.save(function(err) {
+              gameSession.save(function(err, updatedSession) {
                 if (err) {
                   console.error(err)
                 }
-                saveGameState(gameId, game, enemyBase);
+                updateObjects(gameId, updatedSession);
               });
             });
           } else {
@@ -1675,65 +1652,9 @@ function onConnection(socket) {
   });
 }
 
-function disconnect() {
-  function() {
-    GameSession.findById(gameId, function(err, gameSession) {
-      if (err) {
-        console.error(err);
-      }
-      if (gameSession.locked) {
-        player.effects.dead = true;
-        saveGameState(gameId, game, enemyBase);
-      } else {
-        io.to(gameId).emit('msg', player.name + ' left.');
-      }
-      for (person in gameSession.users) {
-        if (gameSession.users[person] === user.callsign) {
-          gameSession.users[person] = undefined;
-          gameSession.players -= 1;
-        }
-      }
-      if (gameSession.players === 1) {
-        io.to(gameId).emit('closeGame');
-        io.to(gameId).emit('msg', 'Waiting for second player...')
-      } else if (gameSession.players === 0) {
-        gameSession.gameName = gameSession._id;
-        gameSession.state.game = [];
-        gameSession.meta.aborted = true;
-        console.log('Game id:' + gameSession._id + ' aborted');
-      }
-      gameSession.save(function(err) {
-        if (err) {
-          console.error(err);
-        } else {
-          console.log('user removed');
-        }
-      });
-    });
-    socket.leave(gameId)
-    console.log('user disconnected');
-  });
-}
-
 function updateObjects(gameId, gameSession) {
   let gameData = {
-    turn: gameSession.state.currentTurn,
     game: gameSession.state.game[0],
-    enemyBase: gameSession.state.enemyBase[0]
-  }
-  for (let i = 0; i < gameSession.state.game[0].friendlies.length; i++) {
-    let friendly = gameSession.state.game[0].friendlies[i];
-    if (friendly.id === "FriendlyBase") {
-      gameData.FriendlyBase = friendly;
-    } else if (friendly.id === "Player1") {
-      gameData.Player1 = friendly;
-    } else if (friendly.id === "Player2") {
-      gameData.Player2 = friendly;
-    } else if (friendly.id === "Player3") {
-      gameData.Player3 = friendly;
-    } else if (friendly.id === "Player4") {
-      gameData.Player4 = friendly;
-    }
   }
   io.to(gameId).emit('update', gameData);
 }
@@ -1741,20 +1662,71 @@ function updateObjects(gameId, gameSession) {
 function turn(data) {
   let gameId = data.room;
   let specs = data.turnInfo;
-  loadGameState(gameId, function(gameSession) {
+  getGameSession(gameId, function(err, gameSession) {
+    if (err) {
+      console.error(err);
+    }
+    let game = new Game();
+    let FriendlyBase = new Friendly('FriendlyBase', 'Friendly Base', 30);
+    let Player1 = new Player('Player1');
+    let Player2 = new Player('Player2');
+    let Player3 = new Player('Player3');
+    let Player4 = new Player('Player4');
+    let gameState = gameSession.state.game[0];
+    let loadPlayer = function(player, friendly) {
+      player.name = friendly.name;
+      player.currentArmor = friendly.currentArmor;
+      player.lastCardUsed = friendly.lastCardUsed;
+      player.hand = friendly.hand;
+      player.pursuers = friendly.pursuers;
+      player.pursuerDamage = friendly.pursuerDamage;
+      player.merit = friendly.merit;
+      player.effects = friendly.effects;
+      game.friendlies.push(player);
+    }
+    for (let i = 0; i < gameState.friendlies.length; i++) {
+      let friendly = gameState.friendlies[i];
+      if (friendly.id === 'FriendlyBase') {
+        FriendlyBase.pursuers = friendly.pursuers;
+        FriendlyBase.pursuerDamage = friendly.pursuerDamage;
+        FriendlyBase.effects = friendly.effects;
+        FriendlyBase.currentArmor = friendly.currentArmor;
+        game.friendlies.push(FriendlyBase);
+      } else if (friendly.id === 'Player1') {
+        loadPlayer(Player1, friendly);
+      } else if (friendly.id === 'Player2') {
+        loadPlayer(Player2, friendly);
+      } else if (friendly.id === 'Player3') {
+        loadPlayer(Player3, friendly);
+      } else if (friendly.id === 'Player4') {
+        loadPlayer(Player4, friendly);
+      }
+    }
+    game.roundNumber = gameState.roundNumber;
+    game.currentTurn = gameState.currentTurn;
+    game.tacticalDeck = gameState.tacticalDeck;
+    game.advTactics = gameState.advTactics;
+    game.enemyBaseDeck = gameState.enemyBaseDeck;
+    game.enemyDeck = gameState.enemyDeck;
+    game.market = gameState.market;
+    game.enemiesActive = gameState.enemiesActive;
+    game.enemiesPerTurn = gameState.enemiesPerTurn;
+    game.currentEnemyBaseCard = gameState.currentEnemyBaseCard;
+    game.gameID = gameState.gameID;
+    game.win = gameState.win;
+    game.lose = gameState.lose;
+    game.enemiesPerTurn = gameState.enemiesPerTurn;
+    game.enemyBase.currentArmor = gameState.enemyBase.currentArmor;
+    game.enemyBase.effects = gameState.enemyBase.effects;
+
     let getPlayer = function(id) {
-      if (id === 'Player1') {
-        return Player1;
-      } else if (id === 'Player2') {
-        return Player2;
-      } else if (id === 'Player3') {
-        return Player3;
-      } else if (id === 'Player4') {
-        return Player4;
-      } else if (id === 'FriendlyBase') {
-        return FriendlyBase;
-      } else if (id === 'enemyBase') {
-        return enemyBase;
+      for (let i=0; i < game.friendlies.length; i++) {
+        let friendly = game.friendlies[i];
+        if (id === friendly.id) {
+          return friendly;
+        } else if (id === game.enemyBase.id) {
+          return game.enemyBase;
+        }
       }
     }
     let friendly = undefined;
@@ -1763,45 +1735,14 @@ function turn(data) {
       friendly = getPlayer(specs.friendly.id);
     }
     if (specs.button === 'use') {
-      player.useTactic(specs.cardIndex, friendly, specs.pursuerIndex);
+      game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
     } else {
-      player.discard(specs.cardIndex, specs.button, friendly,
+      game = player.discard(game, specs.cardIndex, specs.button, friendly,
                                             specs.pursuerIndex,
                                             specs.purchaseIndex);
     }
-    let cardsLeft = 0;
-    game.friendlies.forEach((friendly) => {
-      if (friendly === FriendlyBase) {
-        cardsLeft += 0;
-      } else {
-        cardsLeft += friendly.hand.length;
-      }
-    });
-    let currentTurn = gameSession.state.currentTurn;
-    if (cardsLeft === 0) {
-      game.postRound();
-      game.round();
-      currentTurn = 0;
-    } else {
-      currentTurn += 1;
-    }
-    let resetTurns = function() {
-      if (currentTurn >= game.friendlies.length
-          || (currentTurn === game.friendlies.length-1
-          && game.friendlies[currentTurn].id === 'FriendlyBase')
-          || (currentTurn === game.friendlies.length-1
-          && game.friendlies[currentTurn].effects.dead)) {
-        currentTurn = 0;
-      }
-    }
-    resetTurns();
-    while (game.friendlies[currentTurn].id === 'FriendlyBase'
-        || game.friendlies[currentTurn].effects.dead) {
-      currentTurn += 1;
-      resetTurns();
-    }
     if (game.win) {
-      saveGameState(gameId, game, enemyBase, currentTurn);
+      // saveGameState(game);
       io.to(gameId).emit('end', 'Victory!');
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
@@ -1810,20 +1751,19 @@ function turn(data) {
         let endTime = new Date();
         let ms = endTime - gameSession.meta.startTime;
         let min = Math.round(ms/1000/60);
-        gameSession.state.currentTurn = currentTurn;
         gameSession.gameName = gameSession._id;
         gameSession.meta.rounds = gameSession.state.game.roundNumber;
         gameSession.meta.won = true;
         gameSession.meta.endTime = endTime;
         gameSession.meta.elapsedTime = min;
-        gameSession.save(function(err, updated) {
+        gameSession.save(function(err, updatedSession) {
           if (err) {
             console.error(err);
           }
           for (let i = 1; i < 5; i++) {
             let user = 'user' + i;
-            if (gameSession.users[user]) {
-              let query = { callsign: gameSession.users[user] };
+            if (updatedSession.users[user]) {
+              let query = { callsign: updatedSession.users[user] };
               User.find(query, function(err, player) {
                 if (err) {
                   console.error(err);
@@ -1845,13 +1785,13 @@ function turn(data) {
                 } else if (wins = 3) {
                   player.meta.rank = 'Lieutenant';
                 }
-                player.save(function(err, updated) {
+                player.save(function(err, updatedUser) {
                   if (err) {
                     console.error(err);
                   } else {
-                    console.log(gameSession.users[user] + " updated");
-                    if (updated.meta.wins < 22 && updated.meta.wins%3 === 0) {
-                      console.log(updated.callsign + " promoted to " + updated.meta.rank);
+                    console.log(updatedSession.users[user] + " updated");
+                    if (updatedUser.meta.wins < 22 && updatedUser.meta.wins%3 === 0) {
+                      console.log(updatedUser.callsign + " promoted to " + updatedUser.meta.rank);
                     }
                   }
                 });
@@ -1863,9 +1803,8 @@ function turn(data) {
         });
       });
     } else if (game.lose) {
-      saveGameState(gameId, game, enemyBase, currentTurn);
+      // saveGameState(game);
       io.to(gameId).emit('end', 'Defeat!');
-      reset();
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
           console.error(err);
@@ -1878,17 +1817,17 @@ function turn(data) {
         gameSession.meta.lost = true;
         gameSession.meta.endTime = endTime;
         gameSession.meta.elapsedTime = min;
-        gameSession.save(function(err, updated) {
+        gameSession.save(function(err, updatedSession) {
           if (err) {
             console.error(err);
           }
           for (let i = 1; i < 5; i++) {
             let user = 'user' + i;
-            if (gameSession.users[user]) {
-              let query = { callsign: gameSession.users[user] };
+            if (updatedSession.users[user]) {
+              let query = { callsign: updatedSession.users[user] };
               let update = { $inc: { 'meta.losses': 1 }};
               User.update(query, update, function() {
-                console.log(gameSession.users[user] + " updated");
+                console.log(updatedSession.users[user] + " updated");
               });
             } else {
               continue;
@@ -1897,7 +1836,7 @@ function turn(data) {
         });
       });
     } else {
-      saveGameState(gameId, game, enemyBase, currentTurn);
+      saveGameState(game);
     }
   });
 }

@@ -6,6 +6,7 @@ const Game = function(id, difficulty) {
   this.name = 'Contact!';
   this.difficulty = difficulty;
   this.roundNumber = 0;
+  this.currentTurn = 1;
   this.friendlies = [];
   this.enemyBase = new EnemyBase();
   this.tacticalDeck = new Deck('Tactical Deck');
@@ -342,15 +343,49 @@ Game.prototype.postRound = function() {
       let enemy = friendly.pursuers[x];
       damage += enemy.power;
     }
-    friendly.takeDamage(this, friendly.checkDamageNegation(damage));
+    friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
   this.replaceEnemyBaseCard();
-  this.enemyBase.updateSummary(this);
+}
+
+Game.prototype.resetTurns = function() {
+  if (this.currentTurn >= this.friendlies.length
+      || (this.currentTurn === this.friendlies.length-1
+      && this.friendlies[this.currentTurn].id === 'FriendlyBase')
+      || (this.currentTurn === this.friendlies.length-1
+      && this.friendlies[this.currentTurn].effects.dead)) {
+    this.currentTurn = 0;
+  }
+}
+
+Game.prototype.nextTurn = function() {
+  this.update();
+  let cardsLeft = 0;
+  this.friendlies.forEach((friendly) => {
+    if (friendly.id === 'FriendlyBase') {
+      cardsLeft += 0;
+    } else {
+      cardsLeft += friendly.hand.length;
+    }
+  });
+  if (cardsLeft === 0) {
+    this.newRound();
+    this.currentTurn = 0;
+  } else {
+    this.currentTurn += 1;
+  }
+  this.resetTurns();
+  while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
+        || this.friendlies[this.currentTurn].effects.dead) {
+    this.currentTurn += 1;
+    this.resetTurns();
+  }
 }
 
 Game.prototype.newRound = function() {
   this.postRound();
   this.round();
+  this.update();
 }
 
 Game.prototype.buildDecks = function() {

@@ -12,7 +12,6 @@ let GameSchema = new mongoose.Schema({
   },
   players: { type: Number, default: 1 },
   state: {
-    currentTurn: { type: Number, default: 1 },
     game: { type: Array, default: [] },
   },
   difficulty: { type: Number, default: 3 },

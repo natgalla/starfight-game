@@ -139,39 +139,17 @@ function getGameSessions(callback) {
   });
 }
 
-function saveGameState(gameId, game, currentTurn) {
-  GameSession.findById(gameId, function(err, gameSession) {
+function saveGameState(game) {
+  GameSession.findById(game.gameID, function(err, gameSession) {
     if (err) {
       console.error(err);
     }
-    if (currentTurn === undefined) {
-      currentTurn = 1;
-    }
-    gameSession.state.currentTurn = currentTurn;
-
-    gameSession.state.game[0].roundNumber = game.roundNumber;
-    gameSession.state.game[0].friendlies = game.friendlies;
-    gameSession.state.game[0].tacticalDeck = game.tacticalDeck;
-    gameSession.state.game[0].advTactics = game.advTactics;
-    gameSession.state.game[0].enemyBaseDeck = game.enemyBaseDeck;
-    gameSession.state.game[0].enemyDeck = game.enemyDeck;
-    gameSession.state.game[0].market = game.market;
-    gameSession.state.game[0].enemiesActive = game.enemiesActive;
-    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
-    gameSession.state.game[0].currentEnemyBaseCard = game.currentEnemyBaseCard;
-    gameSession.state.game[0].gameID = game.gameID;
-    gameSession.state.game[0].win = game.win;
-    gameSession.state.game[0].lose = game.lose;
-    gameSession.state.game[0].enemiesPerTurn = game.enemiesPerTurn;
-    gameSession.state.game[0].enemyBase.currentArmor = game.enemyBase.currentArmor;
-    gameSession.state.game[0].enemyBase.effects = game.enemyBase.effects;
-    gameSession.state.game[0].enemyBase.summary = game.enemyBase.summary;
-
+    gameSession.state.game = [game];
     gameSession.save(function(err, updatedSession) {
       if (err) {
         console.error(err);
       } else {
-        updateObjects(gameId, updatedSession);
+        updateObjects(game.gameID, updatedSession);
       }
     });
   });
@@ -201,7 +179,7 @@ function onConnection(socket) {
           }
           if (gameSession.locked) {
             player.effects.dead = true;
-            saveGameState(gameId, game);
+            saveGameState(game);
           } else {
             io.to(gameId).emit('msg', player.name + ' left.');
           }
@@ -330,7 +308,6 @@ function onConnection(socket) {
 
 function updateObjects(gameId, gameSession) {
   let gameData = {
-    turn: gameSession.state.currentTurn,
     game: gameSession.state.game[0],
   }
   io.to(gameId).emit('update', gameData);
@@ -380,6 +357,7 @@ function turn(data) {
       }
     }
     game.roundNumber = gameState.roundNumber;
+    game.currentTurn = gameState.currentTurn;
     game.tacticalDeck = gameState.tacticalDeck;
     game.advTactics = gameState.advTactics;
     game.enemyBaseDeck = gameState.enemyBaseDeck;
@@ -417,40 +395,8 @@ function turn(data) {
                                             specs.pursuerIndex,
                                             specs.purchaseIndex);
     }
-    let cardsLeft = 0;
-    game.friendlies.forEach((friendly) => {
-      if (friendly.id === 'FriendlyBase') {
-        cardsLeft += 0;
-      } else {
-        cardsLeft += friendly.hand.length;
-      }
-    });
-    console.log(cardsLeft);
-    let currentTurn = gameSession.state.currentTurn;
-    if (cardsLeft === 0) {
-      game.postRound();
-      game.round();
-      currentTurn = 0;
-    } else {
-      currentTurn += 1;
-    }
-    let resetTurns = function() {
-      if (currentTurn >= game.friendlies.length
-          || (currentTurn === game.friendlies.length-1
-          && game.friendlies[currentTurn].id === 'FriendlyBase')
-          || (currentTurn === game.friendlies.length-1
-          && game.friendlies[currentTurn].effects.dead)) {
-        currentTurn = 0;
-      }
-    }
-    resetTurns();
-    while (game.friendlies[currentTurn].id === 'FriendlyBase'
-          || game.friendlies[currentTurn].effects.dead) {
-      currentTurn += 1;
-      resetTurns();
-    }
     if (game.win) {
-      // saveGameState(gameId, game, currentTurn);
+      // saveGameState(game);
       io.to(gameId).emit('end', 'Victory!');
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
@@ -459,7 +405,6 @@ function turn(data) {
         let endTime = new Date();
         let ms = endTime - gameSession.meta.startTime;
         let min = Math.round(ms/1000/60);
-        gameSession.state.currentTurn = currentTurn;
         gameSession.gameName = gameSession._id;
         gameSession.meta.rounds = gameSession.state.game.roundNumber;
         gameSession.meta.won = true;
@@ -512,7 +457,7 @@ function turn(data) {
         });
       });
     } else if (game.lose) {
-      // saveGameState(gameId, game, currentTurn);
+      // saveGameState(game);
       io.to(gameId).emit('end', 'Defeat!');
       getGameSession(gameId, function(err, gameSession) {
         if (err) {
@@ -545,7 +490,7 @@ function turn(data) {
         });
       });
     } else {
-      saveGameState(gameId, game, currentTurn);
+      saveGameState(game);
     }
   });
 }

@@ -92,7 +92,6 @@ Friendly.prototype.checkDamageNegation = function(game, damage) {
 }
 
 Friendly.prototype.takeDamage = function(game, damage) {
-  // take damage
   if (damage > 0) {
     this.currentArmor -= damage;
     if (this.currentArmor < 0) {
@@ -236,7 +235,7 @@ Player.prototype.checkDamageNegation = function(game, damage) {
       this.effects.emp = false;
       return 0;
     } else {
-      damage = this.checkShields(damage);
+      damage = this.checkShields(game, damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
         io.to(game.gameID).emit("msg", this.name + " deploys countermeasures to avoid "
@@ -312,16 +311,19 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
   if (index === undefined) {
     index = 0;
   }
+  if (friendly.id === "FriendlyBase") {
+    friendly = game.friendlies[game.findFriendlyBase()];
+  }
   if (friendly.id === "enemyBase") {
     if (damage > 0) {
-      game.enemyBase.takeDamage(damage);
+      game.enemyBase.takeDamage(game, damage);
       io.to(game.gameID).emit("msg", this.name + " deals " + damage + " damage to enemy base.");
       this.increaseMerit(game, 1);
     } else {
       io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index].cssClass === "emptySpace"
+    if (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
       || friendly.pursuers[index].cssClass === "destroyed") {
       console.error("No enemy at index " + index);
     } else {
@@ -426,7 +428,7 @@ Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collatera
     } else {
       friendlyFire += collateral;
     }
-    friendly.takeDamage(game, friendly.checkShields(friendlyFire));
+    friendly.takeDamage(game, friendly.checkShields(game, friendlyFire));
   }
 }
 
@@ -475,7 +477,7 @@ Player.prototype.feint = function(game, friendly, pursuerIndex) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
     io.to(game.gameID).emit("msg", this.name + " uses feint to play " + card.name)
-    this[action](friendly, pursuerIndex);
+    this[action](game, friendly, pursuerIndex);
   } else {
     console.error("No action to feint");
   }
@@ -590,7 +592,7 @@ Player.prototype.snapshot = function(game, friendly, pursuerIndex) {
 
 Player.prototype.guidedMissile = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires a guided missile at " + game.enemyBase.name);
-  game.enemyBase.takeDamage(6);
+  game.enemyBase.takeDamage(game, 6);
 }
 
 Player.prototype.incinerate = function(game) {
@@ -639,13 +641,7 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
     this.lastCardUsed = card;
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard)
-  if (friendly === this) {
-    this.updateSummary();
-  } else {
-    this.updateSummary();
-    friendly.updateSummary();
-  }
-  game.update();
+  game.nextTurn();
   return game;
 }
 
@@ -662,12 +658,6 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     this[action](game, friendly, pursuerIndex);
   }
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard);
-  if (friendly === this) {
-    this.updateSummary();
-  } else {
-    this.updateSummary();
-    friendly.updateSummary();
-  }
-  game.update();
+  game.nextTurn();
   return game;
 }
