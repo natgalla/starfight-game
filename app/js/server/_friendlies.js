@@ -94,13 +94,12 @@ Friendly.prototype.checkDamageNegation = function(game, damage) {
 Friendly.prototype.takeDamage = function(game, damage) {
   if (damage > 0) {
     this.currentArmor -= damage;
-    if (this.currentArmor < 0) {
+    if (this.currentArmor <= 0) {
       this.currentArmor = 0;
-    }
-    if (this.currentArmor === 0) {
       io.to(game.gameID).emit("msg", this.name + " has been destroyed. Players lose.");
       this.effects.dead = true;
       game.lose = true;
+      console.log('Loss condition met: Friendly Base destroyed');
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
@@ -283,6 +282,7 @@ Player.prototype.takeDamage = function(game, damage) {
       if (alldead) {
         io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
         game.lose = true;
+        console.log('Loss condition met: All pilots destroyed');
       }
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
@@ -310,9 +310,6 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
   }
   if (index === undefined) {
     index = 0;
-  }
-  if (friendly.id === "FriendlyBase") {
-    friendly = game.friendlies[game.findFriendlyBase()];
   }
   if (friendly.id === "enemyBase") {
     if (damage > 0) {
@@ -630,6 +627,9 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
+  if (friendly.id === "FriendlyBase") {
+    friendly = game.friendlies[game.findFriendlyBase()];
+  }
   if (pursuerIndex === undefined) {
     pursuerIndex = 0;
   }
@@ -648,6 +648,9 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
 Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIndex, advIndex) {
   if (friendly === undefined) {
     friendly = this;
+  }
+  if (friendly.id === "FriendlyBase") {
+    friendly = game.friendlies[game.findFriendlyBase()];
   }
   if (pursuerIndex === undefined) {
     pursuerIndex = 0;

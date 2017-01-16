@@ -2,8 +2,8 @@
 // let tactical = require('./tactical');
 // let enemies = require('./enemies');
 
-const Game = function(id, difficulty) {
-  this.name = 'Contact!';
+const Game = function(id, name, difficulty) {
+  this.name = name;
   this.difficulty = difficulty;
   this.roundNumber = 0;
   this.currentTurn = 1;
@@ -340,15 +340,15 @@ Game.prototype.postRound = function() {
     let friendly = this.friendlies[i];
     let damage = 0;
     for (let x = 0; x < friendly.pursuers.length; x++) {
-      let enemy = friendly.pursuers[x];
-      damage += enemy.power;
+      damage += friendly.pursuers[x].power;
     }
     friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
   this.replaceEnemyBaseCard();
 }
 
-Game.prototype.resetTurns = function() {
+Game.prototype.adjustTurn = function() {
+  // skips friendly base and dead pilots in turn order
   if (this.currentTurn >= this.friendlies.length
       || (this.currentTurn === this.friendlies.length-1
       && this.friendlies[this.currentTurn].id === 'FriendlyBase')
@@ -374,11 +374,11 @@ Game.prototype.nextTurn = function() {
   } else {
     this.currentTurn += 1;
   }
-  this.resetTurns();
+  this.adjustTurn();
   while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
         || this.friendlies[this.currentTurn].effects.dead) {
     this.currentTurn += 1;
-    this.resetTurns();
+    this.adjustTurn();
   }
 }
 

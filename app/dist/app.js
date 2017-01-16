@@ -59,23 +59,14 @@ const EnemyBase = function() {
 }
 
 EnemyBase.prototype.updateSummary = function(game) {
-  if (game.roundNumber === 1) {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
-  } else if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + game.enemiesPerTurn + "</p>"
-                    + "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
-  } else {
-    this.summary = "<h3>" + this.name + "</h3>"
-                    + "<p>Armor: " + this.currentArmor + "/"
-                    + this.maxArmor + "</p>"
-                    + "<p>Launch rate: " + this.enemiesPerTurn + "</p>"
-                    + game.currentEnemyBaseCard[0].card;
+  this.summary = "<h3>" + this.name + "</h3>"
+               + "<p>Armor: " + this.currentArmor + "/"
+                               + this.maxArmor + "</p>"
+               + "<p>Launch rate: " + game.enemiesPerTurn + "</p>";
+  if (game.currentEnemyBaseCard.length === 0 && game.roundNumber > 1) {
+    this.summary += "<div class='enemyBaseCard'><h3>Jammed</h3></div>";
+  } else if (game.roundNumber > 1) {
+    this.summary += game.currentEnemyBaseCard[0].card;
   }
 }
 
@@ -88,7 +79,7 @@ EnemyBase.prototype.takeDamage = function(game, damage) {
     io.to(game.gameID).emit("msg", this.name + " destroyed! Players win.");
     game.win = true;
   }
-  this.updateSummary();
+  this.updateSummary(game);
 }
 
 
@@ -261,16 +252,14 @@ Friendly.prototype.checkDamageNegation = function(game, damage) {
 }
 
 Friendly.prototype.takeDamage = function(game, damage) {
-  // take damage
   if (damage > 0) {
     this.currentArmor -= damage;
-    if (this.currentArmor < 0) {
+    if (this.currentArmor <= 0) {
       this.currentArmor = 0;
-    }
-    if (this.currentArmor === 0) {
       io.to(game.gameID).emit("msg", this.name + " has been destroyed. Players lose.");
       this.effects.dead = true;
       game.lose = true;
+      console.log('Loss condition met: Friendly Base destroyed');
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);
@@ -405,7 +394,7 @@ Player.prototype.checkDamageNegation = function(game, damage) {
       this.effects.emp = false;
       return 0;
     } else {
-      damage = this.checkShields(damage);
+      damage = this.checkShields(game, damage);
       if (this.effects.countermeasures) {
         let counterDamage = this.calcDamage(4);
         io.to(game.gameID).emit("msg", this.name + " deploys countermeasures to avoid "
@@ -453,6 +442,7 @@ Player.prototype.takeDamage = function(game, damage) {
       if (alldead) {
         io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
         game.lose = true;
+        console.log('Loss condition met: All pilots destroyed');
       }
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
@@ -481,16 +471,19 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
   if (index === undefined) {
     index = 0;
   }
+  if (friendly.id === "FriendlyBase") {
+    friendly = game.friendlies[game.findFriendlyBase()];
+  }
   if (friendly.id === "enemyBase") {
     if (damage > 0) {
-      game.enemyBase.takeDamage(damage);
+      game.enemyBase.takeDamage(game, damage);
       io.to(game.gameID).emit("msg", this.name + " deals " + damage + " damage to enemy base.");
       this.increaseMerit(game, 1);
     } else {
       io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index].cssClass === "emptySpace"
+    if (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
       || friendly.pursuers[index].cssClass === "destroyed") {
       console.error("No enemy at index " + index);
     } else {
@@ -595,7 +588,7 @@ Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collatera
     } else {
       friendlyFire += collateral;
     }
-    friendly.takeDamage(game, friendly.checkShields(friendlyFire));
+    friendly.takeDamage(game, friendly.checkShields(game, friendlyFire));
   }
 }
 
@@ -644,7 +637,7 @@ Player.prototype.feint = function(game, friendly, pursuerIndex) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
     io.to(game.gameID).emit("msg", this.name + " uses feint to play " + card.name)
-    this[action](friendly, pursuerIndex);
+    this[action](game, friendly, pursuerIndex);
   } else {
     console.error("No action to feint");
   }
@@ -759,7 +752,7 @@ Player.prototype.snapshot = function(game, friendly, pursuerIndex) {
 
 Player.prototype.guidedMissile = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires a guided missile at " + game.enemyBase.name);
-  game.enemyBase.takeDamage(6);
+  game.enemyBase.takeDamage(game, 6);
 }
 
 Player.prototype.incinerate = function(game) {
@@ -833,8 +826,8 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
 // let tactical = require('./tactical');
 // let enemies = require('./enemies');
 
-const Game = function(id, difficulty) {
-  this.name = 'Contact!';
+const Game = function(id, name, difficulty) {
+  this.name = name;
   this.difficulty = difficulty;
   this.roundNumber = 0;
   this.currentTurn = 1;
@@ -1171,13 +1164,22 @@ Game.prototype.postRound = function() {
     let friendly = this.friendlies[i];
     let damage = 0;
     for (let x = 0; x < friendly.pursuers.length; x++) {
-      let enemy = friendly.pursuers[x];
-      damage += enemy.power;
+      damage += friendly.pursuers[x].power;
     }
-    friendly.takeDamage(this, friendly.checkDamageNegation(damage));
+    friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
   this.replaceEnemyBaseCard();
-  this.enemyBase.updateSummary(this);
+}
+
+Game.prototype.adjustTurn = function() {
+  // skips friendly base and dead pilots in turn order
+  if (this.currentTurn >= this.friendlies.length
+      || (this.currentTurn === this.friendlies.length-1
+      && this.friendlies[this.currentTurn].id === 'FriendlyBase')
+      || (this.currentTurn === this.friendlies.length-1
+      && this.friendlies[this.currentTurn].effects.dead)) {
+    this.currentTurn = 0;
+  }
 }
 
 Game.prototype.nextTurn = function() {
@@ -1196,26 +1198,18 @@ Game.prototype.nextTurn = function() {
   } else {
     this.currentTurn += 1;
   }
-  let resetTurns = function() {
-    if (this.currentTurn >= this.friendlies.length
-        || (this.currentTurn === this.friendlies.length-1
-        && this.friendlies[this.currentTurn].id === 'FriendlyBase')
-        || (this.currentTurn === this.friendlies.length-1
-        && this.friendlies[this.currentTurn].effects.dead)) {
-      this.currentTurn = 0;
-    }
-  }
-  resetTurns();
+  this.adjustTurn();
   while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
-        || this.game.friendlies[this.currentTurn].effects.dead) {
+        || this.friendlies[this.currentTurn].effects.dead) {
     this.currentTurn += 1;
-    resetTurns();
+    this.adjustTurn();
   }
 }
 
 Game.prototype.newRound = function() {
   this.postRound();
   this.round();
+  this.update();
 }
 
 Game.prototype.buildDecks = function() {
@@ -1436,22 +1430,6 @@ app.use(function(err, req, res, next) {
 
 server.listen(port, () => console.log('Ready. Listening at http://localhost:' + port));
 
-// let nsps = [];
-// getGameSessions(function(err, gameSessions) {
-//   if (err) {
-//     console.error(err);
-//   }
-//   gameSessions.forEach(function(gameSession) {
-//     if (!gameSessions.includes(gameSession) && gameSession._id != gameSession.gameName) {
-//       nsps.push(gameSession._id);
-//     }
-//   })
-//   console.log(nsps);
-//   nsps.forEach(function(nsp) {
-//     io.of('/' + nsp).on('connection', onConnection);
-//   });
-// });
-
 // game logic
 io.on('connect', onConnection);
 
@@ -1485,19 +1463,104 @@ function getGameSessions(callback) {
   });
 }
 
-function saveGameState(game) {
-  GameSession.findById(game.gameId, function(err, gameSession) {
+function saveGame(game) {
+  GameSession.findById(game.gameID, function(err, gameSession) {
     if (err) {
       console.error(err);
-    }
-    gameSession.state.game = [game];
-    gameSession.save(function(err, updatedSession) {
-      if (err) {
-        console.error(err);
+    } else {
+      gameSession.meta.rounds = game.roundNumber;
+      gameSession.state.game = [game];
+      if (game.win || game.lose) {
+        let endTime = new Date();
+        let ms = endTime - gameSession.meta.startTime;
+        let min = Math.round(ms/1000/60);
+        gameSession.gameName = gameSession._id;
+        gameSession.meta.rounds = gameSession.state.game.roundNumber;
+        gameSession.meta.endTime = endTime;
+        gameSession.meta.elapsedTime = min;
+        if (game.win) {
+          io.to(game.gameID).emit('end', 'Victory!');
+          gameSession.meta.won = true;
+          gameSession.save(function(err, updatedSession) {
+            if (err) {
+              console.error(err);
+            } else {
+              updateObjects(game.gameID, updatedSession);
+              for (let i = 1; i < 5; i++) {
+                let user = 'user' + i;
+                if (updatedSession.users[user]) {
+                  let query = { callsign: updatedSession.users[user] };
+                  User.findOne(query, function(err, player) {
+                    if (err) {
+                      console.error(err);
+                    }
+                    let wins = player.meta.wins + 1;
+                    player.meta.wins = wins;
+                    if (wins === 21) {
+                      player.meta.rank = 'Admiral';
+                    } else if (wins === 18) {
+                      player.meta.rank = 'Commander';
+                    } else if (wins === 15) {
+                      player.meta.rank = 'Colonel';
+                    } else if (wins === 12) {
+                      player.meta.rank = 'Lt. Colonel';
+                    } else if (wins === 9) {
+                      player.meta.rank = 'Major';
+                    } else if (wins === 6) {
+                      player.meta.rank = 'Captain';
+                    } else if (wins === 3) {
+                      player.meta.rank = 'Lieutenant';
+                    }
+                    player.save(function(err, updatedUser) {
+                      if (err) {
+                        console.error(err);
+                      } else {
+                        console.log(updatedSession.users[user] + " updated");
+                        if (updatedUser.meta.wins <= 21 && updatedUser.meta.wins%3 === 0) {
+                          console.log(updatedUser.callsign + " promoted to " + updatedUser.meta.rank);
+                        }
+                      }
+                    });
+                  });
+                } else {
+                  continue;
+                }
+              }
+            }
+          });
+        } else {
+          io.to(game.gameID).emit('end', 'Defeat!');
+          gameSession.meta.lost = true;
+          gameSession.save(function(err, updatedSession) {
+            if (err) {
+              console.error(err);
+            } else {
+              updateObjects(game.gameID, updatedSession);
+              for (let i = 1; i < 5; i++) {
+                let user = 'user' + i;
+                if (updatedSession.users[user]) {
+                  let query = { callsign: updatedSession.users[user] };
+                  let update = { $inc: { 'meta.losses': 1 }};
+                  User.update(query, update, function() {
+                    console.log(updatedSession.users[user] + " updated");
+                  });
+                } else {
+                  continue;
+                }
+              }
+            }
+          });
+        }
       } else {
-        updateObjects(game.gameId, updatedSession);
+        gameSession.save(function(err, updatedSession) {
+          if (err) {
+            console.error(err);
+          } else {
+            updateObjects(game.gameID, updatedSession);
+          }
+        });
       }
-    });
+    }
   });
 }
 
@@ -1525,7 +1588,7 @@ function onConnection(socket) {
           }
           if (gameSession.locked) {
             player.effects.dead = true;
-            saveGameState(game);
+            saveGame(game);
           } else {
             io.to(gameId).emit('msg', player.name + ' left.');
           }
@@ -1605,46 +1668,47 @@ function onConnection(socket) {
         getGameSession(gameId, function(err, gameSession) {
           if (err) {
             console.error(err);
-          }
-          if (gameSession.players >= 2) {
-            let update = { 'meta.locked': true, 'meta.startTime': new Date(), 'meta.endTime': new Date() };
-            GameSession.update(gameSession, update, function() {
-              io.to(gameId).emit('start');
-              let game = new Game(gameSession._id, gameSession.difficulty);
-              let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-              let Player1;
-              let Player2;
-              let Player3;
-              let Player4;
-              game.friendlies = [FriendlyBase];
-              if (gameSession.users.user1) {
-                Player1 = new Player('Player1', gameSession.users.user1);
-                game.friendlies.push(Player1);
-              }
-              if (gameSession.users.user2) {
-                Player2 = new Player('Player2', gameSession.users.user2);
-                game.friendlies.push(Player2);
-              }
-              if (gameSession.users.user3) {
-                Player3 = new Player('Player3', gameSession.users.user3);
-                game.friendlies.push(Player3);
-              }
-              if (gameSession.users.user4) {
-                Player4 = new Player('Player4', gameSession.users.user4);
-                game.friendlies.push(Player4);
-              }
-              game.buildDecks();
-              game.round();
-              gameSession.state.game.push(game);
-              gameSession.save(function(err, updatedSession) {
-                if (err) {
-                  console.error(err)
-                }
-                updateObjects(gameId, updatedSession);
-              });
-            });
           } else {
-            console.log('Error launching game.');
+            if (gameSession.players >= 2) {
+              let update = { 'meta.locked': true, 'meta.startTime': new Date(), 'meta.endTime': new Date() };
+              GameSession.update(gameSession, update, function() {
+                io.to(gameId).emit('start');
+                let game = new Game(gameSession._id, gameSession.gameName, gameSession.difficulty);
+                let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
+                let Player1;
+                let Player2;
+                let Player3;
+                let Player4;
+                game.friendlies = [FriendlyBase];
+                if (gameSession.users.user1) {
+                  Player1 = new Player('Player1', gameSession.users.user1);
+                  game.friendlies.push(Player1);
+                }
+                if (gameSession.users.user2) {
+                  Player2 = new Player('Player2', gameSession.users.user2);
+                  game.friendlies.push(Player2);
+                }
+                if (gameSession.users.user3) {
+                  Player3 = new Player('Player3', gameSession.users.user3);
+                  game.friendlies.push(Player3);
+                }
+                if (gameSession.users.user4) {
+                  Player4 = new Player('Player4', gameSession.users.user4);
+                  game.friendlies.push(Player4);
+                }
+                game.buildDecks();
+                game.round();
+                gameSession.state.game.push(game);
+                gameSession.save(function(err, updatedSession) {
+                  if (err) {
+                    console.error(err)
+                  }
+                  updateObjects(gameId, updatedSession);
+                });
+              });
+            } else {
+              console.error('Error launching game.');
+            }
           }
         });
       });
@@ -1666,7 +1730,7 @@ function turn(data) {
     if (err) {
       console.error(err);
     }
-    let game = new Game();
+    let game = new Game(gameSession._id, gameSession.gameName, gameSession.difficulty)
     let FriendlyBase = new Friendly('FriendlyBase', 'Friendly Base', 30);
     let Player1 = new Player('Player1');
     let Player2 = new Player('Player2');
@@ -1712,7 +1776,6 @@ function turn(data) {
     game.enemiesActive = gameState.enemiesActive;
     game.enemiesPerTurn = gameState.enemiesPerTurn;
     game.currentEnemyBaseCard = gameState.currentEnemyBaseCard;
-    game.gameID = gameState.gameID;
     game.win = gameState.win;
     game.lose = gameState.lose;
     game.enemiesPerTurn = gameState.enemiesPerTurn;
@@ -1741,103 +1804,7 @@ function turn(data) {
                                             specs.pursuerIndex,
                                             specs.purchaseIndex);
     }
-    if (game.win) {
-      // saveGameState(game);
-      io.to(gameId).emit('end', 'Victory!');
-      getGameSession(gameId, function(err, gameSession) {
-        if (err) {
-          console.error(err);
-        }
-        let endTime = new Date();
-        let ms = endTime - gameSession.meta.startTime;
-        let min = Math.round(ms/1000/60);
-        gameSession.gameName = gameSession._id;
-        gameSession.meta.rounds = gameSession.state.game.roundNumber;
-        gameSession.meta.won = true;
-        gameSession.meta.endTime = endTime;
-        gameSession.meta.elapsedTime = min;
-        gameSession.save(function(err, updatedSession) {
-          if (err) {
-            console.error(err);
-          }
-          for (let i = 1; i < 5; i++) {
-            let user = 'user' + i;
-            if (updatedSession.users[user]) {
-              let query = { callsign: updatedSession.users[user] };
-              User.find(query, function(err, player) {
-                if (err) {
-                  console.error(err);
-                }
-                let wins = player.meta.wins + 1;
-                player.meta.wins = wins;
-                if (wins = 21) {
-                  player.meta.rank = 'Admiral';
-                } else if (wins = 18) {
-                  player.meta.rank = 'Commander';
-                } else if (wins = 15) {
-                  player.meta.rank = 'Colonel';
-                } else if (wins = 12) {
-                  player.meta.rank = 'Lt. Colonel';
-                } else if (wins = 9) {
-                  player.meta.rank = 'Major';
-                } else if (wins = 6) {
-                  player.meta.rank = 'Captain';
-                } else if (wins = 3) {
-                  player.meta.rank = 'Lieutenant';
-                }
-                player.save(function(err, updatedUser) {
-                  if (err) {
-                    console.error(err);
-                  } else {
-                    console.log(updatedSession.users[user] + " updated");
-                    if (updatedUser.meta.wins < 22 && updatedUser.meta.wins%3 === 0) {
-                      console.log(updatedUser.callsign + " promoted to " + updatedUser.meta.rank);
-                    }
-                  }
-                });
-              });
-            } else {
-              continue;
-            }
-          }
-        });
-      });
-    } else if (game.lose) {
-      // saveGameState(game);
-      io.to(gameId).emit('end', 'Defeat!');
-      getGameSession(gameId, function(err, gameSession) {
-        if (err) {
-          console.error(err);
-        }
-        let endTime = new Date();
-        let ms = endTime - gameSession.meta.startTime;
-        let min = Math.round(ms/1000/60);
-        gameSession.gameName = gameSession._id;
-        gameSession.meta.rounds = game.roundNumber;
-        gameSession.meta.lost = true;
-        gameSession.meta.endTime = endTime;
-        gameSession.meta.elapsedTime = min;
-        gameSession.save(function(err, updatedSession) {
-          if (err) {
-            console.error(err);
-          }
-          for (let i = 1; i < 5; i++) {
-            let user = 'user' + i;
-            if (updatedSession.users[user]) {
-              let query = { callsign: updatedSession.users[user] };
-              let update = { $inc: { 'meta.losses': 1 }};
-              User.update(query, update, function() {
-                console.log(updatedSession.users[user] + " updated");
-              });
-            } else {
-              continue;
-            }
-          }
-        });
-      });
-    } else {
-      saveGameState(game);
-    }
+    saveGame(game);
   });
 }
 

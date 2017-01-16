@@ -850,7 +850,7 @@ $cicButton.on("click", function() {
   });
 });
 
-const sendPacket = function() { // needs update for database version
+const sendPacket = function() {
   let turnInfo = {
     player: getPlayer(),
     button: buttonPressed,
@@ -859,7 +859,6 @@ const sendPacket = function() { // needs update for database version
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
-  console.log(turnInfo);
   sock.emit("turn", { room: room, turnInfo: turnInfo });
   clearOverlay();
   detarget();
