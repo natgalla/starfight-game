@@ -158,11 +158,6 @@ const EnemyBaseCard = function(name, cssClass, description) {
   this.card = "<p id='enemyBaseCard'>" + this.description + "</p>";
 }
 
-//IF MIGRATED TO SERVER SIDE
-// let enemies = require("./enemies");
-// let tactical = require("./tactical");
-
-
 /**************************
 FRIENDLY BASE CONSTRUCTOR
 **************************/
@@ -773,7 +768,7 @@ Player.prototype.useAdvTactic = function(game, advTactic, friendly, pursuerIndex
   let action = choice.cssClass;
   if (this.merit >= choice.cost) {
     this.merit -= choice.cost;
-    this[action](friendly, pursuerIndex);
+    this[action](game, friendly, pursuerIndex);
     game.removeAdvTactic(advTactic);
   } else {
     io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
@@ -824,10 +819,6 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
   game.nextTurn();
   return game;
 }
-
-// let friendlies = require('./friendlies');
-// let tactical = require('./tactical');
-// let enemies = require('./enemies');
 
 const Game = function(id, name, difficulty) {
   this.name = name;

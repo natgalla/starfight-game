@@ -1,7 +1,3 @@
-// let friendlies = require('./friendlies');
-// let tactical = require('./tactical');
-// let enemies = require('./enemies');
-
 const Game = function(id, name, difficulty) {
   this.name = name;
   this.difficulty = difficulty;

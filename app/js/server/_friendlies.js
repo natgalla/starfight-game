@@ -1,8 +1,3 @@
-//IF MIGRATED TO SERVER SIDE
-// let enemies = require("./enemies");
-// let tactical = require("./tactical");
-
-
 /**************************
 FRIENDLY BASE CONSTRUCTOR
 **************************/
@@ -613,7 +608,7 @@ Player.prototype.useAdvTactic = function(game, advTactic, friendly, pursuerIndex
   let action = choice.cssClass;
   if (this.merit >= choice.cost) {
     this.merit -= choice.cost;
-    this[action](friendly, pursuerIndex);
+    this[action](game, friendly, pursuerIndex);
     game.removeAdvTactic(advTactic);
   } else {
     io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
