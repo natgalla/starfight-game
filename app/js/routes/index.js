@@ -231,9 +231,9 @@ router.get('/game', mid.requiresLogin, mid.requiresGameSession, function(req, re
     if (err) {
       return next(err);
     }
-    res.cookie('gameName', req.session.gameId)
+    res.cookie('gameId', req.session.gameId);
+    res.cookie('userId', req.session.userId);
     return res.render('game', {
-      game: req.session.gameId,
       gameTitle: gameTitle,
       gameName: gameSession.gameName
     });

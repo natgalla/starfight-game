@@ -249,36 +249,40 @@ Player.prototype.checkDamageNegation = function(game, damage) {
   }
 }
 
+Player.prototype.destroyed = function(game, status) {
+  this.effects.dead = true;
+  this.effects.status = status;
+  while (this.hand.length > 0) {
+    game.moveCard(0, this.hand, game.tacticalDeck.discard);
+  }
+  let pursuers = this.pursuers;
+  game.distributeEnemies(pursuers);
+  this.pursuers = [];
+  let alldead = true;
+  for (let i = 0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly.id === "FriendlyBase") {
+      continue;
+    } else {
+      if (!friendly.effects.dead) {
+        alldead = false;
+      }
+    }
+  }
+  if (alldead) {
+    io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
+    game.lose = true;
+    console.log('Loss condition met: All pilots destroyed');
+  }
+}
+
 Player.prototype.takeDamage = function(game, damage) {
   if (damage > 0) {
     this.currentArmor -= damage;
     if (this.currentArmor <= 0) {
       this.currentArmor = 0;
-      this.effects.dead = true;
-      this.effects.status = "KIA";
+      this.destroyed(game, 'KIA');
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
-      while (this.hand.length > 0) {
-        game.moveCard(0, this.hand, game.tacticalDeck.discard);
-      }
-      let pursuers = this.pursuers;
-      game.distributeEnemies(pursuers);
-      this.pursuers = [];
-      let alldead = true;
-      for (let i = 0; i < game.friendlies.length; i++) {
-        let friendly = game.friendlies[i];
-        if (friendly.id === "FriendlyBase") {
-          continue;
-        } else {
-          if (!friendly.effects.dead) {
-            alldead = false;
-          }
-        }
-      }
-      if (alldead) {
-        io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
-        game.lose = true;
-        console.log('Loss condition met: All pilots destroyed');
-      }
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
                   + this.currentArmor + "/" + this.maxArmor);

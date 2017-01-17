@@ -75,6 +75,17 @@ Game.prototype.findFriendlyBase = function() {
   }
 }
 
+Game.prototype.findPlayer = function(id) {
+  for (let i=0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    if (id === friendly.id) {
+      return friendly;
+    } else if (id === this.enemyBase.id) {
+      return this.enemyBase;
+    }
+  }
+}
+
 Game.prototype.checkDeck = function(deck) {
   // if deck is empty, replace with discard and shuffle
   if (deck.cards.length === 0) {

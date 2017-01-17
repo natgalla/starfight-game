@@ -9,7 +9,7 @@ let immelman = new Tactical("Immelman", "immelman", "Missile an enemy pursuing y
 
 // Advanced tactics
 // let medalOfHonor = new AdvTactical("Medal of Honor", "medalOfHonor", "Every enemy destroyed is worth 1 extra merit", 10);
-// let daredevil = new AdvTactical("Daredevil", "daredevel", "Allows you to attack the EB with 1 pursuer", 10);
+// let daredevil = new AdvTactical("Daredevil", "daredevil", "Allows you to attack the EB with 1 pursuer", 10);
 // let medic = new AdvTactical("Medic", "medic", "Restore 1 armor to a friendly of your choice each round", 10);
 // let sharpShooter = new AdvTactical("Sharp Shooter", "sharpshooter", "Improve player accuracy rolls/add an extra die", 10);
 let bomb = new AdvTactical("Bomb", "bomb", "Deal 6 damage to a single target, and 2 damage to the target on either side of it", 8);
@@ -41,28 +41,3 @@ let fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly b
 let deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
 let repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
 let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
-
-// let enemyBase = new EnemyBase();
-
-// define friendlies
-// let FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-// let Player1;
-// let Player2;
-// let Player3;
-// let Player4;
-
-// let game = new Game();
-
-let reset = function() {
-  FriendlyBase = new Friendly("FriendlyBase", "Friendly Base", 30);
-  Player1 = null;
-  Player2 = null;
-  Player3 = null;
-  Player4 = null;
-
-  game = new Game();
-}
-
-let launchGame = function() {
-  game.round();
-}

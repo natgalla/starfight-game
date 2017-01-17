@@ -15,7 +15,7 @@ function requiresLogin(req, res, next) {
 }
 
 function requiresGameSession(req, res, next) {
-  if (!req.session.gameId) {
+  if (!req.session.gameId && req.header('Referer') !== req.header('Host') + '/menu') {
     let err = new Error('You must create or join a game');
     err.status = 403;
     return next(err);

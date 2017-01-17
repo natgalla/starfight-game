@@ -1,5 +1,6 @@
-var room = getCookie('gameName');
-var sock = io('/', { query: "room=" + room });
+var room = getCookie('gameId');
+var userId = getCookie('userId');
+var sock = io('/', { query: "room=" + room + "&user=" + userId });
 
 var user;
 var userTurn = false;
