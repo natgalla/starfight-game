@@ -1,0 +1,11 @@
+extends ./layout.pug
+
+block content
+  .menu#register
+    h3.formHeader Welcome, #{callsign}
+    .link
+      p 
+        a(href='/profile') View profile
+        
+block js
+  include ./partials/_auth.pug

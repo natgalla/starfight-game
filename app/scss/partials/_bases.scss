@@ -1,5 +1,6 @@
 #FriendlyBase,
 #enemyBase {
+  margin-top: -50px;
   position: relative;
   background: $darkGrey;
   height: 300px;
@@ -50,8 +51,9 @@
   border-left: 4px solid $secondaryOrange;
   border-top: 2px solid $secondaryOrange;
   border-bottom: 5px solid $secondaryOrange;
+  border-right: none;
   border-radius: 3em 0 0 3em;
-  margin-right: -2px;
+  margin-right: 0;
 }
 
 #basePursuers,

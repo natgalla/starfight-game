@@ -16,12 +16,13 @@ $highlightGreen: lighten($complementGreen, $step);
 $shadeGreen: darken($complementGreen, $step);
 
 // neutrals
-$darkGrey: #333;
+$darkGrey: #252525;
 $mediumGrey: #666;
 $lightGrey: #888;
 $black: #000;
 $white: #FFF;
 $darkTranslucent: rgba(0,0,0,0.8);
+$lightTranslucent: rgba(0,0,0,0.5);
 $invisible: rgba(0,0,0,0);
 
 $fontStack: VT323, courier, monospace;

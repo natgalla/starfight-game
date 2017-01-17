@@ -28,16 +28,57 @@ button {
   margin-top: 5px;
 }
 
-input {
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  transition: 0.5s;
   text-align: center;
   font-family: VT323, courier, monospace;
   font-size: 1.2em;
   padding-top: 10px;
-  padding-bottom: 12px;
+  padding-bottom: 10px;
   background-color: $darkGrey;
   border: none;
   color: $complementGreen;
-  &[type=text]:focus {
+  &:focus {
     outline: 2px solid $complementGreen;
+  }
+}
+
+input[type="checkbox"] {
+  background-color: $darkGrey;
+  &:focus {
+    outline: 2px solid $complementGreen;
+  }
+}
+
+#messenger {
+  width: 280px;
+  margin: -1em auto 0 auto;
+  border-radius: 3px;
+  & input {
+    font-size: 1em;
+    text-align: left;
+    box-shadow: inset 0px 0px 5px $complementGreen,
+                inset 0px 0px 5px $complementGreen,
+                inset -1px -4px 6px $darkTranslucent,
+                inset 1px 4px 6px $darkTranslucent;
+    margin: 0;
+    height: 30px;
+    padding: 0 0 0 0.5em;
+    width: 72%;
+    &:focus {
+      outline: none;
+    }
+  }
+  & button {
+    font-size: 0.9em;
+    height: 30px;
+    width: 23%;
+    margin: 0;
+    padding: 0 0.5em;
+  }
+  & #sendMessage {
+    margin: 0;
   }
 }

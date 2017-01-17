@@ -1,0 +1,146 @@
+.menu {
+  background: $lightTranslucent;
+  padding: 0.5em 1em;
+  width: 30%;
+  width: 375px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    width: 300px;
+  }
+  margin: 0 auto;
+  border-radius: 1em;
+  border-top: 4px solid $primaryPink;
+  border-bottom: 5px solid $primaryPink;
+  & h3 {
+    text-align: center;
+  }
+  &#logout {
+    text-align: center;
+    & p {
+      margin-top: 3em;
+    }
+  }
+  &#error {
+    text-align: center;
+    & p {
+      margin: 2.5em 0;
+      font-size: 1.5em;
+      text-align: center;
+    }
+    & .link p {
+      margin: 0;
+      font-size: 1.2em;
+    }
+  }
+  & div {
+    &.tip {
+      display: block;
+      background: $black;
+      border-left: 3px solid $primaryPink;
+      border-right: 3px solid $primaryPink;
+      border-radius: 0.5em;
+      width: 250px;
+      position: absolute;
+      margin-left: -110px;
+      margin-top: -48px;
+      @media (max-width: $breakWidth), (max-height: $breakHeight) {
+        margin-left: -140px;
+        margin-top: -40px;
+      }
+      padding: 0;
+      vertical-align: middle;
+      & h3 {
+        font-size: 0.9em;
+        text-align: center;
+      }
+    }
+    display: flex;
+    justify-content: space-between;
+    &.create,
+    &.join {
+      width: 50%;
+      display: inline-block;
+      text-align: center;
+      margin: 2em 0;
+      & label {
+        margin-left: 1em;
+      }
+    }
+    &.session {
+      margin-bottom: 2em;
+    }
+    &.submit {
+      justify-content: space-around;
+      padding: 1em 0;
+    }
+    &.updates {
+      display: block;
+      text-align: center;
+      margin-top: 1em;
+      justify-content: space-around;
+      & label {
+        margin-left: 1em;
+        font-size: 0.95em;
+      }
+    }
+    &.profile {
+      text-align: left;
+      justify-content: space-around;
+      & h3 {
+        display: block;
+        width: 50%;
+        text-align: left;
+        padding-left: 15%;
+      }
+    }
+    &.link {
+      display: block;
+      text-align: center;
+      margin: 1em;
+      & button {
+        margin: 1em;
+      }
+      & a {
+        @include menuLink;
+      }
+    }
+    &.difficulty {
+      margin: 1em 0 2em;
+      font-size: 0.8em;
+    }
+    &#info {
+      display: block;
+      margin-bottom: 2em;
+    }
+    #messenger {
+      display: block;
+      max-width: 280px;
+    }
+  }
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    margin: 0.3em 0;
+    padding: 0.5em ease-out;
+    width: 60%;
+    &.invalidEntry {
+      box-shadow: inset 0px 0px 7px $secondaryOrange;
+      color: $secondaryOrange;
+      &:focus {
+        outline: 2px solid $secondaryOrange;
+      }
+    }
+    &.valid {
+      color: $complementGreen;
+      &:focus {
+        outline: 2px solid $secondaryBlue;
+      }
+    }
+  }
+  label {
+    font-family: "Orbitron", monospace;
+    margin: auto 0;
+    color: $secondaryBlue;
+    font-size: 1.3em;
+    text-align: left;
+  }
+}

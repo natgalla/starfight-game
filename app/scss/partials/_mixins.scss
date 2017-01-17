@@ -6,12 +6,18 @@
   box-shadow: 2px 2px 3px $highlightPink,
               -2px -2px 5px $highlightPink;
   z-index: 9 !important;
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 @mixin selection {
   border-color: $complementGreen;
   box-shadow: 2px 2px 3px $highlightGreen,
               -2px -2px 5px $highlightGreen;
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 @mixin card($width) {
@@ -44,8 +50,15 @@
   box-shadow: none;
   color: $lightGrey;
   &:hover {
+    color: $lightGrey;
     box-shadow: none;
     cursor: not-allowed;
+  }
+  &:focus {
+    color: $lightGrey;
+    box-shadow: none;
+    cursor: not-allowed;
+    border-color: $mediumGrey;
   }
   & h3 {
     color: desaturate($secondaryBlue, 20%);
@@ -68,4 +81,36 @@
   background-color: $darkGrey;
   box-shadow: 2px 2px 5px $highlightGreen,
               -2px -2px 7px $highlightGreen;
+}
+
+@mixin menuLink {
+  font-size: 1em;
+  transition: 0.5s ease-out;
+  text-decoration: none;
+  color: $shadePink;
+  &:hover {
+    color: $primaryPink;
+  }
+}
+
+@mixin scrollbars($size, $foreground-color, $background-color: mix($foreground-color, white,  50%)) {
+  // For Google Chrome
+  ::-webkit-scrollbar {
+      width:  $size;
+      height: $size;
+  }
+
+  ::-webkit-scrollbar-thumb {
+      background: $foreground-color;
+  }
+
+  ::-webkit-scrollbar-track {
+      background: $background-color;
+  }
+
+  // For Internet Explorer
+  body {
+    scrollbar-face-color: $foreground-color;
+    scrollbar-track-color: $background-color;
+  }
 }

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 var gulp = require('gulp'),
   concat = require('gulp-concat'),
@@ -6,88 +6,87 @@ var gulp = require('gulp'),
   rename = require('gulp-rename'),
     sass = require('gulp-sass'),
     maps = require('gulp-sourcemaps'),
-    del = require('del');
+     del = require('del');
 
-
-gulp.task("concatScripts", function() {
+gulp.task('concatServerScripts', function() {
     return gulp.src([
         'js/server/_tactical.js',
+        'js/server/_deck.js',
         'js/server/_enemies.js',
         'js/server/_friendlies.js',
         'js/server/_game.js',
-        'js/client/_starfire_ui.js',
-        'js/client/_localstart.js'
+        'js/server/_build.js',
+        'js/server/_server.js'
       ])
     .pipe(maps.init())
     .pipe(concat('app.js'))
     .pipe(maps.write('./'))
-    .pipe(gulp.dest('js'));
+    .pipe(gulp.dest(__dirname));
 });
 
-gulp.task("concatServerScripts", function() {
+gulp.task('concatGameScripts', function() {
     return gulp.src([
-        'js/server/_tactical.js',
-        'js/server/_enemies.js',
-        'js/server/_friendlies.js',
-        'js/server/_game.js',
-        'js/server/_server.js',
+        'public/js/jquery.min.js',
+        'public/js/_client.js',
+        'public/js/_typeWord.js',
+        'public/js/_menu.js',
+        'public/js/_ui.js'
       ])
     .pipe(maps.init())
-    .pipe(concat('server.js'))
+    .pipe(concat('game.js'))
     .pipe(maps.write('./'))
     .pipe(gulp.dest('js'));
 });
 
-gulp.task("concatClientScripts", function() {
+gulp.task('concatMenuScripts', function() {
     return gulp.src([
-        'js/client/_client.js',
-        'js/client/_starfire_menu.js',
-        'js/client/_starfire_ui.js'
+        'public/js/jquery.min.js',
+        'public/js/_typeWord.js',
+        'public/js/_menu.js',
       ])
     .pipe(maps.init())
-    .pipe(concat('client.js'))
+    .pipe(concat('menu.js'))
     .pipe(maps.write('./'))
     .pipe(gulp.dest('js'));
 });
 
-gulp.task("minifyScripts", ["concatClientScripts", "concatServerScripts"], function() {
-  return gulp.src("js/app.js")
+gulp.task('minifyScripts', ['concatGameScripts', 'concatMenuScripts', 'concatServerScripts'], function() {
+  return gulp.src('js/app.js')
     .pipe(uglify())
     .pipe(rename('app.min.js'))
     .pipe(gulp.dest('js'));
 });
 
 gulp.task('compileSass', function() {
-  return gulp.src("scss/main.scss")
+  return gulp.src('scss/main.scss')
       .pipe(maps.init())
       .pipe(sass())
       .pipe(maps.write('./'))
-      .pipe(gulp.dest('css'));
+      .pipe(gulp.dest('public/css'));
 });
 
 gulp.task('watchFiles', function() {
   gulp.watch('scss/**/*.scss', ['compileSass']);
   gulp.watch([
       'js/server/*.js',
-      'js/client/*.js'
+      'public/js/*.js'
     ],
-    ["concatScripts", "concatClientScripts", "concatServerScripts"]);
+    ['concatGameScripts', 'concatMenuScripts', 'concatServerScripts']);
 });
 
 gulp.task('clean', function() {
-  return del(['dist', 'css/main.css*', 'js/app*.js*', 'js/client*.js*', 'js/server*.js*']);
-})
+  return del(['dist', 'public/css/main.css*', 'js/game*.js*', 'js/menu*.js*', 'server*.js*']);
+});
 
-gulp.task("build", [/* 'minifyScripts', */ 'concatServerScripts',
-                    'concatClientScripts', 'concatScripts',
-                    'compileSass'],
+gulp.task('build', [/* 'minifyScripts', */ 'concatServerScripts',
+                    'concatGameScripts', 'concatMenuScripts', 'compileSass'],
   function() {
-    return gulp.src(["css/main.css", "js/app.js", "index.html"], { base: "./" })
-               .pipe(gulp.dest("dist"));
+    return gulp.src(['js/game.js', 'js/menu.js', 'public/img/**', 'public/css/**', 'views/**', 'app.js', 'index.html'], { base: './' })
+               .pipe(gulp.dest('dist'));
 });
 
 gulp.task('serve', ['watchFiles']);
 
-gulp.task("default", ["clean"], function() {
+gulp.task('default', ['clean'], function() {
   gulp.start('build');
 });

@@ -1,0 +1,12 @@
+extends ./layout.pug
+
+block content
+  .menu#error
+    h3.formHeader ERROR
+    p.error >>  #{statusMessage}
+    .link
+      p
+        a(href=backUrl) #{backPrompt}
+
+block js
+  include ./partials/_auth.pug

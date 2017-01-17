@@ -3,14 +3,13 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100vh;
   background-image: linear-gradient($black, rgba(0,0,0,0.3), $black),
-                    url(../../img/space.jpg);
+                    url(../img/space.jpg);
   perspective: 1200;
-  & h1 {
+  h1 {
     color: $primaryPink;
     font-family: 'Orbitron', sans-serif;
-    margin: 2% auto 1%;
+    margin: 50px auto 1%;
     font-size: 5.5em;
-    padding-top: 5%;
     text-align: center;
     text-shadow: 2px 2px 5px $highlightBlue,
                 -2px -2px 4px $shadeBlue;
@@ -25,6 +24,7 @@ body {
 
 h3 {
   color: $secondaryBlue;
+  font-family: "Orbitron", monospace, sans-serif;
 }
 
 p {
@@ -52,14 +52,22 @@ li p {
   margin-left: -2.5em;
 }
 
-#copyright {
+.disabled {
+  @include disabled;
+}
+
+.copyright {
   font-family: sans-serif;
   color: $secondaryBlue;
-  font-size: 0.8em;
-  position: fixed;
-  bottom: 10px;
+  font-size: 0.7em;
   text-align: center;
+  position: fixed;
+  bottom: 0;
+  margin-top: 2%;
   width: 100%;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    font-size: 0.9em;
+  }
 }
 
 #setup {
@@ -68,7 +76,6 @@ li p {
 }
 
 #wingmen {
-  height: 200px;
   margin-top: -30px;
   text-align: center;
   & ul {
@@ -105,8 +112,64 @@ li p {
   display: inline-block;
 }
 
-.clearfix::after {
+.clearfix::before {
   content: " ";
   display: table;
   clear: both;
 }
+
+#info {
+  &.messages {
+    position: fixed;
+    left: 5%;
+    bottom: 2%;
+    #chat {
+      margin-left: 4px;
+    }
+  }
+  & #status {
+    width: 247px;
+    height: 70px;
+    overflow-y: scroll;
+    margin: 1em auto;
+    text-align: left;
+    padding-left: 0;
+    padding: 1em;
+    background: $darkGrey;
+    border-radius: 5px 5px 0 0;
+    box-shadow: inset 0px 0px 5px $complementGreen,
+                inset 0px 0px 5px $complementGreen,
+                inset -2px -4px 8px $darkTranslucent,
+                inset 2px 4px 8px $darkTranslucent;
+    & li {
+      color: $complementGreen;
+      &.playerMessage {
+        color: $highlightBlue;
+      }
+    }
+  }
+}
+
+#room {
+  text-align: center;
+  & h3 {
+    margin: 2em;
+  }
+  & button {
+    margin-bottom: 2em;
+  }
+}
+
+#centerMessage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300px;
+  height: 300px;
+  text-align: center;
+  vertical-align: middle;
+  margin-left: -150px;
+  margin-top: -150px;
+}
+
+@include scrollbars(0.3em, darken($complementGreen, $step), $complementGreen);

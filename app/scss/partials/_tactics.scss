@@ -3,9 +3,6 @@
   @include card(90px);
   border: 2px solid $primaryPink;
   z-index: 2;
-  &:hover {
-    cursor: pointer;
-  }
 }
 
 .selected {
@@ -14,15 +11,13 @@
 
 #playerHand {
   @include undoListOffset;
-  width: 285px;
-  height: 170px;
+  height: 165px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    width: 240px;
     height: 140px;
   }
   transform: rotateX(10deg);
   border-top: 3px solid $primaryPink;
-  border-bottom: 5px solid $highlightPink;
+  border-bottom: 5px solid $primaryPink;
   border-radius: 1em;
   padding: 10px 40px;
   background: $darkTranslucent;
@@ -52,24 +47,21 @@
 #wingmen .tactical,
 #wingmen .advTactical {
   @include card(70px);
-  // LOCAL VERSION
-  margin: 0 -1.5em;
-  // SERVER VERSION
-  // margin-left: -5em;
-  // &:first-child {
-  //   margin-left: -1.5em;
-  // }
-  margin-top: -60px;
+  margin-left: -5em;
+  &:first-child {
+    margin-left: -1.5em;
+  }
+  margin-top: -6em;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    margin-top: -45px;
+    margin-top: -4.5em;
   }
   font-size: .5em;
   z-index: 0;
   vertical-align: middle;
   & h3 {
-    // @include hide;
+    @include hide;
   }
   & p {
-    // @include hide;
+    @include hide;
   }
 }
