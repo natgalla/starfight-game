@@ -1470,25 +1470,16 @@ function saveGame(game) {
                       console.error(err);
                     } else {
                       let wins = player[0].meta.wins + 1;
-                      let query = player[0];
-                      let rank;
-                      if (wins === 21) {
-                        rank = 'Admiral';
-                      } else if (wins === 18) {
-                        rank = 'Commander';
-                      } else if (wins === 15) {
-                        rank = 'Colonel';
-                      } else if (wins === 12) {
-                        rank = 'Lt. Colonel';
-                      } else if (wins === 9) {
-                        rank = 'Major';
-                      } else if (wins === 6) {
-                        rank = 'Captain';
-                      } else if (wins === 3) {
-                        rank = 'Lieutenant';
+                      function getRank(number, list, inc) {
+                      	if (number <= list.length*inc && number % inc === 0) {
+                      		return list[number/inc-1];
+                        }
                       }
+                      let ranks = ['Lieutenant', 'Captain', 'Major', 'Lt. Colonel', 'Colonel', 'Commander', 'Admiral'];
+                      let query = player[0];
+                      let rank = getRank(wins, ranks, 3) || player[0].meta.rank;
                       let update = { 'meta.wins': wins, 'meta.rank': rank };
-                      if (wins <= 21 && wins%3 === 0) {
+                      if (wins <= 21 && wins % 3 === 0) {
                         console.log(player[0].callsign + " promoted to " + rank);
                       }
                       User.update(query, update, function(err, updatedUser) {
@@ -1567,6 +1558,7 @@ function onConnection(socket) {
         });
         io.to(gameId).emit('msg', user.callsign + ' joined the game.');
         socket.on('disconnect', function() {
+          console.log('user disconnected');
           getGameSession(gameId, function(err, gameSession) {
             if (err) {
               console.error(err);
@@ -1579,7 +1571,7 @@ function onConnection(socket) {
                     gameSession.players -= 1;
                   }
                 }
-                if (gameSession.state === []) {
+                if (gameSession.state.length === 0) {
                   if (gameSession.meta.locked) {
                     gameSession.meta.locked = false;
                   } else if (gameSession.players === 1) {
@@ -1605,19 +1597,18 @@ function onConnection(socket) {
                   gameSession.gameName = gameSession._id;
                   gameSession.meta.aborted = true;
                   console.log('Game ' + gameSession._id + ' aborted');
-                  gameSession.save(function (err, updatedSession) {
-                    if (err) {
-                      console.error(err);
-                    } else {
-                      console.log('user removed from ' + updatedSession._id);
-                    }
-                  });
                 }
+                gameSession.save(function (err, updatedSession) {
+                  if (err) {
+                    console.error(err);
+                  } else {
+                    console.log('user removed from ' + updatedSession._id);
+                  }
+                });
               }
             }
           });
           socket.leave(gameId);
-          console.log('user disconnected');
         });
       }
     });
