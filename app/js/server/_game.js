@@ -147,7 +147,6 @@ Game.prototype.sortByMerit = function() {
     }
     this.friendlies = friendlySort;
   }
-  // return friendlies;
 }
 
 Game.prototype.addToDeck = function(deck, type, amount) {
@@ -193,38 +192,6 @@ Game.prototype.distributeEnemies = function(source) {
         }
       }
     }
-  }
-}
-
-Game.prototype.turns = function() {
-  this.turnNumber = 1;
-  while (true) {
-    // calculate amount of tactical cards left
-    let tacticalCards = 0;
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      console.log(this.gameID + '.' + this.roundNumber + '.' + this.turnNumber
-                  + ': ' + player.name);
-      if (player === friendlyBase) {
-        continue;
-      } else {
-        tacticalCards += player.hand.length;
-      }
-    }
-    // break loop if there are no tactical cards left
-    if (tacticalCards === 0) {
-      break;
-    }
-    for (let i = 0; i < this.friendlies.length; i++) {
-      let player = this.friendlies[i];
-      if (player.id === 'FriendlyBase') {
-        continue;
-      } else {
-        let cardChoiceIndex = $('#playerHand').children().index($('.selected'));
-        let cardChoice = player.hand(cardChoiceIndex);
-      }
-    }
-    this.turnNumber ++;
   }
 }
 
@@ -367,29 +334,31 @@ Game.prototype.adjustTurn = function() {
 
 Game.prototype.nextTurn = function() {
   this.update();
-  let cardsLeft = 0;
-  this.friendlies.forEach((friendly) => {
-    if (friendly.id === 'FriendlyBase') {
-      cardsLeft += 0;
+  if (!this.win && !this.lose) {
+    let cardsLeft = 0;
+    this.friendlies.forEach((friendly) => {
+      if (friendly.id === 'FriendlyBase') {
+        cardsLeft += 0;
+      } else {
+        cardsLeft += friendly.hand.length;
+      }
+    });
+    if (cardsLeft === 0) {
+      this.nextRound();
+      this.currentTurn = 0;
     } else {
-      cardsLeft += friendly.hand.length;
+      this.currentTurn += 1;
     }
-  });
-  if (cardsLeft === 0) {
-    this.newRound();
-    this.currentTurn = 0;
-  } else {
-    this.currentTurn += 1;
-  }
-  this.adjustTurn();
-  while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
-        || this.friendlies[this.currentTurn].effects.dead) {
-    this.currentTurn += 1;
     this.adjustTurn();
+    while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
+          || this.friendlies[this.currentTurn].effects.dead) {
+      this.currentTurn += 1;
+      this.adjustTurn();
+    }
   }
 }
 
-Game.prototype.newRound = function() {
+Game.prototype.nextRound = function() {
   this.postRound();
   this.round();
   this.update();
@@ -397,7 +366,6 @@ Game.prototype.newRound = function() {
 
 Game.prototype.buildDecks = function() {
   // build tactical deck
-  this.tacticalDeck = new Deck('Tactical Deck');
   this.addToDeck(this.tacticalDeck, missile, 6);
   this.addToDeck(this.tacticalDeck, scatterShot, 4);
   this.addToDeck(this.tacticalDeck, drawFire, 3);
@@ -411,7 +379,6 @@ Game.prototype.buildDecks = function() {
   this.shuffle(this.tacticalDeck);
 
   // build advanced tactical deck
-  this.advTactics = new Deck('Advanced Tactics');
   this.addToDeck(this.advTactics, healthPack, 5);
   this.addToDeck(this.advTactics, heatSeeker, 6);
   this.addToDeck(this.advTactics, bomb, 3);
@@ -431,7 +398,6 @@ Game.prototype.buildDecks = function() {
   this.shuffle(this.advTactics);
 
   // build enemy deck
-  this.enemyDeck = new Deck('Enemy Deck');
   this.addToDeck(this.enemyDeck, ace, 4);
   this.addToDeck(this.enemyDeck, heavy, 9);
   this.addToDeck(this.enemyDeck, medium, 12);

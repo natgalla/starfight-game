@@ -247,32 +247,35 @@ function onConnection(socket) {
                     gameSession.players -= 1;
                   }
                 }
-                if (gameSession.state.length === 0) {
-                  if (gameSession.meta.locked) {
-                    gameSession.meta.locked = false;
-                  } else if (gameSession.players === 1) {
-                    io.to(gameId).emit('closeGame');
-                    io.to(gameId).emit('msg', 'Waiting for second player...')
-                  }
-                } else {
-                  // eventually replace this logic with re-entry option
-                  console.log(user.callsign + ' left during active game');
-                  loadGame(gameSession, undefined, function(game) {
-                    for (let i=0; i < game.friendlies.length; i++) {
-                      let friendly = game.friendlies[i];
-                      if (friendly.name === user.callsign) {
-                        friendly.destroyed(game, 'MIA');
-                        break;
-                      }
-                    }
-                    game.nextTurn();
-                    saveGame(game);
-                  });
-                }
                 if (gameSession.players === 0) {
                   gameSession.gameName = gameSession._id;
                   gameSession.meta.aborted = true;
                   console.log('Game ' + gameSession._id + ' aborted');
+                } else {
+                  if (gameSession.state.length === 0) {
+                    if (gameSession.meta.locked) {
+                      gameSession.meta.locked = false;
+                    } else if (gameSession.players === 1) {
+                      io.to(gameId).emit('closeGame');
+                      io.to(gameId).emit('msg', 'Waiting for second player...')
+                    }
+                  } else {
+                    // logic for leaving during active game
+                    // currently destroys leaving player's pilot
+                    // eventually replace this logic with re-entry option
+                    console.log(user.callsign + ' left during active game');
+                    loadGame(gameSession, undefined, function(game) {
+                      for (let i=0; i < game.friendlies.length; i++) {
+                        let friendly = game.friendlies[i];
+                        if (friendly.name === user.callsign) {
+                          friendly.destroyed(game, 'MIA');
+                          break;
+                        }
+                      }
+                      game.nextTurn();
+                      saveGame(game);
+                    });
+                  }
                 }
                 gameSession.save(function (err, updatedSession) {
                   if (err) {
@@ -488,13 +491,16 @@ function turnAction(game, specs) {
   if (specs.friendly !== undefined) {
     friendly = getPlayer(specs.friendly.id);
   }
-  if (specs.button === 'use') {
-    game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
-  } else {
-    game = player.discard(game, specs.cardIndex, specs.button, friendly,
-                                          specs.pursuerIndex,
-                                          specs.purchaseIndex);
-  }
 
-  saveGame(game);
+  if (game.currentTurn === game.friendlies.indexOf(player)) { // should protect against possible tampering on front end
+    if (specs.button === 'use') {
+      game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
+    } else {
+      game = player.discard(game, specs.cardIndex, specs.button, friendly,
+                                                                specs.pursuerIndex,
+                                                                specs.purchaseIndex);
+    }
+
+    saveGame(game);
+  }
 }
