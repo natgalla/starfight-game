@@ -695,7 +695,7 @@ Player.prototype.healthPack = function(game, friendly, index) {
   if (index === undefined) {
     index = 0;
   }
-  this.repairDrone(friendly, index, 5, 0);
+  this.repairDrone(game, friendly, index, 5, 0);
 }
 
 Player.prototype.intercept = function(game) {
@@ -794,11 +794,11 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   }
   let card = this.hand[cardIndex];
   let action = card.cssClass;
-  io.to(game.gameID).emit("msg", this.name + " uses " + card.name)
-  this[action](game, friendly, pursuerIndex);
   if (action != "feint") {
     this.lastCardUsed = card;
+    io.to(game.gameID).emit("msg", this.name + " uses " + card.name)
   }
+  this[action](game, friendly, pursuerIndex);
   game.moveCard(cardIndex, this.hand, game.tacticalDeck.discard)
   game.nextTurn();
   return game;
@@ -1571,24 +1571,41 @@ function onConnection(socket) {
             if (err) {
               console.error(err);
             } else {
-              io.to(gameId).emit('msg', user.callsign + ' left.');
-              for (person in gameSession.users) {
-                if (gameSession.users[person] === user.callsign) {
-                  gameSession.users[person] = undefined;
-                  gameSession.players -= 1;
+              if (!gameSession.meta.lost && !gameSession.meta.won) {
+                io.to(gameId).emit('msg', user.callsign + ' left.');
+                for (person in gameSession.users) {
+                  if (gameSession.users[person] === user.callsign) {
+                    gameSession.users[person] = undefined;
+                    gameSession.players -= 1;
+                  }
                 }
-              }
-              if (gameSession.state === []) {
-                if (gameSession.meta.locked) {
-                  gameSession.meta.locked = false;
-                } else if (gameSession.players === 1) {
-                  io.to(gameId).emit('closeGame');
-                  io.to(gameId).emit('msg', 'Waiting for second player...')
-                } else if (gameSession.players === 0) {
+                if (gameSession.state === []) {
+                  if (gameSession.meta.locked) {
+                    gameSession.meta.locked = false;
+                  } else if (gameSession.players === 1) {
+                    io.to(gameId).emit('closeGame');
+                    io.to(gameId).emit('msg', 'Waiting for second player...')
+                  }
+                } else {
+                  // eventually replace this logic with re-entry option
+                  console.log(user.callsign + ' left during active game');
+                  loadGame(gameSession, undefined, function(game) {
+                    for (let i=0; i < game.friendlies.length; i++) {
+                      let friendly = game.friendlies[i];
+                      if (friendly.name === user.callsign) {
+                        friendly.destroyed(game, 'MIA');
+                        break;
+                      }
+                    }
+                    game.nextTurn();
+                    saveGame(game);
+                  });
+                }
+                if (gameSession.players === 0) {
                   gameSession.gameName = gameSession._id;
                   gameSession.meta.aborted = true;
                   console.log('Game ' + gameSession._id + ' aborted');
-                  gameSession.save(function(err, updatedSession) {
+                  gameSession.save(function (err, updatedSession) {
                     if (err) {
                       console.error(err);
                     } else {
@@ -1596,20 +1613,6 @@ function onConnection(socket) {
                     }
                   });
                 }
-              } else {
-                // eventually replace this logic with re-entry option
-                console.log(user.callsign + ' left during active game');
-                loadGame(gameSession, undefined, function(game) {
-                  for (let i=0; i < game.friendlies.length; i++) {
-                    let friendly = game.friendlies[i];
-                    if (friendly.name === user.callsign) {
-                      friendly.destroyed(game, 'MIA');
-                      break;
-                    }
-                  }
-                  game.nextTurn();
-                  saveGame(game);
-                });
               }
             }
           });

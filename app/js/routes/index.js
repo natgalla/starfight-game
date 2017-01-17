@@ -226,13 +226,11 @@ router.post('/menu', function(req, res, next) {
 });
 
 // Game view
-router.get('/game', mid.requiresLogin, mid.requiresGameSession, function(req, res, next) {
+router.get('/game', mid.requiresLogin, mid.requiresGameSession, mid.setCookie, function(req, res, next) {
   Game.findById(req.session.gameId, function(err, gameSession) {
     if (err) {
       return next(err);
     }
-    res.cookie('gameId', req.session.gameId);
-    res.cookie('userId', req.session.userId);
     return res.render('game', {
       gameTitle: gameTitle,
       gameName: gameSession.gameName

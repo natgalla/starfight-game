@@ -23,6 +23,13 @@ function requiresGameSession(req, res, next) {
   return next();
 }
 
+function setCookie(req, res, next) {
+  res.cookie('gameId', req.session.gameId);
+  res.cookie('userId', req.session.userId);
+  return next();
+}
+
 module.exports.loggedOut = loggedOut;
 module.exports.requiresLogin = requiresLogin;
 module.exports.requiresGameSession = requiresGameSession;
+module.exports.setCookie = setCookie;
