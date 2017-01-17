@@ -178,7 +178,7 @@ Player.prototype.updateSummary = function() {
       }
     }
   }
-  if (this.effects.status === "Pursued" || this.effects.status === "KIA") {
+  if (this.effects.status === "Pursued" || this.effects.status === "KIA" || this.effects.status === "MIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
     this.summary += "<p class='free'>" + this.effects.status + "</p>";
