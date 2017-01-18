@@ -581,10 +581,40 @@ const clearOverlay = function() {
   });
 }
 
+const addWingmen = function(friendlies) {
+  $("#wingmen").empty();
+  let toAdd = friendlies - 2;
+  for (let i = 0; i < toAdd; i++) {
+    let wingmanNumber = i+1;
+    let prefix = "wingman" + wingmanNumber;
+    let $wingman = $("<div>", {
+      class: "wingman",
+      id: prefix
+    });
+    let $hand = $("<ul>", {
+      class: "wingmanHand",
+      id: prefix + "-hand"
+    });
+    let $summary = $("<div>", {
+      class: "wingmanSummary",
+      id: prefix + "-summary"
+    });
+    let $pursuers = $("<ul>", {
+      class: "wingmanPursuers",
+      id: prefix + "-pursuers"
+    });
+    $wingman.append($hand);
+    $wingman.append($summary);
+    $wingman.append($pursuers);
+    $('#wingmen').append($wingman);
+  }
+}
+
 const update = function() {
   // update entire play area
   clearButtons();
   detarget();
+  addWingmen(game.friendlies.length);
   updateEnemyCards();
   updateTacticalCards();
   updateSummaries();

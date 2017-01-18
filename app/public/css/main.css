@@ -482,8 +482,11 @@ li p {
   color: steelblue; }
 
 #wingmen {
-  margin-top: -30px;
-  text-align: center; }
+  text-align: center;
+  width: 80%;
+  margin: 10px auto 0;
+  display: flex;
+  justify-content: space-around; }
   #wingmen ul {
     display: inline-block;
     margin: 0 10px; }
@@ -491,6 +494,10 @@ li p {
     z-index: 1000;
     background-color: #252525;
     box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
+
+.wingman {
+  display: flex;
+  justify-content: space-around; }
 
 #player {
   position: absolute;
@@ -519,7 +526,7 @@ li p {
 
 #info.messages {
   position: fixed;
-  left: 5%;
+  left: 2%;
   bottom: 2%; }
   #info.messages #chat {
     margin-left: 4px; }
@@ -774,9 +781,9 @@ input[type="checkbox"] {
 
 .tactical,
 .advTactical {
-  width: 90px;
-  height: 139.5px;
-  border-radius: 9px;
+  width: 100px;
+  height: 155px;
+  border-radius: 10px;
   transition: 0.5s ease-out;
   font-size: 0.7em;
   color: white;
@@ -794,9 +801,9 @@ input[type="checkbox"] {
   @media (max-width: 1000px), (max-height: 700px) {
     .tactical,
     .advTactical {
-      width: 75px;
-      height: 116.25px;
-      border-radius: 7.5px; } }
+      width: 83.33333px;
+      height: 129.16667px;
+      border-radius: 8.33333px; } }
 
 .selected {
   border-color: limegreen;
@@ -806,7 +813,7 @@ input[type="checkbox"] {
 
 #playerHand {
   padding-left: 0;
-  height: 165px;
+  height: 175px;
   transform: rotateX(10deg);
   border-top: 3px solid magenta;
   border-bottom: 5px solid magenta;
@@ -815,7 +822,7 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.8); }
   @media (max-width: 1000px), (max-height: 700px) {
     #playerHand {
-      height: 140px; } }
+      height: 150px; } }
   #playerHand .advTactical,
   #playerHand .tactical {
     transform: rotateX(15deg);
@@ -859,8 +866,8 @@ input[type="checkbox"] {
     #playerHand .disabled h3 {
       color: #5f809b; }
 
-#wingmen .tactical,
-#wingmen .advTactical {
+.wingmanHand .tactical,
+.wingmanHand .advTactical {
   width: 70px;
   height: 108.5px;
   border-radius: 7px;
@@ -874,31 +881,31 @@ input[type="checkbox"] {
   margin: 0 -1em;
   vertical-align: middle;
   margin-left: -5em;
-  margin-top: -6em;
+  margin-top: -9em;
   font-size: .5em;
   z-index: 0;
   vertical-align: middle; }
-  #wingmen .tactical h3,
-  #wingmen .advTactical h3 {
+  .wingmanHand .tactical h3,
+  .wingmanHand .advTactical h3 {
     margin: 0.3em 0 0.8em 0; }
   @media (max-width: 1000px), (max-height: 700px) {
-    #wingmen .tactical,
-    #wingmen .advTactical {
+    .wingmanHand .tactical,
+    .wingmanHand .advTactical {
       width: 58.33333px;
       height: 90.41667px;
       border-radius: 5.83333px; } }
-  #wingmen .tactical:first-child,
-  #wingmen .advTactical:first-child {
-    margin-left: -1.5em; }
+  .wingmanHand .tactical:first-child,
+  .wingmanHand .advTactical:first-child {
+    margin-left: 10em; }
   @media (max-width: 1000px), (max-height: 700px) {
-    #wingmen .tactical,
-    #wingmen .advTactical {
-      margin-top: -4.5em; } }
-  #wingmen .tactical h3,
-  #wingmen .advTactical h3 {
+    .wingmanHand .tactical,
+    .wingmanHand .advTactical {
+      margin-top: -7.5em; } }
+  .wingmanHand .tactical h3,
+  .wingmanHand .advTactical h3 {
     display: none; }
-  #wingmen .tactical p,
-  #wingmen .advTactical p {
+  .wingmanHand .tactical p,
+  .wingmanHand .advTactical p {
     display: none; }
 
 .enemy {
@@ -971,16 +978,13 @@ input[type="checkbox"] {
 .destroyed {
   display: none; }
 
-#basePursuers,
-#wingmen-pursuers {
+#basePursuers {
   text-align: center;
   height: 100px;
   perspective: 1000px; }
-  #basePursuers .enemy,
-  #wingmen-pursuers .enemy {
+  #basePursuers .enemy {
     margin-left: -4em; }
-    #basePursuers .enemy:first-child,
-    #wingmen-pursuers .enemy:first-child {
+    #basePursuers .enemy:first-child {
       margin-left: -1em; }
 
 #playerPursuers {
@@ -1006,11 +1010,28 @@ input[type="checkbox"] {
   #basePursuers .enemy {
     margin-top: -3em; }
 
-#wingmen-pursuers ul {
-  margin: 0 6%; }
+#wingman1-pursuers,
+#wingman2-pursuers,
+#wingman3-pursuers {
+  position: relative;
+  bottom: -90px;
+  left: -350px; }
+  @media (max-width: 1000px), (max-height: 700px) {
+    #wingman1-pursuers,
+    #wingman2-pursuers,
+    #wingman3-pursuers {
+      bottom: -80px;
+      left: -280px; } }
+  #wingman1-pursuers li,
+  #wingman2-pursuers li,
+  #wingman3-pursuers li {
+    margin-left: -1em; }
 
 .FriendlyBase.targeted,
 #wingmen .targeted,
+#wingman1-pursuers .targeted,
+#wingman2-pursuers .targeted,
+#wingman3-pursuers .targeted,
 #userSummary .targeted {
   z-index: 1000;
   background-color: #252525;
@@ -1018,13 +1039,13 @@ input[type="checkbox"] {
 
 #FriendlyBase,
 #enemyBase {
-  margin-top: -50px;
   position: relative;
   background: #252525;
   height: 300px;
   width: 120px;
   padding: 5px;
   margin: 5px;
+  margin-top: 4em;
   font-size: 0.9em;
   z-index: -11; }
   @media (max-width: 1000px), (max-height: 700px) {
@@ -1081,8 +1102,7 @@ input[type="checkbox"] {
   perspective: 1000px; }
 
 #overlay {
-  width: 550px;
-  height: 230px;
+  height: 250px;
   margin-left: -300px;
   position: absolute;
   bottom: 55px;
@@ -1132,7 +1152,7 @@ input[type="checkbox"] {
 
 .cost {
   position: absolute;
-  bottom: 2em;
+  bottom: 1em;
   left: 1.5em;
   font-weight: bold;
   font-size: 1.3em; }
@@ -1178,7 +1198,7 @@ input[type="checkbox"] {
       #userSummary.bumped {
         margin-left: 65px; } }
 
-#wingmen .playerSummary {
+.wingmanSummary {
   font-size: 0.8em;
   display: inline-block;
   margin-top: 4em; }

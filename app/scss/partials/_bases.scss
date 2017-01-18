@@ -1,6 +1,5 @@
 #FriendlyBase,
 #enemyBase {
-  margin-top: -50px;
   position: relative;
   background: $darkGrey;
   height: 300px;
@@ -11,6 +10,7 @@
   }
   padding: 5px;
   margin: 5px;
+  margin-top: 4em;
   font-size: 0.9em;
   & h3 {
     margin: 1em 0;

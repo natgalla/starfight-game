@@ -39,8 +39,7 @@
   @include hide;
 }
 
-#basePursuers,
-#wingmen-pursuers {
+#basePursuers {
   text-align: center;
   height: 100px;
   perspective: $perspective;
@@ -97,14 +96,26 @@
   }
 }
 
-#wingmen-pursuers {
-  & ul {
-    margin: 0 6%;
+#wingman1-pursuers,
+#wingman2-pursuers,
+#wingman3-pursuers {
+  position: relative;
+  bottom: -90px;
+  left: -350px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    bottom: -80px;
+    left: -280px;
+  }
+  & li {
+    margin-left: -1em;
   }
 }
 
 .FriendlyBase.targeted,
 #wingmen .targeted,
+#wingman1-pursuers .targeted,
+#wingman2-pursuers .targeted,
+#wingman3-pursuers .targeted,
 #userSummary .targeted {
   @include friendlyTargeted;
 }

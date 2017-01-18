@@ -1,6 +1,6 @@
 .tactical,
 .advTactical {
-  @include card(90px);
+  @include card(100px);
   border: 2px solid $primaryPink;
   z-index: 2;
 }
@@ -11,9 +11,9 @@
 
 #playerHand {
   @include undoListOffset;
-  height: 165px;
+  height: 175px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    height: 140px;
+    height: 150px;
   }
   transform: rotateX(10deg);
   border-top: 3px solid $primaryPink;
@@ -44,16 +44,16 @@
   }
 }
 
-#wingmen .tactical,
-#wingmen .advTactical {
+.wingmanHand .tactical,
+.wingmanHand .advTactical {
   @include card(70px);
   margin-left: -5em;
   &:first-child {
-    margin-left: -1.5em;
+    margin-left: 10em;
   }
-  margin-top: -6em;
+  margin-top: -9em;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    margin-top: -4.5em;
+    margin-top: -7.5em;
   }
   font-size: .5em;
   z-index: 0;

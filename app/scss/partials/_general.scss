@@ -76,8 +76,11 @@ li p {
 }
 
 #wingmen {
-  margin-top: -30px;
   text-align: center;
+  width: 80%;
+  margin: 10px auto 0;
+  display: flex;
+  justify-content: space-around;
   & ul {
     display: inline-block;
     margin: 0 10px;
@@ -85,6 +88,11 @@ li p {
   & .targeted {
     @include friendlyTargeted;
   }
+}
+
+.wingman {
+  display: flex;
+  justify-content: space-around;
 }
 
 #player { // need position fix for Safari
@@ -121,7 +129,7 @@ li p {
 #info {
   &.messages {
     position: fixed;
-    left: 5%;
+    left: 2%;
     bottom: 2%;
     #chat {
       margin-left: 4px;

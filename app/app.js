@@ -1247,10 +1247,10 @@ Game.prototype.buildDecks = function() {
 // Tactical cards
 let repairDrone = new Tactical("Repair drone", "repairDrone", "Remove 3 damage from a friendly (any)");
 let missile = new Tactical("Missile", "missile", "Choose a target and roll 5 combat dice");
-let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a friendly (other) and bring it to you");
+let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a friendly and bring it to you");
 let feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
 let barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself. It now pursues the friendly base");
-let scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 2 damage to a single target, and 1 damage to the target on either side of it");
+let scatterShot = new Tactical("Scattershot", "scatterShot", "Deal 2 damage to a target, and 1 damage to each adjacent target (ff)");
 let immelman = new Tactical("Immelman", "immelman", "Missile an enemy pursuing you");
 
 // Advanced tactics
@@ -1258,18 +1258,18 @@ let immelman = new Tactical("Immelman", "immelman", "Missile an enemy pursuing y
 // let daredevil = new AdvTactical("Daredevil", "daredevil", "Allows you to attack the EB with 1 pursuer", 10);
 // let medic = new AdvTactical("Medic", "medic", "Restore 1 armor to a friendly of your choice each round", 10);
 // let sharpShooter = new AdvTactical("Sharp Shooter", "sharpshooter", "Improve player accuracy rolls/add an extra die", 10);
-let bomb = new AdvTactical("Bomb", "bomb", "Deal 6 damage to a single target, and 2 damage to the target on either side of it", 8);
+let bomb = new AdvTactical("Bomb", "bomb", "Deal 6 damage to a target, and 2 damage to each adjacent target (ff)", 8);
 let heatSeeker = new AdvTactical("Heat Seeker", "heatSeeker", "Deal 5 damage to a chosen enemy", 5);
-let healthPack = new AdvTactical("Health Pack", "healthPack", "Remove 5 damage from a friendly (any)", 4);
+let healthPack = new AdvTactical("Emergency repairs", "healthPack", "Remove 5 damage from a friendly (any)", 4);
 let jammer = new AdvTactical("Jammer", "jammer", "Do not draw an enemy base card next round", 6);
 let intercept = new AdvTactical("Intercept", "intercept", "Draw one less enemy into play next round", 6);
 let emp = new AdvTactical("EMP", "emp", "Choose a friendly (other). Their pursuers cannot damage them this round", 5);
-let countermeasures = new AdvTactical("CNTRmeasures", "countermeasures", "Ignore x damage where x is the result of a standard combat roll", 2);
+let countermeasures = new AdvTactical("Counter measures", "countermeasures", "Ignore damage this round equal to the result of a 'fire' roll", 2);
 let divertShields = new AdvTactical("Divert Shields", "divertShields", "Keep this card. It absorbs the next 5 damage you take", 3);
-let jump = new AdvTactical("Jump", "jump", "Shake all your pursuers this round to discard", 15);
-let hardSix = new AdvTactical("Roll the hard six", "hardSix", "If pursued, missile the enemy base and take damage of a standard combat roll", 6);
+let jump = new AdvTactical("Jump", "jump", "Discard all of your pursuers this round", 15);
+let hardSix = new AdvTactical("Roll the hard six", "hardSix", "If pursued, missile the enemy base and take damage of a 'fire' roll", 6);
 let snapshot = new AdvTactical("Snapshot", "snapshot", "Remove an enemy from play (no merit awarded)", 7);
-let guidedMissile = new AdvTactical("Guided Missile", "guidedMissile", "Deal 6 damage to the enemy base regardless of pursuers", 10);
+let guidedMissile = new AdvTactical("Guided Missile", "guidedMissile", "Deal 6 damage to the enemy base, even if pursued", 10);
 let incinerate = new AdvTactical("Incinerate", "incinerate", "Destroy the first enemy drawn to you next round", 7);
 
 
