@@ -1,6 +1,6 @@
 // Tactical cards
 let repairDrone = new Tactical("Repair drone", "repairDrone", "Remove 3 damage from a friendly (any)");
-let missile = new Tactical("Missile", "missile", "Choose a target and roll 5 combat dice");
+let missile = new Tactical("Missile", "missile", "Damage a target for a 'fire' roll plus a missile die");
 let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a friendly and bring it to you");
 let feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
 let barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself. It now pursues the friendly base");

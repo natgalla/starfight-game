@@ -1246,7 +1246,7 @@ Game.prototype.buildDecks = function() {
 
 // Tactical cards
 let repairDrone = new Tactical("Repair drone", "repairDrone", "Remove 3 damage from a friendly (any)");
-let missile = new Tactical("Missile", "missile", "Choose a target and roll 5 combat dice");
+let missile = new Tactical("Missile", "missile", "Damage a target for a 'fire' roll plus a missile die");
 let drawFire = new Tactical("Draw Fire", "drawFire", "Remove a pursuer from a friendly and bring it to you");
 let feint = new Tactical("Feint", "feint", "Reuse the last tactical card you used this round");
 let barrelRoll = new Tactical("Barrel Roll", "barrelRoll", "Remove a pursuer from yourself. It now pursues the friendly base");
@@ -1511,7 +1511,7 @@ function onConnection(socket) {
       } else {
         player.name = user.callsign;
         console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
-        socket.emit('assign', { player: player, room: gameId } );
+        socket.emit('assign', { player: player } );
         socket.on('turn', turn);
         socket.on('chat', function(data) {
           io.to(data.room).emit('chatMessage', data.message);
@@ -1547,6 +1547,7 @@ function onConnection(socket) {
                       gameSession.meta.locked = false;
                     } else if (gameSession.players === 1) {
                       io.to(gameId).emit('closeGame');
+                      io.to(gameId).emit('firstPlayer');
                       io.to(gameId).emit('msg', 'Waiting for second player...')
                     }
                   } else {

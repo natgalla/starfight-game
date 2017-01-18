@@ -35,7 +35,7 @@ function getCookie(cname) {
 
 sock.on("msg", onMessage);
 sock.on("chatMessage", onChat);
-sock.on("end", centerMessage);
+sock.on("end", onEnd);
 sock.on("assign", assignPlayer);
 sock.on("update", getUpdate);
 sock.on("openGame", openGame);
@@ -70,7 +70,6 @@ function getUpdate(packet) {
 
 function assignPlayer(info) {
   user = info.player;
-  room = info.room;
 }
 
 function onMessage(text) {
@@ -94,6 +93,7 @@ function onChat(text) {
 }
 
 function onFirst() {
+  $('#play').remove();
   let $play = $("<button>", {id: "play", text: "STANDBY", class: "disabled"});
   $("#room").append($play);
   $play.on("click", function() {
@@ -116,11 +116,23 @@ function onStart() {
 
 function centerMessage(text) {
   disableSelect();
-  let $message = $("<h1>", {id: "centerMessage", text: text})
-  $("body").append($message);
-  $message.hide();
-  $message.fadeIn(800);
+  let $holder = $("<div>", {id: "centerMessage"});
+  let $message = $("<h1>", {text: text});
+  $holder.append($message);
+  $("body").append($holder);
+  $holder.hide();
+  $holder.fadeIn(800);
 }
+
+function onEnd(text) {
+  centerMessage(text);
+  $('#centerMessage').append("<p class='link'><a href='/profile'>View profile</a></p>")
+  $(window).off("beforeunload");
+}
+
+$(window).on("beforeunload", function() {
+  return "Leaving or refreshing this page will remove your pilot from the game.";
+});
 
 let typeWord = function($location, text, element, begEnd, interval, cursor) {
   if (element === undefined) {
@@ -490,7 +502,7 @@ const updateSummaries = function() {
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
-      $("#FriendlyBase").html(FriendlyBase.summary);
+      $("#friendlyBaseSummary").html(FriendlyBase.summary);
     } else if (friendly.id === user.id) {
       showSummary(friendly)
     } else {
@@ -559,17 +571,20 @@ const updateEnemyCards = function() {
     }
   }
   let wingman = 1;
-  const $playerPursuers = $("#playerPursuers");
-  const $basePursuers = $("#basePursuers");
+  let $basePursuers = $("#basePursuers");
   for(let i=0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
+      let offset = 30 + (-20*friendly.pursuers.length);
+      $basePursuers.css({'bottom': offset});
     } else if (friendly.id === user.id) {
-      refreshPursuerList($playerPursuers, friendly);
+      refreshPursuerList($("#playerPursuers"), friendly);
     } else {
       let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
       refreshPursuerList($wingmanPursuers, friendly);
+      let offset = -120 + (-20*friendly.pursuers.length);
+      $wingmanPursuers.css({'left': offset});
       wingman++;
     }
   }

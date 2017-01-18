@@ -29,7 +29,16 @@ function setCookie(req, res, next) {
   return next();
 }
 
+function preventRefresh(req, res, next) {
+  if (req.header('Referer') === req.header('Host') + '/game') {
+    return res.redirect('/profile');
+  };
+  console.log(req.header('Referer'));
+  return next();
+}
+
 module.exports.loggedOut = loggedOut;
 module.exports.requiresLogin = requiresLogin;
 module.exports.requiresGameSession = requiresGameSession;
 module.exports.setCookie = setCookie;
+module.exports.preventRefresh = preventRefresh;

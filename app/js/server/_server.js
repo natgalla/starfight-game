@@ -221,7 +221,7 @@ function onConnection(socket) {
       } else {
         player.name = user.callsign;
         console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
-        socket.emit('assign', { player: player, room: gameId } );
+        socket.emit('assign', { player: player } );
         socket.on('turn', turn);
         socket.on('chat', function(data) {
           io.to(data.room).emit('chatMessage', data.message);
@@ -257,6 +257,7 @@ function onConnection(socket) {
                       gameSession.meta.locked = false;
                     } else if (gameSession.players === 1) {
                       io.to(gameId).emit('closeGame');
+                      io.to(gameId).emit('firstPlayer');
                       io.to(gameId).emit('msg', 'Waiting for second player...')
                     }
                   } else {

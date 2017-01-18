@@ -11,7 +11,7 @@
 
 #playerHand {
   @include undoListOffset;
-  height: 175px;
+  height: 180px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
     height: 150px;
   }
@@ -44,24 +44,26 @@
   }
 }
 
-.wingmanHand .tactical,
-.wingmanHand .advTactical {
-  @include card(70px);
-  margin-left: -5em;
-  &:first-child {
-    margin-left: 10em;
-  }
-  margin-top: -9em;
-  @media (max-width: $breakWidth), (max-height: $breakHeight) {
-    margin-top: -7.5em;
-  }
-  font-size: .5em;
-  z-index: 0;
-  vertical-align: middle;
-  & h3 {
-    @include hide;
-  }
-  & p {
-    @include hide;
+.wingmanHand {
+  @include undoListOffset;
+  & .tactical,
+  & .advTactical {
+    @include card(65px);
+    margin-left: -6em;
+    &:first-child {
+      margin-left: 0;
+    }
+    margin-top: -7em;
+    @media (max-width: $breakWidth), (max-height: $breakHeight) {
+      margin-top: -5em;
+    }
+    z-index: 0;
+    vertical-align: middle;
+    & h3 {
+      @include hide;
+    }
+    & p {
+      @include hide;
+    }
   }
 }

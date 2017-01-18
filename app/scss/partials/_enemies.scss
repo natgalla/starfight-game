@@ -49,6 +49,12 @@
       margin-left: -1em;
     }
   }
+  &.targeted {
+    @include enemyTargeted;
+    &:hover {
+      @include enemyTargeted;
+    }
+  }
 }
 
 #playerPursuers {
@@ -88,12 +94,14 @@
 }
 
 #basePursuers {
-  float: left;
+  @include undoListOffset;
+  position: relative;
+  bottom: 60px;
+  left: 10px;
   transform: rotate(-90deg);
-  margin-top: 180px;
-  & .enemy {
-    margin-top: -3em;
-  }
+  text-align: center;
+  perspective: $perspective;
+  width: 400px;
 }
 
 #wingman1-pursuers,
@@ -101,21 +109,14 @@
 #wingman3-pursuers {
   position: relative;
   bottom: -90px;
-  left: -350px;
+  left: -140px;
+  text-align: center;
+  perspective: $perspective;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
     bottom: -80px;
-    left: -280px;
+    left: -120px;
   }
   & li {
-    margin-left: -1em;
+    margin-left: -3em;
   }
-}
-
-.FriendlyBase.targeted,
-#wingmen .targeted,
-#wingman1-pursuers .targeted,
-#wingman2-pursuers .targeted,
-#wingman3-pursuers .targeted,
-#userSummary .targeted {
-  @include friendlyTargeted;
 }

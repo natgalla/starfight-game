@@ -77,10 +77,8 @@ li p {
 
 #wingmen {
   text-align: center;
-  width: 80%;
   margin: 10px auto 0;
-  display: flex;
-  justify-content: space-around;
+  padding-left: 50px;
   & ul {
     display: inline-block;
     margin: 0 10px;
@@ -88,11 +86,10 @@ li p {
   & .targeted {
     @include friendlyTargeted;
   }
-}
-
-.wingman {
-  display: flex;
-  justify-content: space-around;
+  height: 200px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    height: 160px;
+  }
 }
 
 #player { // need position fix for Safari
@@ -178,6 +175,15 @@ li p {
   vertical-align: middle;
   margin-left: -150px;
   margin-top: -150px;
+}
+
+.link {
+  display: block;
+  text-align: center;
+  margin: 1em;
+  & a {
+    @include menuLink;
+  }
 }
 
 @include scrollbars(0.3em, darken($complementGreen, $step), $complementGreen);

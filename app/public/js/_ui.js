@@ -89,7 +89,7 @@ const updateSummaries = function() {
   for (let i = 0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
-      $("#FriendlyBase").html(FriendlyBase.summary);
+      $("#friendlyBaseSummary").html(FriendlyBase.summary);
     } else if (friendly.id === user.id) {
       showSummary(friendly)
     } else {
@@ -158,17 +158,20 @@ const updateEnemyCards = function() {
     }
   }
   let wingman = 1;
-  const $playerPursuers = $("#playerPursuers");
-  const $basePursuers = $("#basePursuers");
+  let $basePursuers = $("#basePursuers");
   for(let i=0; i < game.friendlies.length; i++) {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
+      let offset = 30 + (-20*friendly.pursuers.length);
+      $basePursuers.css({'bottom': offset});
     } else if (friendly.id === user.id) {
-      refreshPursuerList($playerPursuers, friendly);
+      refreshPursuerList($("#playerPursuers"), friendly);
     } else {
       let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
       refreshPursuerList($wingmanPursuers, friendly);
+      let offset = -120 + (-20*friendly.pursuers.length);
+      $wingmanPursuers.css({'left': offset});
       wingman++;
     }
   }

@@ -226,7 +226,11 @@ router.post('/menu', function(req, res, next) {
 });
 
 // Game view
-router.get('/game', mid.requiresLogin, mid.requiresGameSession, mid.setCookie, function(req, res, next) {
+router.get('/game', mid.requiresLogin,
+                    mid.requiresGameSession,
+                    mid.setCookie,
+                    mid.preventRefresh,
+                                        function(req, res, next) {
   Game.findById(req.session.gameId, function(err, gameSession) {
     if (err) {
       return next(err);
