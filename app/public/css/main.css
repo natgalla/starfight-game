@@ -1049,11 +1049,18 @@ input[type="checkbox"] {
 #basePursuers {
   text-align: center;
   height: 100px;
-  perspective: 1000px; }
-  #basePursuers .enemy {
+  perspective: 1000px;
+  padding-left: 0;
+  position: relative;
+  left: 10px;
+  transform: rotate(-90deg);
+  text-align: center;
+  perspective: 1000px;
+  width: 400px; }
+  #basePursuers li {
     margin-left: -4em; }
-    #basePursuers .enemy:first-child {
-      margin-left: -1em; }
+    #basePursuers li:first-child {
+      margin-left: 0; }
   #basePursuers.targeted {
     z-index: 1000;
     transform: translate3d(0, 10px, 150px);
@@ -1062,6 +1069,10 @@ input[type="checkbox"] {
       z-index: 1000;
       transform: translate3d(0, 10px, 150px);
       box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
+  @media (max-width: 1000px), (max-height: 700px) {
+    #basePursuers {
+      width: 350px;
+      left: 30px; } }
 
 #playerPursuers {
   text-align: center;
@@ -1078,16 +1089,6 @@ input[type="checkbox"] {
     margin-bottom: 120px; }
   #playerPursuers .emptySpace {
     z-index: -12; }
-
-#basePursuers {
-  padding-left: 0;
-  position: relative;
-  bottom: 60px;
-  left: 10px;
-  transform: rotate(-90deg);
-  text-align: center;
-  perspective: 1000px;
-  width: 400px; }
 
 #wingman1-pursuers,
 #wingman2-pursuers,
@@ -1175,7 +1176,6 @@ input[type="checkbox"] {
   transform: rotateX(10deg); }
   @media (max-width: 1000px), (max-height: 700px) {
     #overlay {
-      width: 450px;
       height: 190px;
       margin-left: -225px; } }
   #overlay ul {

@@ -109,5 +109,5 @@ const EnemyBaseCard = function(name, cssClass, description) {
   this.name = name;
   this.cssClass = cssClass;
   this.description = description;
-  this.card = "<p id='enemyBaseCard'>" + this.description + "</p>";
+  this.card = "<p id='enemyBaseCard'>Last action: " + this.description + "</p>";
 }

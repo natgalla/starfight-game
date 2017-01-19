@@ -171,7 +171,10 @@ router.post('/menu', function(req, res, next) {
           gameName: req.body.sessionName,
           difficulty: req.body.difficulty,
           users: {
-            user1: user.callsign
+            user1: {
+              name: user.callsign,
+              socketId: "",
+            }
           }
         }
         Game.create(gameData, function(error, game) {
@@ -201,16 +204,31 @@ router.post('/menu', function(req, res, next) {
             return next(error);
           }
           let query = { gameName: req.body.sessionName };
-          let update;
-          if (game[0].users.user1 === undefined) {
-            update = { "users.user1": user.callsign, $inc: { players: 1 } };
-          } else if (!game[0].users.user2 || game[0].users.user2 === undefined) {
-            update = { "users.user2": user.callsign, $inc: { players: 1 } };
-          } else if (!game[0].users.user3 || game[0].users.user3 === undefined) {
-            update = { "users.user3": user.callsign, $inc: { players: 1 } };
-          } else if (!game[0].users.user4 || game[0].users.user4 === undefined) {
-            update = { "users.user4": user.callsign, $inc: { players: 1 }, "meta.locked": true };
+          let update = {};
+          function isEmpty(str) {
+            return (!str || 0 === str.length);
           }
+          if (game[0].users.user1.name === "") {
+            update = {
+              "users.user1.name": user.callsign,
+              $inc: { players: 1 }
+            };
+          } else if (game[0].users.user2.name === "") {
+            update = {
+              "users.user2.name": user.callsign,
+              $inc: { players: 1 }
+            };
+          } else if (game[0].users.user3 === "") {
+            update = {
+              "users.user3.name": user.callsign,
+              $inc: { players: 1 }
+            };
+          } else if (game[0].users.user4 === "") {
+            update = {
+              "users.user4.name": user.callsign,
+              $inc: { players: 1 },
+            };
+          };
           Game.update(query, update, function() {
             req.session.gameId = game[0]._id;
             return res.redirect('game');
@@ -229,7 +247,7 @@ router.post('/menu', function(req, res, next) {
 router.get('/game', mid.requiresLogin,
                     mid.requiresGameSession,
                     mid.setCookie,
-                    mid.preventRefresh,
+                    // mid.preventRefresh,
                                         function(req, res, next) {
   Game.findById(req.session.gameId, function(err, gameSession) {
     if (err) {

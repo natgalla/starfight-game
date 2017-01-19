@@ -43,10 +43,10 @@
   text-align: center;
   height: 100px;
   perspective: $perspective;
-  & .enemy {
+  & li {
     margin-left: -4em;
     &:first-child {
-      margin-left: -1em;
+      margin-left: 0;
     }
   }
   &.targeted {
@@ -54,6 +54,17 @@
     &:hover {
       @include enemyTargeted;
     }
+  }
+  @include undoListOffset;
+  position: relative;
+  left: 10px;
+  transform: rotate(-90deg);
+  text-align: center;
+  perspective: $perspective;
+  width: 400px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    width: 350px;
+    left: 30px;
   }
 }
 
@@ -94,14 +105,7 @@
 }
 
 #basePursuers {
-  @include undoListOffset;
-  position: relative;
-  bottom: 60px;
-  left: 10px;
-  transform: rotate(-90deg);
-  text-align: center;
-  perspective: $perspective;
-  width: 400px;
+
 }
 
 #wingman1-pursuers,

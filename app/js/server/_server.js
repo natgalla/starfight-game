@@ -241,10 +241,31 @@ function onConnection(socket) {
             } else {
               if (!gameSession.meta.lost && !gameSession.meta.won) {
                 io.to(gameId).emit('msg', user.callsign + ' left.');
+                let setNewLeader = false;
                 for (person in gameSession.users) {
-                  if (gameSession.users[person] === user.callsign) {
-                    gameSession.users[person] = undefined;
+                  if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
+                    if (gameSession.users[person].leader) {
+                      setNewLeader = true;
+                      gameSession.users[person].leader = false;
+                    }
+                    gameSession.users[person].name = '';
+                    gameSession.users[person].socketId = '';
                     gameSession.players -= 1;
+                  }
+                }
+                if (setNewLeader) {
+                  if (gameSession.users.user1.name.length > 0) {
+                    gameSession.users.user1.leader = true;
+                    io.to(gameSession.users.user1.socketId).emit('firstPlayer');
+                  } else if (gameSession.users.user2.name.length > 0) {
+                    gameSession.users.user2.leader = true;
+                    io.to(gameSession.users.user2.socketId).emit('firstPlayer');
+                  } else if (gameSession.users.user3.name.length > 0) {
+                    gameSession.users.user3.leader = true;
+                    io.to(gameSession.users.user3.socketId).emit('firstPlayer');
+                  } else if (gameSession.users.user4.name.length > 0) {
+                    gameSession.users.user4.leader = true;
+                    io.to(gameSession.users.user4.socketId).emit('firstPlayer');
                   }
                 }
                 if (gameSession.players === 0) {
@@ -257,7 +278,6 @@ function onConnection(socket) {
                       gameSession.meta.locked = false;
                     } else if (gameSession.players === 1) {
                       io.to(gameId).emit('closeGame');
-                      io.to(gameId).emit('firstPlayer');
                       io.to(gameId).emit('msg', 'Waiting for second player...')
                     }
                   } else {
@@ -290,6 +310,21 @@ function onConnection(socket) {
           });
           socket.leave(gameId);
         });
+        getGameSession(gameId, function(err, gameSession) {
+          if (err) {
+            console.error(err);
+          } else {
+            if (gameSession.players === 1) {
+              gameSession.users.user1.leader = true;
+            }
+            for (person in gameSession.users) {
+              if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
+                gameSession.users[person].socketId = socket.id;
+              }
+            }
+            gameSession.save();
+          }
+        })
       }
     });
   }
@@ -303,16 +338,16 @@ function onConnection(socket) {
           if (err) {
             console.error(err);
           } else {
-            if (gameSession.users.user1 === user.callsign) {
+            if (gameSession.users.user1.name === user.callsign) {
               let Player1 = new Player('Player1');
               join(Player1);
-            } else if (gameSession.users.user2 === user.callsign) {
+            } else if (gameSession.users.user2.name === user.callsign) {
               let Player2 = new Player('Player2');
               join(Player2);
-            } else if (gameSession.users.user3 === user.callsign) {
+            } else if (gameSession.users.user3.name === user.callsign) {
               let Player3 = new Player('Player3');
               join(Player3);
-            } else if (gameSession.users.user4 === user.callsign) {
+            } else if (gameSession.users.user4.name === user.callsign) {
               let Player4 = new Player('Player4');
               join(Player4);
             }
@@ -364,23 +399,24 @@ function onConnection(socket) {
                   let Player4;
                   game.friendlies = [FriendlyBase];
                   if (gameSession.users.user1) {
-                    Player1 = new Player('Player1', gameSession.users.user1);
+                    Player1 = new Player('Player1', gameSession.users.user1.name);
                     game.friendlies.push(Player1);
                   }
                   if (gameSession.users.user2) {
-                    Player2 = new Player('Player2', gameSession.users.user2);
+                    Player2 = new Player('Player2', gameSession.users.user2.name);
                     game.friendlies.push(Player2);
                   }
                   if (gameSession.users.user3) {
-                    Player3 = new Player('Player3', gameSession.users.user3);
+                    Player3 = new Player('Player3', gameSession.users.user3.name);
                     game.friendlies.push(Player3);
                   }
                   if (gameSession.users.user4) {
-                    Player4 = new Player('Player4', gameSession.users.user4);
+                    Player4 = new Player('Player4', gameSession.users.user4.name);
                     game.friendlies.push(Player4);
                   }
                   game.buildDecks();
                   game.round();
+                  game.update();
                   gameSession.state.push(game);
                   gameSession.save(function(err, updatedSession) {
                     if (err) {

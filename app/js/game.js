@@ -576,14 +576,12 @@ const updateEnemyCards = function() {
     let friendly = game.friendlies[i];
     if (friendly.id === FriendlyBase.id) {
       refreshPursuerList($basePursuers, friendly);
-      let offset = 30 + (-20*friendly.pursuers.length);
-      $basePursuers.css({'bottom': offset});
     } else if (friendly.id === user.id) {
       refreshPursuerList($("#playerPursuers"), friendly);
     } else {
       let $wingmanPursuers = $("#wingman" + wingman + "-pursuers");
       refreshPursuerList($wingmanPursuers, friendly);
-      let offset = -120 + (-20*friendly.pursuers.length);
+      let offset = -120 + (-25*friendly.pursuers.length);
       $wingmanPursuers.css({'left': offset});
       wingman++;
     }
@@ -851,14 +849,16 @@ $evadeButton.on("click", function() {
   showTargets(action);
 });
 
-$cancelButton.on("click", function() {
+function cancel() {
   clearOverlay();
   clearButtons();
   deselect();
   detarget();
   action = "";
   enableSelect();
-});
+}
+
+$cancelButton.on("click", cancel);
 
 $(document).keyup(function(e) {
   if (e.keyCode == 27) {

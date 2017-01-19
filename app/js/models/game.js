@@ -5,10 +5,26 @@ let GameSchema = new mongoose.Schema({
     type: String,
   },
   users: {
-    user1: String,
-    user2: String,
-    user3: String,
-    user4: String
+    user1: {
+      name: {type: String, default: ""},
+      leader: {type: Boolean, default: false },
+      socketId: {type: String, default: ""},
+    },
+    user2: {
+      name: {type: String, default: ""},
+      leader: {type: Boolean, default: false },
+      socketId: {type: String, default: ""},
+    },
+    user3: {
+      name: {type: String, default: ""},
+      leader: {type: Boolean, default: false },
+      socketId: {type: String, default: ""},
+    },
+    user4: {
+      name: {type: String, default: ""},
+      leader: {type: Boolean, default: false },
+      socketId: {type: String, default: ""},
+    }
   },
   players: { type: Number, default: 1 },
   state: { type: Array, default: [] },

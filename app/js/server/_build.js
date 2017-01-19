@@ -36,8 +36,8 @@ let empty = new Enemy("Empty space","emptySpace",0,0,0,0);
 let placeHolder = new Enemy("Destroyed","destroyed",0,0,0,0);
 
 // define enemy base cards
-let fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Friendly base takes 3 damage");
-let fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Friendly base takes 5 damage");
-let deploy = new EnemyBaseCard("Deploy", "deploy", "Draw an extra enemy card into play in the next round");
-let repair = new EnemyBaseCard("Repairs", "repair", "Enemy base repairs 5 armor.");
-let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increase the amount enemies that enter the fray each turn by 1");
+let fireLight = new EnemyBaseCard("Fire light weapons", "fireLight", "Dealt 3 damage to Friendly Base");
+let fireHeavy = new EnemyBaseCard("Fire heavy weapons", "fireHeavy", "Dealt 5 damage to Friendly Base");
+let deploy = new EnemyBaseCard("Deploy", "deploy", "Launched an extra enemy fighter");
+let repair = new EnemyBaseCard("Repairs", "repair", "Repaired 5 armor.");
+let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increased launch rate by 1");
