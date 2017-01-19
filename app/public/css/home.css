@@ -29,12 +29,14 @@ header {
 
 h1 {
   font-family: 'Orbitron', sans-serif;
+  width: 300px;
   margin: 0 auto;
   font-size: 4em;
   padding-top: 10%;
   text-shadow: 1px 1px 5px steelblue,
               -1px -1px 4px dodgerblue;
   transition: text-shadow 1.2s ease-out;
+  border-bottom: 2px dashed steelblue;
 }
 
 header a, header a:visited {
@@ -50,12 +52,15 @@ header h1:hover {
 
 h3 {
   font-family: 'VT323', monospace;
+  background-color: rgba(11,11,11,0.8);
   font-size: 1.5em;
-  margin: auto;
-  padding-top: 8px;
-  border-top: 2px dashed steelblue;
+  margin: 0.5em auto 0;
+  padding-bottom: 8px;
   max-width: 300px;
   color: magenta;
+  border-left: 4px solid magenta;
+  border-right: 4px solid magenta;
+  border-radius: 0.3em;
 }
 
 
@@ -72,6 +77,10 @@ h2 {
   font-family: 'Orbitron', sans-serif;
   text-align: center;
   color: steelblue;
+}
+
+.center {
+  text-align: center;
 }
 
 a, a:visited {
@@ -98,6 +107,33 @@ section p:last-child {
 }
 section:last-child p:last-child {
   border-style: none;
+}
+
+button {
+  margin: 0 auto;
+  display: block;
+  font-family: 'VT323', courier, monospace;
+  font-size: 1.3em;
+  border: 1px solid limegreen;
+  color: limegreen;
+  padding: 0.5em;
+  background-color: #222;
+  border-radius: 3px;
+  box-shadow: inset -2px -2px 1px limegreen, inset 1px 0px 1px limegreen;
+  transition: box-shadow 0.15s;
+}
+
+button:hover {
+  color: #84e184;
+  box-shadow: inset -2px -2px 1px lightgreen, inset 1px 0px 1px lightgreen, 0px 0px 5px lightgreen;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: none;
+  color: #28a428;
+  border-color: #1e7b1e;
 }
 
 
@@ -130,6 +166,7 @@ Media queries
 
   h1 {
     font-size: 5em;
+    width: 380px;
   }
 
   h3 {
@@ -162,6 +199,7 @@ Media queries
 
   h1 {
     font-size: 6em;
+    width: 450px;
   }
 
   h3 {

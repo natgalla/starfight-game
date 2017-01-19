@@ -181,7 +181,7 @@ Effects
 $(".title").hide();
 $("#subtitle").hide();
 $(".title").fadeIn(1200, function() {
-  $("#subtitle").fadeIn(1000);
+  $("#subtitle").slideDown(1000);
 });
 
 let header = $('.formHeader').text();

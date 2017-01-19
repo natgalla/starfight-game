@@ -190,6 +190,7 @@ Game.prototype.distributeEnemies = function(source) {
         } else {
           break;
         }
+        friendly.adjustPursuerDamage();
       }
     }
   }
@@ -246,7 +247,7 @@ Game.prototype.update = function() {
 
 Game.prototype.round = function() {
   this.roundNumber++;
-  console.log('Round: ' + this.gameID + '.' + this.roundNumber);
+  io.to(this.gameID).emit('msg', 'Round: ' + this.roundNumber);
   // add enemies and game.advTactics tactics into play
   if (this.roundNumber === 1) {
     this.replaceCards(this.startingEnemies, this.enemyDeck,
@@ -272,49 +273,36 @@ Game.prototype.round = function() {
   this.sortByMerit();
 
   this.distributeEnemies(this.enemiesActive);
-  for (let i = 0; i < this.friendlies.length; i++) {
-    let friendly = this.friendlies[i];
-    friendly.adjustPursuerDamage();
-  }
 
   // replace tactical cards from last turn
   for (let i = 0; i < this.friendlies.length; i++) {
-    let player = this.friendlies[i];
-    if (player.id === 'FriendlyBase' || player.effects.dead) {
+    let friendly = this.friendlies[i];
+    if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
       continue;
     } else {
-      player.resetCardsUsed();
-      this.replaceCards(player.tacticalCardsPerTurn,
-                        this.tacticalDeck, player.hand);
+      friendly.resetCardsUsed();
+      this.replaceCards(friendly.tacticalCardsPerTurn,
+                        this.tacticalDeck, friendly.hand);
     }
   }
 }
 
 Game.prototype.postRound = function() {
-  // discard empty space cards and remove place holders
-  for (let i = 0; i < this.friendlies.length; i++) {
-    let friendly = this.friendlies[i];
-    for (let x = 0; x < friendly.pursuers.length; x++) {
-      let enemy = friendly.pursuers[x];
-      if (enemy === placeHolder) {
-        let removedCard = friendly.pursuers.splice(x, 1);
-        friendly.pursuers.join();
-        let removedTracker = friendly.pursuerDamage.splice(x, 1);
-        friendly.pursuerDamage.join();
-      } else if (enemy === empty) {
-        this.moveCard(x, friendly.pursuers, this.enemyDeck.discard);
-        let removedTracker = friendly.pursuerDamage.splice(x, 1);
-        friendly.pursuerDamage.join();
-      }
-    }
-  }
-
-  // deal pursuer damage to friendlies, handle cases for damage negation
+  // discard empty space cards and remove place holders, damage friendlies
   for (let i = 0; i < this.friendlies.length; i++) {
     let friendly = this.friendlies[i];
     let damage = 0;
-    for (let x = 0; x < friendly.pursuers.length; x++) {
-      damage += friendly.pursuers[x].power;
+    for (let x = friendly.pursuers.length-1; x >= 0; x--) {
+      let enemy = friendly.pursuers[x];
+      if (enemy.cssClass === 'destroyed') {
+        friendly.pursuers.splice(x, 1);
+        friendly.pursuerDamage.splice(x, 1);
+      } else if (enemy.cssClass === 'emptySpace') {
+        this.moveCard(x, friendly.pursuers, this.enemyDeck.discard);
+        friendly.pursuerDamage.splice(x, 1);
+      } else {
+        damage += enemy.power;
+      }
     }
     friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
@@ -349,11 +337,13 @@ Game.prototype.nextTurn = function() {
     } else {
       this.currentTurn += 1;
     }
-    this.adjustTurn();
-    while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
-          || this.friendlies[this.currentTurn].effects.dead) {
-      this.currentTurn += 1;
+    if (!this.win && !this.lose) {
       this.adjustTurn();
+      while (this.friendlies[this.currentTurn].id === 'FriendlyBase'
+            || this.friendlies[this.currentTurn].effects.dead) {
+        this.currentTurn += 1;
+        this.adjustTurn();
+      }
     }
   }
 }

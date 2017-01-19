@@ -31,17 +31,20 @@ html
           | pursuers, and cannot attack the enemy base unless they are free of
           | pursuers. This ensures that players must work together and choose their
           | actions wisely to succeed.
-        p Teamwork is essential to victory, but one pilot may shine above the
+        p Teamwork is essential to victory, but one pilot may shine above the 
           | rest. Prove your skills to your commanding officers and you may get
           | promoted... if you survive.
-        p
-          a(href='rules.html') Read the rules
+        //- p.center
+        //-   a(href='#') Read the rules
       section#kickstarter
         h2 #{gameTitle} status
         p #{gameTitle} is being playtested and we will be seeking funding to get it to a galaxy near you soon! Stay tuned.
       section#try
-        h2 Try it out!
+        h2 
+          a(href='/login') Try it out!
         p Playable web app coming soon!
+        //- a(href='/login')
+          //- button PLAY
     footer
       p &copy; 2016 Nathan Gallagher &amp; Rudi Vanzin. Design by Nathan Gallagher
     script(src='http://code.jquery.com/jquery-3.1.1.min.js' type='text/javascript' charset='utf-8')

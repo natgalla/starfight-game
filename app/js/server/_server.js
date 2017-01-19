@@ -139,7 +139,7 @@ function saveGame(game) {
               updateObjects(game.gameID, updatedSession);
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
-                if (updatedSession.users[user]) {
+                if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
                   let query = { callsign: updatedSession.users[user] };
                   User.find(query, function(err, player) {
                     if (err) {
@@ -158,12 +158,8 @@ function saveGame(game) {
                       if (wins <= 21 && wins % 3 === 0) {
                         console.log(player[0].callsign + " promoted to " + rank);
                       }
-                      User.update(query, update, function(err, updatedUser) {
-                        if (err) {
-                          console.error(err);
-                        } else {
-                          console.log(updatedSession.users[user] + " updated");
-                        }
+                      User.update(query, update, function() {
+                        console.log(updatedSession.users[user].name + " updated");
                       });
                     }
                   });
@@ -183,11 +179,11 @@ function saveGame(game) {
               updateObjects(game.gameID, updatedSession);
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
-                if (updatedSession.users[user]) {
+                if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
                   let query = { callsign: updatedSession.users[user] };
                   let update = { $inc: { 'meta.losses': 1 }};
                   User.update(query, update, function() {
-                    console.log(updatedSession.users[user] + " updated");
+                    console.log(updatedSession.users[user].name + " updated");
                   });
                 } else {
                   continue;
@@ -234,7 +230,7 @@ function onConnection(socket) {
         });
         io.to(gameId).emit('msg', user.callsign + ' joined the game.');
         socket.on('disconnect', function() {
-          console.log('user disconnected');
+          console.log('User disconnected');
           getGameSession(gameId, function(err, gameSession) {
             if (err) {
               console.error(err);
@@ -302,7 +298,7 @@ function onConnection(socket) {
                   if (err) {
                     console.error(err);
                   } else {
-                    console.log('user removed from ' + updatedSession._id);
+                    console.log('User removed from ' + updatedSession._id);
                   }
                 });
               }
@@ -398,21 +394,29 @@ function onConnection(socket) {
                   let Player3;
                   let Player4;
                   game.friendlies = [FriendlyBase];
-                  if (gameSession.users.user1) {
+                  if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
                     Player1 = new Player('Player1', gameSession.users.user1.name);
                     game.friendlies.push(Player1);
+                  } else {
+                    gameSession.users.user1 = undefined;
                   }
-                  if (gameSession.users.user2) {
+                  if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
                     Player2 = new Player('Player2', gameSession.users.user2.name);
                     game.friendlies.push(Player2);
+                  } else {
+                    gameSession.users.user2 = undefined;
                   }
-                  if (gameSession.users.user3) {
+                  if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
                     Player3 = new Player('Player3', gameSession.users.user3.name);
                     game.friendlies.push(Player3);
+                  } else {
+                    gameSession.users.user3 = undefined;
                   }
-                  if (gameSession.users.user4) {
+                  if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
                     Player4 = new Player('Player4', gameSession.users.user4.name);
                     game.friendlies.push(Player4);
+                  } else {
+                    gameSession.users.user4 = undefined;
                   }
                   game.buildDecks();
                   game.round();
@@ -537,7 +541,8 @@ function turnAction(game, specs) {
                                                                 specs.pursuerIndex,
                                                                 specs.purchaseIndex);
     }
-
     saveGame(game);
+  } else {
+    io.to(game.gameID).emit('msg', 'Cheating attempt detected');
   }
 }

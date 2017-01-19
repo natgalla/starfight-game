@@ -556,7 +556,7 @@ li p {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 300px;
+  width: 400px;
   height: 300px;
   text-align: center;
   vertical-align: middle;
@@ -1176,7 +1176,7 @@ input[type="checkbox"] {
   transform: rotateX(10deg); }
   @media (max-width: 1000px), (max-height: 700px) {
     #overlay {
-      height: 190px;
+      height: 210px;
       margin-left: -225px; } }
   #overlay ul {
     margin-left: -40px;
