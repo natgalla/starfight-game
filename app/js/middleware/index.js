@@ -1,3 +1,5 @@
+var Game = require('../models/game');
+
 function loggedOut(req, res, next) {
   if (req.session && req.session.userId) {
     return res.redirect('/profile');
@@ -15,12 +17,19 @@ function requiresLogin(req, res, next) {
 }
 
 function requiresGameSession(req, res, next) {
-  if (!req.session.gameId && req.header('Referer') !== req.header('Host') + '/menu') {
-    let err = new Error('You must create or join a game');
-    err.status = 403;
-    return next(err);
-  }
-  return next();
+  Game.findById(req.session.gameId, function(err, gameSession) {
+    if (err) {
+      return next(err);
+    }
+    if (gameSession === null
+       || gameSession.gameName == gameSession._id
+       || (!req.session.gameId && req.header('Referer') !== req.header('Host') + '/menu')) {
+         let err = new Error('You must create or join a game');
+         err.status = 403;
+         return next(err);
+    }
+    return next();
+  });
 }
 
 function setCookie(req, res, next) {

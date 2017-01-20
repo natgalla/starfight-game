@@ -195,10 +195,6 @@ $('#sessionName').on('keyup change', function() {
     $(this).addClass('invalidEntry');
   }
   validateCompletion()
-  // if new
-    // valid if val > 0 && normal characters
-  // if join
-    // valid if session name exists
 });
 
 

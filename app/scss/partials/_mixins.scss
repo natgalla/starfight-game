@@ -5,7 +5,7 @@
 @mixin selectable {
   box-shadow: 2px 2px 3px $highlightPink,
               -2px -2px 5px $highlightPink;
-  z-index: 9 !important;
+  z-index: 100 !important;
   &:hover {
     cursor: pointer;
   }
@@ -113,4 +113,16 @@
     scrollbar-face-color: $foreground-color;
     scrollbar-track-color: $background-color;
   }
+}
+
+@mixin bracketsVertical($thickness: 5px, $curvature: 0.5em, $color: $primaryPink) {
+  border-top: $thickness - 1 solid $color;
+  border-bottom: $thickness solid $color;
+  border-radius: $curvature;
+}
+
+@mixin bracketsHorizontal($thickness: 3px, $curvature: 0.5em, $color: $primaryPink) {
+  border-left: $thickness solid $color;
+  border-right: $thickness solid $color;
+  border-radius: $curvature;
 }

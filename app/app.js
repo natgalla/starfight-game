@@ -89,7 +89,7 @@ ENEMY BASE CARD FUNCTIONS
 
 EnemyBase.prototype.reinforce = function(game) {
   io.to(game.gameID).emit("msg", this.name + " will launch one extra enemy card into play each round.");
-  this.enemiesPerTurn += 1;
+  game.enemiesPerTurn += 1;
 }
 
 EnemyBase.prototype.repair = function(game) {
@@ -1073,7 +1073,7 @@ Game.prototype.update = function() {
 
 Game.prototype.round = function() {
   this.roundNumber++;
-  io.to(this.gameID).emit('msg', 'Round: ' + this.roundNumber);
+  io.to(this.gameID).emit('msg', 'Round ' + this.roundNumber);
   // add enemies and game.advTactics tactics into play
   if (this.roundNumber === 1) {
     this.replaceCards(this.startingEnemies, this.enemyDeck,
@@ -1248,7 +1248,7 @@ let immelman = new Tactical("Immelman", "immelman", "Missile an enemy pursuing y
 // let daredevil = new AdvTactical("Daredevil", "daredevil", "Allows you to attack the EB with 1 pursuer", 10);
 // let medic = new AdvTactical("Medic", "medic", "Restore 1 armor to a friendly of your choice each round", 10);
 // let sharpShooter = new AdvTactical("Sharp Shooter", "sharpshooter", "Improve player accuracy rolls/add an extra die", 10);
-let bomb = new AdvTactical("Bomb", "bomb", "Deal 6 damage to a target, and 2 damage to each adjacent target (ff)", 8);
+let bomb = new AdvTactical("Bomb", "bomb", "Deal 6 damage to a target, and 2 damage to each adjacent target (or friendly)", 8);
 let heatSeeker = new AdvTactical("Heat Seeker", "heatSeeker", "Deal 5 damage to a chosen enemy", 5);
 let healthPack = new AdvTactical("Emergency repairs", "healthPack", "Remove 5 damage from a friendly (any)", 4);
 let jammer = new AdvTactical("Jammer", "jammer", "Do not draw an enemy base card next round", 6);
@@ -1278,21 +1278,25 @@ let deploy = new EnemyBaseCard("Deploy", "deploy", "Launched an extra enemy figh
 let repair = new EnemyBaseCard("Repairs", "repair", "Repaired 5 armor.");
 let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increased launch rate by 1");
 
-let root = __dirname;
-let port = process.env.PORT || 8080;
+// requirements
 let http = require('http');
 let express = require('express');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
 let session = require('express-session');
-let app = express();
-let server = http.createServer(app);
 let socketio = require('socket.io');
-let io = socketio(server);
 let User = require('./js/models/user');
 let GameSession = require('./js/models/game');
 let MongoStore = require('connect-mongo')(session);
+// build app
+let app = express();
+let server = http.createServer(app);
+let io = socketio(server);
+// globals
 let gameTitle = "Contact!";
+let root = __dirname;
+let port = process.env.PORT || 8080;
+
 
 // mongodb connection
 mongoose.connect('mongodb://localhost:27017/starfire');
@@ -1342,31 +1346,27 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  let backUrl;
+  let backPrompt;
   if (req.session.userId) {
-    let backUrl = req.header('Referer') || '/login';
-    res.status(err.status || 500);
-    res.render('error', {
-      gameTitle: gameTitle,
-      statusMessage: err.message || 'There was en error processing your request',
-      error: {},
-      backPrompt: 'Go back',
-      backUrl: backUrl
-    });
+    backUrl = req.header('Referer') || '/login';
+    backPrompt = 'Go back';
   } else {
-    res.status(err.status || 500);
-    res.render('error', {
-      statusMessage: err.message || 'There was en error processing your request',
-      error: {},
-      backPrompt: 'Go to login',
-      backUrl: '/login'
-    });
+    backUrl = '/login';
+    backPrompt = 'Go to login'
   }
-
+  res.status(err.status || 500);
+  res.render('error', {
+    gameTitle: gameTitle,
+    statusMessage: err.message || 'There was en error processing your request',
+    error: {},
+    backPrompt: backPrompt,
+    backUrl: backUrl
+  });
 });
 
 server.listen(port, () => console.log('Ready. Listening at http://localhost:' + port));
 
-// game logic
 io.on('connect', onConnection);
 
 function getUser(userId, callback) {
@@ -1813,7 +1813,7 @@ function turnAction(game, specs) {
     friendly = getPlayer(specs.friendly.id);
   }
 
-  if (game.currentTurn === game.friendlies.indexOf(player)) { // should protect against possible tampering on front end
+  if (game.currentTurn === game.friendlies.indexOf(player)) {
     if (specs.button === 'use') {
       game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
     } else {

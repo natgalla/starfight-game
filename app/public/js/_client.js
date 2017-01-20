@@ -116,7 +116,7 @@ function centerMessage(text) {
   $holder.append($message);
   $("body").append($holder);
   $holder.hide();
-  $holder.fadeIn(800);
+  $holder.slideDown(800);
 }
 
 function onEnd(text) {

@@ -41,14 +41,9 @@ let $cicButton = $("<button>", {
   title: "View advanced tactics",
   text: "CIC"
 });
-let $confirmTargetButton = $("<button>", {
+let $confirmButton = $("<button>", {
   id: "confirmTarget",
   title: "Confirm target",
-  text: "CFM"
-});
-let $confirmAdvButton = $("<button>", {
-  id: "confirmAdvTactic",
-  title: "Confirm choice",
   text: "CFM"
 });
 
@@ -57,8 +52,7 @@ $buttons.append($discardButton);
 $buttons.append($fireButton);
 $buttons.append($evadeButton);
 $buttons.append($cicButton);
-$buttons.append($confirmTargetButton);
-$buttons.append($confirmAdvButton);
+$buttons.append($confirmButton);
 $buttons.append($cancelButton);
 
 
@@ -320,7 +314,7 @@ const selectAlly = function(scope) {
     detarget();
     clearButtons();
     $(this).toggleClass("targeted");
-    $confirmTargetButton.show();
+    $confirmButton.show();
     $cancelButton.show();
   });
 }
@@ -354,7 +348,7 @@ const showTargets = function(action) {
           clearButtons();
           $(this).addClass("targeted")
           $(".targeted").not($(this)).removeClass("targeted");
-          $confirmTargetButton.show();
+          $confirmButton.show();
           $cancelButton.show();
         });
       } else {
@@ -367,7 +361,7 @@ const showTargets = function(action) {
   }
   if (["jammer", "incinerate", "intercept", "divertShields", "countermeasures", "jump", "hardsix", "guidedMissile"].includes(action)) {
     clearButtons();
-    $confirmTargetButton.show();
+    $confirmButton.show();
     $cancelButton.show();
   }
   if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
@@ -490,11 +484,11 @@ $cicButton.on("click", function() {
       $(this).addClass("purchasing");
       action = $(this)[0].classList[1]; // $(this).attr("class").split(" ")[1]
       if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone", "healthPack"].includes(action)) {
-        $confirmAdvButton.hide();
+        $confirmButton.hide();
         showTargets(action);
       } else {
         detarget();
-        $confirmAdvButton.show();
+        $confirmButton.show();
       }
   });
 });
@@ -515,10 +509,6 @@ const sendPacket = function() {
   update();
 }
 
-$confirmTargetButton.on("click", function() {
-  sendPacket();
-});
-
-$confirmAdvButton.on("click", function() {
+$confirmButton.on("click", function() {
   sendPacket();
 });

@@ -1,10 +1,13 @@
 body {
   background-color: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  z-index: -1000;
   background-repeat: no-repeat;
   background-size: 100% 100vh;
   background-image: linear-gradient($black, rgba(0,0,0,0.3), $black),
                     url(../img/space.jpg);
-  perspective: 1200;
   h1 {
     color: $primaryPink;
     font-family: 'Orbitron', sans-serif;
@@ -25,6 +28,7 @@ body {
 h3 {
   color: $secondaryBlue;
   font-family: "Orbitron", monospace, sans-serif;
+  font-weight: normal;
 }
 
 p {
@@ -167,14 +171,20 @@ li p {
 
 #centerMessage {
   position: absolute;
+  background-color: $darkTranslucent;
   left: 50%;
   top: 50%;
-  width: 400px;
-  height: 300px;
+  width: 450px;
+  height: 230px;
+  @media (max-width: $breakWidth), (max-height: $breakHeight) {
+    width: 350px;
+    height: 200px;
+  }
   text-align: center;
   vertical-align: middle;
   margin-left: -150px;
   margin-top: -150px;
+  @include bracketsHorizontal(5px, 1em);
 }
 
 .link {

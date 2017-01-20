@@ -72,28 +72,13 @@
   text-align: center;
   display: block;
   margin-bottom: -70px;
-  // @media (max-height: 700px) {
-  //   margin-bottom: -50px;
-  // }
-  // @media (max-height: 800px) {
-  //   margin-bottom: -200px;
-  // }
   perspective: $perspective;
   & .enemy {
     z-index: -11;
-    // @media (max-height: 700px) {
-    //   margin-bottom: -230px;
-    // }
-    // @media (max-height: 800px) {
-    //   margin-top: -380px;
-    // }
   }
   & .target {
     z-index: 14;
     margin-bottom: 120px;
-    // @media (max-height: 850px) {
-    //   margin-top: -470px;
-    // }
   }
   & .targeted {
     z-index: 17;
@@ -102,10 +87,6 @@
   & .emptySpace {
     z-index: -12;
   }
-}
-
-#basePursuers {
-
 }
 
 #wingman1-pursuers,
@@ -122,5 +103,11 @@
   }
   & li {
     margin-left: -3em;
+  }
+  & .targeted {
+    @include enemyTargeted;
+    &:hover {
+      @include enemyTargeted;
+    }
   }
 }

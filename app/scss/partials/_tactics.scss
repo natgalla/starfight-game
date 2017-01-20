@@ -16,9 +16,7 @@
     height: 150px;
   }
   transform: rotateX(10deg);
-  border-top: 3px solid $primaryPink;
-  border-bottom: 5px solid $primaryPink;
-  border-radius: 1em;
+  @include bracketsVertical(5px, 1em);
   padding: 10px 40px;
   background: $darkTranslucent;
   & .advTactical,

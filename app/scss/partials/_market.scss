@@ -1,9 +1,11 @@
 #overlay {
   height: 250px;
-  margin-left: -300px;
+  width: 570px;
+  margin-left: -285px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
     height: 210px;
-    margin-left: -225px;
+    width: 480px;
+    margin-left: -240px;
   }
   position: absolute;
   bottom: 55px;
@@ -11,9 +13,7 @@
   text-align: center;
   background: $darkTranslucent;
   vertical-align: middle;
-  border-top: 3px solid $primaryPink;
-  border-bottom: 5px solid $highlightPink;
-  border-radius: 0.8em;
+  @include bracketsVertical(5px, 0.8em);
   z-index: 100;
   transform: rotateX(10deg);
   & ul {

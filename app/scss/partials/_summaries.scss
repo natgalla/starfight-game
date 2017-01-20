@@ -2,10 +2,8 @@
   text-align: left;
   padding: 5px 10px;
   margin-left: 10px;
-  border-radius: 10px;
   background-color: $darkTranslucent;
-  border-top: 3px solid $secondaryBlue;
-  border-bottom: 4px solid $secondaryBlue;
+  @include bracketsVertical(4px, 10px, $secondaryBlue);
   & h3 {
     margin: 0.5em 0;
   }
@@ -23,13 +21,13 @@
   z-index: 10;
   margin-top: 40px;
   &.bumped {
-    margin-left: 70px;
+    margin-left: 90px;
   }
   min-width: 100px;
   @media (max-width: $breakWidth), (max-height: $breakHeight) {
     min-width: 80px;
     &.bumped {
-      margin-left: 65px;
+      margin-left: 75px;
     }
   }
 }
@@ -54,10 +52,7 @@
 }
 
 #FriendlyBase.targeted,
-#wingman1-summary.targeted,
-#wingman2-summary.targeted,
-#wingman3-summary.targeted,
-#userSummary.targeted {
+.playerSummary.targeted {
   @include friendlyTargeted;
 }
 

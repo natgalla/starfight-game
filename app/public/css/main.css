@@ -404,10 +404,13 @@ template {
 
 body {
   background-color: black;
+  height: 100vh;
+  width: 100%;
+  position: absolute;
+  z-index: -1000;
   background-repeat: no-repeat;
   background-size: 100% 100vh;
-  background-image: linear-gradient(#000, rgba(0, 0, 0, 0.3), #000), url(../img/space.jpg);
-  perspective: 1200; }
+  background-image: linear-gradient(#000, rgba(0, 0, 0, 0.3), #000), url(../img/space.jpg); }
   body h1 {
     color: magenta;
     font-family: 'Orbitron', sans-serif;
@@ -423,7 +426,8 @@ body {
 
 h3 {
   color: steelblue;
-  font-family: "Orbitron", monospace, sans-serif; }
+  font-family: "Orbitron", monospace, sans-serif;
+  font-weight: normal; }
 
 p {
   font-family: VT323, courier, monospace;
@@ -554,14 +558,22 @@ li p {
 
 #centerMessage {
   position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
   left: 50%;
   top: 50%;
-  width: 400px;
-  height: 300px;
+  width: 450px;
+  height: 230px;
   text-align: center;
   vertical-align: middle;
   margin-left: -150px;
-  margin-top: -150px; }
+  margin-top: -150px;
+  border-left: 5px solid magenta;
+  border-right: 5px solid magenta;
+  border-radius: 1em; }
+  @media (max-width: 1000px), (max-height: 700px) {
+    #centerMessage {
+      width: 350px;
+      height: 200px; } }
 
 .link {
   display: block;
@@ -666,9 +678,9 @@ input[type="checkbox"] {
   width: 30%;
   width: 375px;
   margin: 0 auto;
-  border-radius: 1em;
   border-top: 4px solid magenta;
-  border-bottom: 5px solid magenta; }
+  border-bottom: 5px solid magenta;
+  border-radius: 1em; }
   @media (max-width: 1000px), (max-height: 700px) {
     .menu {
       width: 300px; } }
@@ -825,7 +837,7 @@ input[type="checkbox"] {
   padding-left: 0;
   height: 180px;
   transform: rotateX(10deg);
-  border-top: 3px solid magenta;
+  border-top: 4px solid magenta;
   border-bottom: 5px solid magenta;
   border-radius: 1em;
   padding: 10px 40px;
@@ -841,7 +853,7 @@ input[type="checkbox"] {
     #playerHand .advTactical:hover,
     #playerHand .tactical:hover {
       box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
-      z-index: 9 !important; }
+      z-index: 100 !important; }
       #playerHand .advTactical:hover:hover,
       #playerHand .tactical:hover:hover {
         cursor: pointer; }
@@ -923,10 +935,10 @@ input[type="checkbox"] {
   text-align: left;
   padding: 5px 10px;
   margin-left: 10px;
-  border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.8);
   border-top: 3px solid steelblue;
   border-bottom: 4px solid steelblue;
+  border-radius: 10px;
   margin-top: 20px 0; }
   .playerSummary h3 {
     margin: 0.5em 0; }
@@ -942,12 +954,12 @@ input[type="checkbox"] {
   margin-top: 40px;
   min-width: 100px; }
   #userSummary.bumped {
-    margin-left: 70px; }
+    margin-left: 90px; }
   @media (max-width: 1000px), (max-height: 700px) {
     #userSummary {
       min-width: 80px; }
       #userSummary.bumped {
-        margin-left: 65px; } }
+        margin-left: 75px; } }
 
 #wingman1-summary,
 #wingman2-summary,
@@ -965,10 +977,7 @@ input[type="checkbox"] {
     box-shadow: 0px 0px 15px #8db3d3; }
 
 #FriendlyBase.targeted,
-#wingman1-summary.targeted,
-#wingman2-summary.targeted,
-#wingman3-summary.targeted,
-#userSummary.targeted {
+.playerSummary.targeted {
   z-index: 1000;
   background-color: #252525;
   box-shadow: 2px 2px 5px #84e184, -2px -2px 7px #84e184; }
@@ -1108,6 +1117,18 @@ input[type="checkbox"] {
   #wingman2-pursuers li,
   #wingman3-pursuers li {
     margin-left: -3em; }
+  #wingman1-pursuers .targeted,
+  #wingman2-pursuers .targeted,
+  #wingman3-pursuers .targeted {
+    z-index: 1000;
+    transform: translate3d(0, 10px, 150px);
+    box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
+    #wingman1-pursuers .targeted:hover,
+    #wingman2-pursuers .targeted:hover,
+    #wingman3-pursuers .targeted:hover {
+      z-index: 1000;
+      transform: translate3d(0, 10px, 150px);
+      box-shadow: 2px 2px 5px magenta, -2px -2px 7px magenta; }
 
 #FriendlyBase,
 #enemyBase {
@@ -1162,22 +1183,24 @@ input[type="checkbox"] {
 
 #overlay {
   height: 250px;
-  margin-left: -300px;
+  width: 570px;
+  margin-left: -285px;
   position: absolute;
   bottom: 55px;
   left: 50%;
   text-align: center;
   background: rgba(0, 0, 0, 0.8);
   vertical-align: middle;
-  border-top: 3px solid magenta;
-  border-bottom: 5px solid #ff66ff;
+  border-top: 4px solid magenta;
+  border-bottom: 5px solid magenta;
   border-radius: 0.8em;
   z-index: 100;
   transform: rotateX(10deg); }
   @media (max-width: 1000px), (max-height: 700px) {
     #overlay {
       height: 210px;
-      margin-left: -225px; } }
+      width: 480px;
+      margin-left: -240px; } }
   #overlay ul {
     margin-left: -40px;
     transform: rotateX(10deg); }
@@ -1187,7 +1210,7 @@ input[type="checkbox"] {
     #overlay .advTactical:hover {
       cursor: pointer;
       box-shadow: 2px 2px 3px #ff66ff, -2px -2px 5px #ff66ff;
-      z-index: 9 !important; }
+      z-index: 100 !important; }
       #overlay .advTactical:hover:hover {
         cursor: pointer; }
   #overlay .unavailable {

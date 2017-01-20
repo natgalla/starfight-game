@@ -247,7 +247,7 @@ Game.prototype.update = function() {
 
 Game.prototype.round = function() {
   this.roundNumber++;
-  io.to(this.gameID).emit('msg', 'Round: ' + this.roundNumber);
+  io.to(this.gameID).emit('msg', 'Round ' + this.roundNumber);
   // add enemies and game.advTactics tactics into play
   if (this.roundNumber === 1) {
     this.replaceCards(this.startingEnemies, this.enemyDeck,

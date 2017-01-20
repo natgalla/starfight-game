@@ -43,7 +43,7 @@ ENEMY BASE CARD FUNCTIONS
 
 EnemyBase.prototype.reinforce = function(game) {
   io.to(game.gameID).emit("msg", this.name + " will launch one extra enemy card into play each round.");
-  this.enemiesPerTurn += 1;
+  game.enemiesPerTurn += 1;
 }
 
 EnemyBase.prototype.repair = function(game) {

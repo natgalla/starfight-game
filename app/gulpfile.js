@@ -16,7 +16,8 @@ gulp.task('concatServerScripts', function() {
         'js/server/_friendlies.js',
         'js/server/_game.js',
         'js/server/_build.js',
-        'js/server/_server.js'
+        'js/server/_server.js',
+        'js/server/_gamelogic.js'
       ])
     .pipe(maps.init())
     .pipe(concat('app.js'))
@@ -51,9 +52,9 @@ gulp.task('concatMenuScripts', function() {
 });
 
 gulp.task('minifyScripts', ['concatGameScripts', 'concatMenuScripts', 'concatServerScripts'], function() {
-  return gulp.src('js/app.js')
+  return gulp.src('js/menu.js')
     .pipe(uglify())
-    .pipe(rename('app.min.js'))
+    .pipe(rename('menu.min.js'))
     .pipe(gulp.dest('js'));
 });
 
