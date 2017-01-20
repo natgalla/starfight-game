@@ -601,24 +601,6 @@ Player.prototype.incinerate = function(game) {
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
 **************************/
 
-Player.prototype.useAdvTactic = function(game, advTactic, friendly, pursuerIndex) {
-  // takes the index of a market card and uses that card if the player has enough merit
-  // optional arguments 'friendly' and 'pursuerIndex' defines a target for the card
-  if (friendly === undefined) {
-    friendly = this;
-  }
-  let choice = game.market[advTactic];
-  this.lastCardUsed = choice;
-  let action = choice.cssClass;
-  if (this.merit >= choice.cost) {
-    this.merit -= choice.cost;
-    this[action](game, friendly, pursuerIndex);
-    game.removeAdvTactic(advTactic);
-  } else {
-    io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
-  }
-}
-
 Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   // takes the index of a card in hand and uses that card
   // optional argument 'friendly' defines a player target for the card
@@ -655,7 +637,17 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     pursuerIndex = 0;
   }
   if (action === "useAdvTactic") {
-    this.useAdvTactic(game, advIndex, friendly, pursuerIndex);
+    let choice = game.market[advIndex];
+    this.lastCardUsed = choice;
+    let advAction = choice.cssClass;
+    game.advTacticsPurchased.push(advAction);
+    if (this.merit >= choice.cost) {
+      this.merit -= choice.cost;
+      this[advAction](game, friendly, pursuerIndex);
+      game.removeAdvTactic(advIndex);
+    } else {
+      io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+    }
   } else {
     this[action](game, friendly, pursuerIndex);
   }

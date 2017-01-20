@@ -1,0 +1,51 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    title #{gameTitle}
+    link(rel='stylesheet' href='public/css/normalize.css')
+    link(href='https://fonts.googleapis.com/css?family=Orbitron|VT323' rel='stylesheet')
+    link(rel='stylesheet' href='public/css/home.css')
+    link(rel='icon' href='public/img/icon.png')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+
+  body
+    header
+      a(href='#content')
+        h1.title#title #{gameTitle}
+        h3#subtitle cooperative starfighter game
+    #content.clearfix
+      section#introduction
+        h2 Do you have what it takes?
+        p They appeared without warning and ignored all attempts at communication. 
+          | Now, outnumbered and out-gunned, you and your fellow pilots must rely
+          | on each other to survive and defeat the enemy.
+      section#description
+        h2 About #{gameTitle}
+        p #{gameTitle} is a cooperative card game inspired by the 
+          | fast-paced starfighter combat in sci-fi movies and TV shows.
+          | Players work together to destroy the enemy base before their
+          | squad or home base is wiped out.
+        p With #{gameTitle}'s unique 'fray' system, enemy fighters pursue a 
+          | specific player or the home base. Players cannot attack their own
+          | pursuers, and cannot attack the enemy base unless they are free of
+          | pursuers. This ensures that players must work together and choose their
+          | actions wisely to succeed.
+        p Teamwork is essential to victory, but one pilot may shine above the 
+          | rest. Prove your skills to your commanding officers and you may get
+          | promoted... if you survive.
+        //- p.center
+        //-   a(href='#') Read the rules
+      section#kickstarter
+        h2 #{gameTitle} status
+        p #{gameTitle} is being playtested and we will be seeking funding to get it to a galaxy near you soon! Stay tuned.
+      section#try
+        h2 
+          a(href='/login') Try it out!
+        p Playable web app coming soon!
+        //- a(href='/login')
+          //- button PLAY
+    footer
+      p &copy; 2016 Nathan Gallagher &amp; Rudi Vanzin. Design by Nathan Gallagher
+    script(src='http://code.jquery.com/jquery-3.1.1.min.js' type='text/javascript' charset='utf-8')
+    script(src='js/menu.js')

@@ -36,13 +36,24 @@ let GameSchema = new mongoose.Schema({
     elapsedTime: { type: Number, default: 0 },
     locked: { type: Boolean, default: false },
     rounds: { type: Number, default: 0 },
+    players: { type: Number, default: 0 },
+    difficulty: { type: Number, default: 3 },
     shuffles: {
       tactical: { type: Number, default: 0 },
-      enemy: { type: Number, default: 0 }
+      enemy: { type: Number, default: 0 },
+    },
+    hp: {
+      FriendlyBase: { type: Number, default: 0 },
+      Player1: { type: Number, default: 0 },
+      Player2: { type: Number, default: 0 },
+      Player3: { type: Number, default: 0 },
+      Player4: { type: Number, default: 0 },
+      enemyBase: { type: Number, default: 0 },
     },
     won: {type: Boolean, default: false},
     lost: {type: Boolean, default: false},
-    aborted: {type: Boolean, default: false}
+    aborted: {type: Boolean, default: false},
+    advTacticsPurchased: {type: Array, default: []},
   }
 });
 

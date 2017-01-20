@@ -11,6 +11,7 @@ const Game = function(id, name, difficulty) {
   this.enemyDeck = new Deck('Enemy Deck');
   this.market = [];
   this.marketSize = 4;
+  this.advTacticsPurchased = [];
   this.enemyBaseCardsPerTurn = 1;
   this.enemiesActive = [];
   this.enemiesPerTurn;

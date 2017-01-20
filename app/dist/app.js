@@ -761,6 +761,24 @@ Player.prototype.incinerate = function(game) {
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
 **************************/
 
+Player.prototype.useAdvTactic = function(game, advTactic, friendly, pursuerIndex) {
+  // takes the index of a market card and uses that card if the player has enough merit
+  // optional arguments 'friendly' and 'pursuerIndex' defines a target for the card
+  if (friendly === undefined) {
+    friendly = this;
+  }
+  let choice = game.market[advTactic];
+  this.lastCardUsed = choice;
+  let action = choice.cssClass;
+  if (this.merit >= choice.cost) {
+    this.merit -= choice.cost;
+    this[action](game, friendly, pursuerIndex);
+    game.removeAdvTactic(advTactic);
+  } else {
+    io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+  }
+}
+
 Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   // takes the index of a card in hand and uses that card
   // optional argument 'friendly' defines a player target for the card
@@ -797,17 +815,7 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     pursuerIndex = 0;
   }
   if (action === "useAdvTactic") {
-    let choice = game.market[advIndex];
-    this.lastCardUsed = choice;
-    let advAction = choice.cssClass;
-    game.advTacticsPurchased.push(advAction);
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
-      this[advAction](game, friendly, pursuerIndex);
-      game.removeAdvTactic(advIndex);
-    } else {
-      io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
-    }
+    this.useAdvTactic(game, advIndex, friendly, pursuerIndex);
   } else {
     this[action](game, friendly, pursuerIndex);
   }
@@ -829,7 +837,6 @@ const Game = function(id, name, difficulty) {
   this.enemyDeck = new Deck('Enemy Deck');
   this.market = [];
   this.marketSize = 4;
-  this.advTacticsPurchased = [];
   this.enemyBaseCardsPerTurn = 1;
   this.enemiesActive = [];
   this.enemiesPerTurn;
@@ -1394,12 +1401,6 @@ function saveGame(game) {
       gameSession.meta.rounds = game.roundNumber;
       gameSession.meta.shuffles.tactical = game.tacticalDeck.shuffles;
       gameSession.meta.shuffles.enemy = game.enemyDeck.shuffles;
-      gameSession.meta.advTacticsPurchased = game.advTacticsPurchased;
-      for (let i=0; i < game.friendlies.length; i++) {
-        let friendly = game.friendlies[i];
-        gameSession.meta.hp[friendly.id] = friendly.currentArmor;
-      }
-      gameSession.meta.hp.enemyBase = game.enemyBase.currentArmor;
       gameSession.state = [game];
       if (game.win || game.lose) {
         let endTime = new Date();
@@ -1408,9 +1409,6 @@ function saveGame(game) {
         gameSession.gameName = gameSession._id;
         gameSession.meta.endTime = endTime;
         gameSession.meta.elapsedTime = min;
-        gameSession.players = undefined;
-        gameSession.difficulty = undefined;
-        gameSession.state = undefined;
         if (game.win) {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
@@ -1547,19 +1545,9 @@ function onConnection(socket) {
                   }
                 }
                 if (gameSession.players === 0) {
-                  gameSession.meta.aborted = true;
                   gameSession.gameName = gameSession._id;
+                  gameSession.meta.aborted = true;
                   console.log('Game ' + gameSession._id + ' aborted');
-                  if (gameSession.state.length > 0) {
-                    let endTime = new Date();
-                    let ms = endTime - gameSession.meta.startTime;
-                    let min = Math.round(ms/1000/60);
-                    gameSession.meta.endTime = endTime;
-                    gameSession.meta.elapsedTime = min;
-                  }
-                  gameSession.state = undefined;
-                  gameSession.players = undefined;
-                  gameSession.difficulty = undefined;
                 } else {
                   if (gameSession.state.length === 0) {
                     if (gameSession.meta.locked) {
@@ -1686,40 +1674,29 @@ function onConnection(socket) {
                   let Player3;
                   let Player4;
                   game.friendlies = [FriendlyBase];
-                  gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
-                  gameSession.meta.players = gameSession.players;
-                  gameSession.meta.difficulty = gameSession.difficulty;
                   if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
                     Player1 = new Player('Player1', gameSession.users.user1.name);
                     game.friendlies.push(Player1);
-                    gameSession.meta.hp.Player1 = Player1.currentArmor;
                   } else {
                     gameSession.users.user1 = undefined;
-                    gameSession.meta.hp.Player1 = undefined;
                   }
                   if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
                     Player2 = new Player('Player2', gameSession.users.user2.name);
                     game.friendlies.push(Player2);
-                    gameSession.meta.hp.Player2 = Player2.currentArmor;
                   } else {
                     gameSession.users.user2 = undefined;
-                    gameSession.meta.hp.Player2 = undefined;
                   }
                   if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
                     Player3 = new Player('Player3', gameSession.users.user3.name);
                     game.friendlies.push(Player3);
-                    gameSession.meta.hp.Player3 = Player3.currentArmor;
                   } else {
                     gameSession.users.user3 = undefined;
-                    gameSession.meta.hp.Player3 = undefined;
                   }
                   if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
                     Player4 = new Player('Player4', gameSession.users.user4.name);
                     game.friendlies.push(Player4);
-                    gameSession.meta.hp.Player4 = Player4.currentArmor;
                   } else {
                     gameSession.users.user4 = undefined;
-                    gameSession.meta.hp.Player4 = undefined;
                   }
                   game.buildDecks();
                   game.round();
@@ -1792,7 +1769,6 @@ function loadGame(gameSession, specs, callback) {
   game.currentTurn = gameState.currentTurn;
   game.tacticalDeck = gameState.tacticalDeck;
   game.advTactics = gameState.advTactics;
-  game.advTacticsPurchased = gameState.advTacticsPurchased;
   game.enemyBaseDeck = gameState.enemyBaseDeck;
   game.enemyDeck = gameState.enemyDeck;
   game.market = gameState.market;

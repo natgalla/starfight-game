@@ -1,0 +1,27 @@
+extends ./layout.pug
+
+block content
+  #room.menu
+    #info
+      ul#status
+      #messenger
+        form#chat
+          h3.formHeader Stand by for launch...
+          input(type="text", name="message", id="message")
+          button(type="submit", id="sendMessage") SEND
+          p.nameReminder Your base name is: #{gameName}
+  #playArea
+    #wingmen
+    #FriendlyBase.FriendlyBase
+      #friendlyBaseSummary
+      ul#basePursuers
+    #enemyBase.enemy
+    #player
+      ul#playerPursuers
+      ul#playerHand
+      #userSummary
+      #buttons
+
+block js   
+  script(src="/socket.io/socket.io.js")
+  script(type="text/javascript" src="js/game.js")
