@@ -1,10 +1,10 @@
 {
   "name": "Contact!",
   "version": "0.1.0",
-  "description": "Playable app of cooperative starfighter game.",
   "engines": {
     "node": "6.9.1"
   },
+  "description": "Playable app of cooperative starfighter game.",
   "main": "app.js",
   "dependencies": {
     "bcrypt": "^1.0.2",
