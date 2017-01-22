@@ -27,23 +27,22 @@ function saveGame(game) {
     if (err) {
       console.error(err);
     } else {
+      let endTime = new Date();
+      let ms = endTime - gameSession.meta.startTime;
+      let min = Math.round(ms/1000/60);
       gameSession.meta.rounds = game.roundNumber;
       gameSession.meta.shuffles.tactical = game.tacticalDeck.shuffles;
       gameSession.meta.shuffles.enemy = game.enemyDeck.shuffles;
       gameSession.meta.advTacticsPurchased = game.advTacticsPurchased;
+      gameSession.meta.endTime = endTime;
+      gameSession.meta.elapsedTime = min;
+      gameSession.meta.hp.enemyBase = game.enemyBase.currentArmor;
       for (let i=0; i < game.friendlies.length; i++) {
         let friendly = game.friendlies[i];
         gameSession.meta.hp[friendly.id] = friendly.currentArmor;
       }
-      gameSession.meta.hp.enemyBase = game.enemyBase.currentArmor;
-      gameSession.state = [game];
       if (game.win || game.lose) {
-        let endTime = new Date();
-        let ms = endTime - gameSession.meta.startTime;
-        let min = Math.round(ms/1000/60);
         gameSession.gameName = gameSession._id;
-        gameSession.meta.endTime = endTime;
-        gameSession.meta.elapsedTime = min;
         gameSession.players = undefined;
         gameSession.difficulty = undefined;
         gameSession.state = undefined;
@@ -111,6 +110,7 @@ function saveGame(game) {
           });
         }
       } else {
+        gameSession.state = [game];
         gameSession.save(function(err, updatedSession) {
           if (err) {
             console.error(err);
