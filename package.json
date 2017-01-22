@@ -2,7 +2,7 @@
   "name": "Contact!",
   "version": "0.1.0",
   "description": "Playable app of cooperative starfighter game.",
-  "main": "./app/app.js",
+  "main": "app.js",
   "dependencies": {
     "bcrypt": "^1.0.2",
     "connect-mongo": "^1.3.2",
@@ -27,7 +27,7 @@
     "pug": "^2.0.0-beta6"
   },
   "scripts": {
-    "start": "./app/app.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
