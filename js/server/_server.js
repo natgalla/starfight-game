@@ -1,5 +1,5 @@
 // requirements
-let https = require('https');
+let http = require('http');
 let express = require('express');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
@@ -10,7 +10,7 @@ let GameSession = require('./js/models/game');
 let MongoStore = require('connect-mongo')(session);
 // build app
 let app = express();
-let server = https.createServer(app);
+let server = http.createServer(app);
 let io = socketio(server);
 // globals
 let gameTitle = "Contact!";

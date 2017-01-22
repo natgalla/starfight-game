@@ -676,14 +676,14 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.5);
   padding: 0.5em 1em;
   width: 30%;
-  width: 375px;
+  width: 35em;
   margin: 0 auto;
   border-top: 4px solid magenta;
   border-bottom: 5px solid magenta;
   border-radius: 1em; }
   @media (max-width: 1000px), (max-height: 700px) {
     .menu {
-      width: 300px; } }
+      width: 30em; } }
   .menu h3 {
     text-align: center; }
   .menu#logout {

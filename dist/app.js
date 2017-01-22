@@ -761,24 +761,6 @@ Player.prototype.incinerate = function(game) {
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
 **************************/
 
-Player.prototype.useAdvTactic = function(game, advTactic, friendly, pursuerIndex) {
-  // takes the index of a market card and uses that card if the player has enough merit
-  // optional arguments 'friendly' and 'pursuerIndex' defines a target for the card
-  if (friendly === undefined) {
-    friendly = this;
-  }
-  let choice = game.market[advTactic];
-  this.lastCardUsed = choice;
-  let action = choice.cssClass;
-  if (this.merit >= choice.cost) {
-    this.merit -= choice.cost;
-    this[action](game, friendly, pursuerIndex);
-    game.removeAdvTactic(advTactic);
-  } else {
-    io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
-  }
-}
-
 Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   // takes the index of a card in hand and uses that card
   // optional argument 'friendly' defines a player target for the card
@@ -815,7 +797,17 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     pursuerIndex = 0;
   }
   if (action === "useAdvTactic") {
-    this.useAdvTactic(game, advIndex, friendly, pursuerIndex);
+    let choice = game.market[advIndex];
+    this.lastCardUsed = choice;
+    let advAction = choice.cssClass;
+    game.advTacticsPurchased.push(advAction);
+    if (this.merit >= choice.cost) {
+      this.merit -= choice.cost;
+      this[advAction](game, friendly, pursuerIndex);
+      game.removeAdvTactic(advIndex);
+    } else {
+      io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+    }
   } else {
     this[action](game, friendly, pursuerIndex);
   }
@@ -837,6 +829,7 @@ const Game = function(id, name, difficulty) {
   this.enemyDeck = new Deck('Enemy Deck');
   this.market = [];
   this.marketSize = 4;
+  this.advTacticsPurchased = [];
   this.enemyBaseCardsPerTurn = 1;
   this.enemiesActive = [];
   this.enemiesPerTurn;
@@ -1279,7 +1272,7 @@ let repair = new EnemyBaseCard("Repairs", "repair", "Repaired 5 armor.");
 let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increased launch rate by 1");
 
 // requirements
-let http = require('http');
+let https = require('https');
 let express = require('express');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
@@ -1290,7 +1283,7 @@ let GameSession = require('./js/models/game');
 let MongoStore = require('connect-mongo')(session);
 // build app
 let app = express();
-let server = http.createServer(app);
+let server = https.createServer(app);
 let io = socketio(server);
 // globals
 let gameTitle = "Contact!";
@@ -1299,7 +1292,8 @@ let port = process.env.PORT || 8080;
 
 
 // mongodb connection
-mongoose.connect('mongodb://localhost:27017/starfire');
+let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd' || 'mongodb://localhost:27017/starfire';
+mongoose.connect(mongoUri);
 let db = mongoose.connection;
 
 // mongo error
@@ -1398,17 +1392,25 @@ function saveGame(game) {
     if (err) {
       console.error(err);
     } else {
+      let endTime = new Date();
+      let ms = endTime - gameSession.meta.startTime;
+      let min = Math.round(ms/1000/60);
       gameSession.meta.rounds = game.roundNumber;
       gameSession.meta.shuffles.tactical = game.tacticalDeck.shuffles;
       gameSession.meta.shuffles.enemy = game.enemyDeck.shuffles;
-      gameSession.state = [game];
+      gameSession.meta.advTacticsPurchased = game.advTacticsPurchased;
+      gameSession.meta.endTime = endTime;
+      gameSession.meta.elapsedTime = min;
+      gameSession.meta.hp.enemyBase = game.enemyBase.currentArmor;
+      for (let i=0; i < game.friendlies.length; i++) {
+        let friendly = game.friendlies[i];
+        gameSession.meta.hp[friendly.id] = friendly.currentArmor;
+      }
       if (game.win || game.lose) {
-        let endTime = new Date();
-        let ms = endTime - gameSession.meta.startTime;
-        let min = Math.round(ms/1000/60);
         gameSession.gameName = gameSession._id;
-        gameSession.meta.endTime = endTime;
-        gameSession.meta.elapsedTime = min;
+        gameSession.players = undefined;
+        gameSession.difficulty = undefined;
+        gameSession.state = undefined;
         if (game.win) {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
@@ -1473,6 +1475,7 @@ function saveGame(game) {
           });
         }
       } else {
+        gameSession.state = [game];
         gameSession.save(function(err, updatedSession) {
           if (err) {
             console.error(err);
@@ -1545,9 +1548,19 @@ function onConnection(socket) {
                   }
                 }
                 if (gameSession.players === 0) {
-                  gameSession.gameName = gameSession._id;
                   gameSession.meta.aborted = true;
+                  gameSession.gameName = gameSession._id;
                   console.log('Game ' + gameSession._id + ' aborted');
+                  if (gameSession.state.length > 0) {
+                    let endTime = new Date();
+                    let ms = endTime - gameSession.meta.startTime;
+                    let min = Math.round(ms/1000/60);
+                    gameSession.meta.endTime = endTime;
+                    gameSession.meta.elapsedTime = min;
+                  }
+                  gameSession.state = undefined;
+                  gameSession.players = undefined;
+                  gameSession.difficulty = undefined;
                 } else {
                   if (gameSession.state.length === 0) {
                     if (gameSession.meta.locked) {
@@ -1674,29 +1687,40 @@ function onConnection(socket) {
                   let Player3;
                   let Player4;
                   game.friendlies = [FriendlyBase];
+                  gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
+                  gameSession.meta.players = gameSession.players;
+                  gameSession.meta.difficulty = gameSession.difficulty;
                   if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
                     Player1 = new Player('Player1', gameSession.users.user1.name);
                     game.friendlies.push(Player1);
+                    gameSession.meta.hp.Player1 = Player1.currentArmor;
                   } else {
                     gameSession.users.user1 = undefined;
+                    gameSession.meta.hp.Player1 = undefined;
                   }
                   if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
                     Player2 = new Player('Player2', gameSession.users.user2.name);
                     game.friendlies.push(Player2);
+                    gameSession.meta.hp.Player2 = Player2.currentArmor;
                   } else {
                     gameSession.users.user2 = undefined;
+                    gameSession.meta.hp.Player2 = undefined;
                   }
                   if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
                     Player3 = new Player('Player3', gameSession.users.user3.name);
                     game.friendlies.push(Player3);
+                    gameSession.meta.hp.Player3 = Player3.currentArmor;
                   } else {
                     gameSession.users.user3 = undefined;
+                    gameSession.meta.hp.Player3 = undefined;
                   }
                   if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
                     Player4 = new Player('Player4', gameSession.users.user4.name);
                     game.friendlies.push(Player4);
+                    gameSession.meta.hp.Player4 = Player4.currentArmor;
                   } else {
                     gameSession.users.user4 = undefined;
+                    gameSession.meta.hp.Player4 = undefined;
                   }
                   game.buildDecks();
                   game.round();
@@ -1769,6 +1793,7 @@ function loadGame(gameSession, specs, callback) {
   game.currentTurn = gameState.currentTurn;
   game.tacticalDeck = gameState.tacticalDeck;
   game.advTactics = gameState.advTactics;
+  game.advTacticsPurchased = gameState.advTacticsPurchased;
   game.enemyBaseDeck = gameState.enemyBaseDeck;
   game.enemyDeck = gameState.enemyDeck;
   game.market = gameState.market;

@@ -1,4 +1,7 @@
 body {
+  @media handheld and (orientation: portrait) {
+    transform: rotate(90deg);
+  }
   background-color: black;
   height: 100vh;
   width: 100%;

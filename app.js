@@ -1292,7 +1292,8 @@ let port = process.env.PORT || 8080;
 
 
 // mongodb connection
-mongoose.connect('mongodb://localhost:27017/starfire');
+let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd' || 'mongodb://localhost:27017/starfire';
+mongoose.connect(mongoUri);
 let db = mongoose.connection;
 
 // mongo error
