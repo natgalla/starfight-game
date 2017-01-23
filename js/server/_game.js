@@ -351,7 +351,7 @@ Game.prototype.nextTurn = function() {
 
 Game.prototype.nextRound = function() {
   this.postRound();
-  if (!game.win && !game.lose) {
+  if (!this.win && !this.lose) {
     this.round();
   }
   this.update();

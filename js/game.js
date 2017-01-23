@@ -580,7 +580,7 @@ const updateEnemyCards = function() {
 
 const clearOverlay = function() {
   $overlay.slideUp(400, function() {
-    $("#userSummary").removeClass("bumped");
+    $("#userSummary").css({"margin-left": "10px"});
   });
 }
 
@@ -861,7 +861,8 @@ $(document).keyup(function(e) {
 $cicButton.on("click", function() {
   action = "useAdvTactic";
   buttonPressed = "useAdvTactic";
-  $("#userSummary").addClass("bumped");
+  let bump = 190 - ($('#playerHand').children().length-1)*50;
+  $("#userSummary").css({"margin-left": bump});
   clearButtons();
   $cancelButton.show();
   $overlay.empty();
