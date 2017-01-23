@@ -641,13 +641,15 @@ const deselect = function() {
 
 const detarget = function() {
   $(".target").removeClass("target");
+  $(".target").off("click");
   $(".enemy").off("click");
   $(".assist").removeClass("assist");
   $(".assist").off("click");
   $(".playerSummary").off("click");
-  $(".friendlyBase").off("click");
+  $(".FriendlyBase").off("click");
   $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");
+  $(".targeted").off("click");
 }
 
 const getCardFunction = function(className) {
@@ -722,7 +724,7 @@ const selectAlly = function(scope) {
   $(".assist").on("click", function() {
     detarget();
     clearButtons();
-    $(this).toggleClass("targeted");
+    $(this).addClass("targeted");
     $confirmButton.show();
     $cancelButton.show();
   });
@@ -753,16 +755,16 @@ const showTargets = function(action) {
         (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
             && !classes.includes("destroyed"))) {
         enemy.className += " target";
-        $(".target").on("click", function() {
-          clearButtons();
-          $(this).addClass("targeted")
-          $(".targeted").not($(this)).removeClass("targeted");
-          $confirmButton.show();
-          $cancelButton.show();
-        });
       } else {
         enemy.className += " invalidTarget";
       }
+    });
+    $(".target").on("click", function() {
+      clearButtons();
+      $(this).addClass("targeted")
+      $(".targeted").not($(this)).removeClass("targeted");
+      $confirmButton.show();
+      $cancelButton.show();
     });
   }
   if (action === "feint") {
@@ -902,7 +904,7 @@ $cicButton.on("click", function() {
   });
 });
 
-const sendPacket = function() {
+$confirmButton.on("click", function() {
   let turnInfo = {
     player: getPlayer(),
     button: buttonPressed,
@@ -916,10 +918,6 @@ const sendPacket = function() {
   detarget();
   clearButtons();
   update();
-}
-
-$confirmButton.on("click", function() {
-  sendPacket();
 });
 
 //# sourceMappingURL=game.js.map

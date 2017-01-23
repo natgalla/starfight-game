@@ -256,7 +256,6 @@ Player.prototype.destroyed = function(game, status) {
     game.moveCard(0, this.hand, game.tacticalDeck.discard);
   }
   let pursuers = this.pursuers;
-  game.distributeEnemies(pursuers);
   this.pursuers = [];
   let alldead = true;
   for (let i = 0; i < game.friendlies.length; i++) {
@@ -273,6 +272,8 @@ Player.prototype.destroyed = function(game, status) {
     io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
     game.lose = true;
     console.log('Loss condition met: All pilots destroyed');
+  } else {
+    game.distributeEnemies(pursuers);
   }
 }
 
@@ -319,8 +320,8 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
       io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
-      || friendly.pursuers[index].cssClass === "destroyed") {
+    if (friendly.pursuers[index] && (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
+      || friendly.pursuers[index].cssClass === "destroyed")) {
       console.error("No enemy at index " + index);
     } else {
       if (damage > 0) {
@@ -645,6 +646,7 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
       this.merit -= choice.cost;
       this[advAction](game, friendly, pursuerIndex);
       game.removeAdvTactic(advIndex);
+      io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
     } else {
       io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
     }

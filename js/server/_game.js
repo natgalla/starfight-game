@@ -351,7 +351,9 @@ Game.prototype.nextTurn = function() {
 
 Game.prototype.nextRound = function() {
   this.postRound();
-  this.round();
+  if (!game.win && !game.lose) {
+    this.round();
+  }
   this.update();
 }
 
@@ -390,9 +392,9 @@ Game.prototype.buildDecks = function() {
 
   // build enemy deck
   this.addToDeck(this.enemyDeck, ace, 4);
-  this.addToDeck(this.enemyDeck, heavy, 9);
+  this.addToDeck(this.enemyDeck, heavy, 8);
   this.addToDeck(this.enemyDeck, medium, 12);
-  this.addToDeck(this.enemyDeck, light, 15);
+  this.addToDeck(this.enemyDeck, light, 16);
   this.addToDeck(this.enemyDeck, empty, this.setEmpties(8, 4, 0));
 
   this.enemyDeck.size = this.enemyDeck.cards.length;
