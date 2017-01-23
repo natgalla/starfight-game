@@ -246,6 +246,17 @@ Game.prototype.update = function() {
   this.enemyBase.updateSummary(this);
 }
 
+Game.prototype.checkDeaths = function() {
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
+      continue;
+    } else if (friendly.currentArmor === 0){
+      friendly.destroyed(this, 'KIA');
+    }
+  }
+}
+
 Game.prototype.round = function() {
   this.roundNumber++;
   io.to(this.gameID).emit('msg', 'Round ' + this.roundNumber);
@@ -307,6 +318,7 @@ Game.prototype.postRound = function() {
     }
     friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
+  this.checkDeaths();
   this.replaceEnemyBaseCard();
 }
 
@@ -322,17 +334,22 @@ Game.prototype.adjustTurn = function() {
 }
 
 Game.prototype.nextTurn = function() {
+  this.checkDeaths();
   this.update();
   if (!this.win && !this.lose) {
     let cardsLeft = 0;
+    let strategist = false;
     this.friendlies.forEach((friendly) => {
       if (friendly.id === 'FriendlyBase') {
         cardsLeft += 0;
       } else {
+        if (friendly.effects.strategist) {
+          strategist = true;
+        }
         cardsLeft += friendly.hand.length;
       }
     });
-    if (cardsLeft === 0) {
+    if (cardsLeft === 0 || (strategist && cardsLeft === 1)) {
       this.nextRound();
       this.currentTurn = 0;
     } else {

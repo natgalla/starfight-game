@@ -170,10 +170,6 @@ const Friendly = function(id, name, maxArmor) {
   this.pursuerDamage = [];
   this.effects = {
     dead: false,
-    medalOfHonor: false,
-    medic: false,
-    daredevil: false,
-    sharpShooter: false,
     emp: false,
     countermeasures: false,
     divertShields: 0,
@@ -294,7 +290,13 @@ const Player = function(id, name) {
     medalOfHonor: false,
     medic: false,
     daredevil: false,
-    sharpShooter: false,
+    deadeye: false,
+    heavyArmor: false,
+    negotiator: false,
+    resourseful: false,
+    strategist: false,
+    lightningReflexes: false,
+    commsExpert: false,
     emp: false,
     countermeasures: false,
     divertShields: 0,
@@ -356,12 +358,8 @@ Player.prototype.damageRoll = function(list) {
 }
 
 Player.prototype.increaseMerit = function(game, amount) {
-  let merit = amount;
-  if (this.effects.medalOfHonor === true) {
-    merit += 1;
-  }
-  this.merit += merit;
-  io.to(game.gameID).emit("msg", this.name + " receives " + merit + " merit.");
+  this.merit += amount;
+  io.to(game.gameID).emit("msg", this.name + " receives " + amount + " merit.");
 }
 
 // calculate damage // only returning 0
@@ -442,7 +440,6 @@ Player.prototype.takeDamage = function(game, damage) {
     this.currentArmor -= damage;
     if (this.currentArmor <= 0) {
       this.currentArmor = 0;
-      this.destroyed(game, 'KIA');
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
@@ -456,7 +453,11 @@ Player.prototype.checkKill = function(game, friendly, index) {
   if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
     io.to(game.gameID).emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
-    this.increaseMerit(game, friendly.pursuers[index].merit);
+    let merit = friendly.pursuers[index].merit;
+    if (this.effects.medalOfHonor === true) {
+      merit += 1;
+    }
+    this.increaseMerit(game, merit);
     game.moveCard(index, friendly.pursuers, game.enemyDeck.discard);
     friendly.insertPlaceholder(index);
   }
@@ -511,7 +512,12 @@ PLAYER TACTICAL FUNCTIONS
 
 Player.prototype.fire = function(game, friendly, pursuerIndex) {
   // deal damage equal to 4 combat dice to target
-  let damage = this.calcDamage(4);
+  let damage = 0;
+  if (this.deadeye) {
+    damage = this.calcDamage(5);
+  } else {
+    damage = this.calcDamage(4);
+  }
   this.doDamage(game, friendly, pursuerIndex, damage);
 }
 
@@ -536,7 +542,12 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
 
 Player.prototype.missile = function(game, friendly, pursuerIndex) {
   // deal damage equal to 5 combat dice to target
-  let damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
+  let damage = 0;
+  if (this.deadeye) {
+    damage = this.calcDamage(5) + this.damageRoll(this.missileDie);
+  } else {
+    damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
+  }
   this.doDamage(game, friendly, pursuerIndex, damage);
 }
 
@@ -671,27 +682,6 @@ Player.prototype.immelman = function(game, friendly, index) {
 PLAYER ADVANCED TACTICAL FUNCTIONS
 **************************/
 
-Player.prototype.medalOfHonor = function(game) {
-  this.effects.medalOfHonor = true;
-  io.to(game.gameID).emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
-}
-
-Player.prototype.daredevil = function(game) {
-  // allow player to attack enemy base if they have one or no pursuers
-  this.effects.daredevil = true;
-  io.to(game.gameID).emit("msg", this.name + " can now attack the enemy base with one pursuer.");
-}
-
-Player.prototype.medic = function(game) {
-  this.effects.medic = true;
-  io.to(game.gameID).emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
-}
-
-Player.prototype.sharpShooter = function(game) {
-  this.effects.sharpShooter = true;
-  io.to(game.gameID).emit("msg", this.name + " is now better at hurting things.");
-}
-
 Player.prototype.healthPack = function(game, friendly, index) {
   if (index === undefined) {
     index = 0;
@@ -757,6 +747,16 @@ Player.prototype.incinerate = function(game) {
   this.effects.incinerator = true;
 }
 
+Player.prototype.heavyArmor = function() {
+  this.effects.heavyArmor = true;
+  this.maxArmor = 15;
+  this.currentArmor = 15;
+}
+
+Player.prototype.strategist = function() {
+  this.effects.strategist = true;
+  this.tacticalCardsPerTurn = 4;
+}
 
 /**************************
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
@@ -802,8 +802,12 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     this.lastCardUsed = choice;
     let advAction = choice.cssClass;
     game.advTacticsPurchased.push(advAction);
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
+    let cost = choice.cost;
+    if (this.effects.negotiator) {
+      cost -= 1;
+    }
+    if (this.merit >= cost) {
+      this.merit -= cost;
       this[advAction](game, friendly, pursuerIndex);
       game.removeAdvTactic(advIndex);
       io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
@@ -1066,6 +1070,17 @@ Game.prototype.update = function() {
   this.enemyBase.updateSummary(this);
 }
 
+Game.prototype.checkDeaths = function() {
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
+      continue;
+    } else if (friendly.currentArmor === 0){
+      friendly.destroyed(this, 'KIA');
+    }
+  }
+}
+
 Game.prototype.round = function() {
   this.roundNumber++;
   io.to(this.gameID).emit('msg', 'Round ' + this.roundNumber);
@@ -1127,6 +1142,7 @@ Game.prototype.postRound = function() {
     }
     friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
+  this.checkDeaths();
   this.replaceEnemyBaseCard();
 }
 
@@ -1142,17 +1158,22 @@ Game.prototype.adjustTurn = function() {
 }
 
 Game.prototype.nextTurn = function() {
+  this.checkDeaths();
   this.update();
   if (!this.win && !this.lose) {
     let cardsLeft = 0;
+    let strategist = false;
     this.friendlies.forEach((friendly) => {
       if (friendly.id === 'FriendlyBase') {
         cardsLeft += 0;
       } else {
+        if (friendly.effects.strategist) {
+          strategist = true;
+        }
         cardsLeft += friendly.hand.length;
       }
     });
-    if (cardsLeft === 0) {
+    if (cardsLeft === 0 || (strategist && cardsLeft === 1)) {
       this.nextRound();
       this.currentTurn = 0;
     } else {
@@ -1774,6 +1795,7 @@ function loadGame(gameSession, specs, callback) {
     player.pursuerDamage = friendly.pursuerDamage;
     player.merit = friendly.merit;
     player.effects = friendly.effects;
+    player.tacticalCardsPerTurn = friendly.tacticalCardsPerTurn;
     game.friendlies.push(player);
   }
   for (let i = 0; i < gameState.friendlies.length; i++) {

@@ -775,8 +775,21 @@ const showTargets = function(action) {
     $confirmButton.show();
     $cancelButton.show();
   }
+  let daredevilCondition = false;
+  if (player.effects.daredevil) {
+    let enemyCount = 0;
+    for (let i=0; i < player.pursuers.length; i++) {
+      let enemy = player.pursuers[i];
+      if (enemy.cssClass !== "emptySpace" && enemy.cssClass !== "destroyed") {
+        enemyCount += 1;
+      }
+    }
+    if (enemyCount <= 1) {
+      daredevilCondition = true;
+    }
+  }
   if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
-    if (player.effects.status == "Free") {
+    if (player.effects.status == "Free" || daredevilCondition) {
       selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
         "enemyBase");
     } else {
@@ -871,17 +884,21 @@ $cicButton.on("click", function() {
   $overlay.append($marketList);
   game.market.forEach( function(card) {
     let advCard;
-    if (getPlayer().merit >= card.cost) {
+    let cost = card.cost;
+    if (user.effects.negotiator) {
+      cost -= 1;
+    }
+    if (getPlayer().merit >= cost) {
       advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
               + "<h3>" + card.name + "</h3>"
               + "<p>" + card.description + "</p>"
-              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
+              + "<p class='cost'> Merit cost: " + cost + "</p>"
               + "</li>";
     } else {
       advCard = "<li class='advTactical " + card.cssClass + " unavailable'>"
               + "<h3>" + card.name + "</h3>"
               + "<p>" + card.description + "</p>"
-              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
+              + "<p class='cost'> Merit cost: " + cost + "</p>"
               + "</li>";
     }
     $marketList.append(advCard);

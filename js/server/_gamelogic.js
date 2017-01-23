@@ -404,6 +404,7 @@ function loadGame(gameSession, specs, callback) {
     player.pursuerDamage = friendly.pursuerDamage;
     player.merit = friendly.merit;
     player.effects = friendly.effects;
+    player.tacticalCardsPerTurn = friendly.tacticalCardsPerTurn;
     game.friendlies.push(player);
   }
   for (let i = 0; i < gameState.friendlies.length; i++) {
