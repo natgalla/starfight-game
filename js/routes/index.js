@@ -169,7 +169,7 @@ router.post('/menu', function(req, res, next) {
         }
         let gameData = {
           gameName: req.body.sessionName,
-          difficulty: req.body.difficulty,
+          difficulty: Number(req.body.difficulty),
           users: {
             user1: {
               name: user.callsign,

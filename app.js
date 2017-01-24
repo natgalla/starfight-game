@@ -1448,7 +1448,7 @@ function saveGame(game) {
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
-                  let query = { callsign: updatedSession.users[user] };
+                  let query = { callsign: updatedSession.users[user].name };
                   User.find(query, function(err, player) {
                     if (err) {
                       console.error(err);
@@ -1488,7 +1488,7 @@ function saveGame(game) {
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
-                  let query = { callsign: updatedSession.users[user] };
+                  let query = { callsign: updatedSession.users[user].name };
                   let update = { $inc: { 'meta.losses': 1 }};
                   User.update(query, update, function() {
                     console.log(updatedSession.users[user].name + " updated");

@@ -142,26 +142,9 @@ footer {
 
 
 @media (min-width: 640px) {
-
   .clearfix::after {
     content: " ";
     display: table;
     clear: both;
   }
-
-}
-
-
-/* LARGE SIZE OVERIDES ****************/
-
-@media (min-width: 920px) {
-
-
-
-  section p:last-child {
-
-  }
-
-
-
 }
