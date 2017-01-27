@@ -56,13 +56,14 @@
       width: 50%;
       display: inline-block;
       text-align: center;
-      margin: 2em 0;
+      margin: 1.5em auto;
       & label {
+        margin-left: 2em;
+      }
+      & input[type='radio'] {
+        float: left;
         margin-left: 1em;
       }
-    }
-    &.session {
-      margin-bottom: 2em;
     }
     &.submit {
       justify-content: space-around;
@@ -102,6 +103,29 @@
     &.difficulty {
       margin: 1em 0 2em;
       font-size: 0.8em;
+    }
+    &.pilots {
+      // background-color: grey;
+      // display: block;
+      & label {
+        max-width: 200px;
+        max-height: 200px;
+        margin: 0 auto;
+        & img {
+          max-width: 100%;
+          max-height: 100%;
+        }
+      }
+      // & .pilotChoice {
+      //   width: 40%;
+      //   margin: 0 auto 0.7em;
+      //   display: block;
+      //   margin-bottom: 0.7em;
+      //   font-size: 0.7em;
+      //   & label {
+      //     margin-left: 10px;
+      //   }
+      // }
     }
     &#info {
       display: block;

@@ -587,6 +587,22 @@ Player.prototype.incinerate = function(game) {
   this.effects.incinerator = true;
 }
 
+Player.prototype.medalOfHonor = function() {
+  this.effects.medalOfHonor = true;
+}
+
+Player.prototype.deadeye = function() {
+  this.effects.deadeye = true;
+}
+
+Player.prototype.negotiator = function() {
+  this.effects.negotiator = true;
+}
+
+Player.prototype.daredevil = function() {
+  this.effects.daredevil = true;
+}
+
 Player.prototype.heavyArmor = function() {
   this.effects.heavyArmor = true;
   this.maxArmor = 15;

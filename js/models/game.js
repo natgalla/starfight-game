@@ -9,21 +9,25 @@ let GameSchema = new mongoose.Schema({
       name: {type: String, default: ""},
       leader: {type: Boolean, default: false },
       socketId: {type: String, default: ""},
+      ability: {type: String, default: ""}
     },
     user2: {
       name: {type: String, default: ""},
       leader: {type: Boolean, default: false },
       socketId: {type: String, default: ""},
+      ability: {type: String, default: ""}
     },
     user3: {
       name: {type: String, default: ""},
       leader: {type: Boolean, default: false },
       socketId: {type: String, default: ""},
+      ability: {type: String, default: ""}
     },
     user4: {
       name: {type: String, default: ""},
       leader: {type: Boolean, default: false },
       socketId: {type: String, default: ""},
+      ability: {type: String, default: ""}
     }
   },
   players: { type: Number, default: 1 },

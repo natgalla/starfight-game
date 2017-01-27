@@ -411,6 +411,9 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100vh;
   background-image: linear-gradient(#000, rgba(0, 0, 0, 0.3), #000), url(../img/space.jpg); }
+  @media handheld and (orientation: portrait) {
+    body {
+      transform: rotate(90deg); } }
   body h1 {
     color: magenta;
     font-family: 'Orbitron', sans-serif;
@@ -676,14 +679,14 @@ input[type="checkbox"] {
   background: rgba(0, 0, 0, 0.5);
   padding: 0.5em 1em;
   width: 30%;
-  width: 35em;
+  width: 375px;
   margin: 0 auto;
   border-top: 4px solid magenta;
   border-bottom: 5px solid magenta;
   border-radius: 1em; }
   @media (max-width: 1000px), (max-height: 700px) {
     .menu {
-      width: 30em; } }
+      width: 300px; } }
   .menu h3 {
     text-align: center; }
   .menu#logout {
@@ -765,6 +768,12 @@ input[type="checkbox"] {
     .menu div.difficulty {
       margin: 1em 0 2em;
       font-size: 0.8em; }
+    .menu div.pilots label {
+      max-width: 200px;
+      max-height: 200px;
+      margin: 0 auto; }
+      .menu div.pilots label img {
+        max-width: 100%; }
     .menu div#info {
       display: block;
       margin-bottom: 2em; }

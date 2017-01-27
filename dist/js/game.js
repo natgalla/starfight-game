@@ -378,6 +378,8 @@ $('#sessionName').on('keyup change', function() {
 Specific to menu view
 *****************************/
 
+carouselCarousel.init('pilots');
+
 $('.difficulty').hide();
 $('#createSession').on('click', function() {
   $('.difficulty').show();
@@ -580,7 +582,7 @@ const updateEnemyCards = function() {
 
 const clearOverlay = function() {
   $overlay.slideUp(400, function() {
-    $("#userSummary").removeClass("bumped");
+    $("#userSummary").css({"margin-left": "10px"});
   });
 }
 
@@ -641,13 +643,15 @@ const deselect = function() {
 
 const detarget = function() {
   $(".target").removeClass("target");
+  $(".target").off("click");
   $(".enemy").off("click");
   $(".assist").removeClass("assist");
   $(".assist").off("click");
   $(".playerSummary").off("click");
-  $(".friendlyBase").off("click");
+  $(".FriendlyBase").off("click");
   $(".invalidTarget").removeClass("invalidTarget");
   $(".targeted").removeClass("targeted");
+  $(".targeted").off("click");
 }
 
 const getCardFunction = function(className) {
@@ -722,7 +726,7 @@ const selectAlly = function(scope) {
   $(".assist").on("click", function() {
     detarget();
     clearButtons();
-    $(this).toggleClass("targeted");
+    $(this).addClass("targeted");
     $confirmButton.show();
     $cancelButton.show();
   });
@@ -753,16 +757,16 @@ const showTargets = function(action) {
         (ids.includes(enemy.parentElement.id) && !classes.includes("emptySpace")
             && !classes.includes("destroyed"))) {
         enemy.className += " target";
-        $(".target").on("click", function() {
-          clearButtons();
-          $(this).addClass("targeted")
-          $(".targeted").not($(this)).removeClass("targeted");
-          $confirmButton.show();
-          $cancelButton.show();
-        });
       } else {
         enemy.className += " invalidTarget";
       }
+    });
+    $(".target").on("click", function() {
+      clearButtons();
+      $(this).addClass("targeted")
+      $(".targeted").not($(this)).removeClass("targeted");
+      $confirmButton.show();
+      $cancelButton.show();
     });
   }
   if (action === "feint") {
@@ -773,8 +777,21 @@ const showTargets = function(action) {
     $confirmButton.show();
     $cancelButton.show();
   }
+  let daredevilCondition = false;
+  if (player.effects.daredevil) {
+    let enemyCount = 0;
+    for (let i=0; i < player.pursuers.length; i++) {
+      let enemy = player.pursuers[i];
+      if (enemy.cssClass !== "emptySpace" && enemy.cssClass !== "destroyed") {
+        enemyCount += 1;
+      }
+    }
+    if (enemyCount <= 1) {
+      daredevilCondition = true;
+    }
+  }
   if (["fire", "missile", "heatSeeker", "bomb", "scatterShot"].includes(action)) {
-    if (player.effects.status == "Free") {
+    if (player.effects.status == "Free" || daredevilCondition) {
       selectTargets("basePursuers", "wingman1-pursuers", "wingman2-pursuers", "wingman3-pursuers",
         "enemyBase");
     } else {
@@ -859,7 +876,8 @@ $(document).keyup(function(e) {
 $cicButton.on("click", function() {
   action = "useAdvTactic";
   buttonPressed = "useAdvTactic";
-  $("#userSummary").addClass("bumped");
+  let bump = 190 - ($('#playerHand').children().length-1)*50;
+  $("#userSummary").css({"margin-left": bump});
   clearButtons();
   $cancelButton.show();
   $overlay.empty();
@@ -868,17 +886,21 @@ $cicButton.on("click", function() {
   $overlay.append($marketList);
   game.market.forEach( function(card) {
     let advCard;
-    if (getPlayer().merit >= card.cost) {
+    let cost = card.cost;
+    if (user.effects.negotiator) {
+      cost -= 1;
+    }
+    if (getPlayer().merit >= cost) {
       advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
               + "<h3>" + card.name + "</h3>"
               + "<p>" + card.description + "</p>"
-              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
+              + "<p class='cost'> Merit cost: " + cost + "</p>"
               + "</li>";
     } else {
       advCard = "<li class='advTactical " + card.cssClass + " unavailable'>"
               + "<h3>" + card.name + "</h3>"
               + "<p>" + card.description + "</p>"
-              + "<p class='cost'> Merit cost: " + card.cost + "</p>"
+              + "<p class='cost'> Merit cost: " + cost + "</p>"
               + "</li>";
     }
     $marketList.append(advCard);
@@ -902,7 +924,7 @@ $cicButton.on("click", function() {
   });
 });
 
-const sendPacket = function() {
+$confirmButton.on("click", function() {
   let turnInfo = {
     player: getPlayer(),
     button: buttonPressed,
@@ -916,10 +938,6 @@ const sendPacket = function() {
   detarget();
   clearButtons();
   update();
-}
-
-$confirmButton.on("click", function() {
-  sendPacket();
 });
 
 //# sourceMappingURL=game.js.map

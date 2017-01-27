@@ -728,11 +728,12 @@ input[type="checkbox"] {
       width: 50%;
       display: inline-block;
       text-align: center;
-      margin: 2em 0; }
+      margin: 1.5em auto; }
       .menu div.create label, .menu div.join label {
+        margin-left: 2em; }
+      .menu div.create input[type='radio'], .menu div.join input[type='radio'] {
+        float: left;
         margin-left: 1em; }
-    .menu div.session {
-      margin-bottom: 2em; }
     .menu div.submit {
       justify-content: space-around;
       padding: 1em 0; }
@@ -768,6 +769,13 @@ input[type="checkbox"] {
     .menu div.difficulty {
       margin: 1em 0 2em;
       font-size: 0.8em; }
+    .menu div.pilots label {
+      max-width: 200px;
+      max-height: 200px;
+      margin: 0 auto; }
+      .menu div.pilots label img {
+        max-width: 100%;
+        max-height: 100%; }
     .menu div#info {
       display: block;
       margin-bottom: 2em; }
