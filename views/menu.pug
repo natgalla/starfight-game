@@ -22,6 +22,7 @@ block content
       .session
         label(for='sessionName') Base name: 
         input#sessionName(type='text' name='sessionName')
+      h3#pilotHeader Choose a pilot ability
       fieldset.carousel#pilots
         legend Pilot ability choices
         div.pilots
@@ -34,15 +35,15 @@ block content
             li
               label(for='deadeye')
                 img(src='public/img/crosshair.png' alt='deadeye')
-              p Deadeye: Roll an extra combat die for any combat roll
+              p Deadeye: Roll an extra combat die for fire/missile
             li
               label(for='heavyArmor') 
                 img(src='public/img/shield.png' alt='heavy armor')
-              p Heavy Armor: Max armor is 15 (rather than 10)
+              p Heavy Armor: Your max armor is 15
             li
               label(for='negotiator') 
                 img(src='public/img/negotiate.png' alt='negotiator')
-              p Negotiator: Merit purchases cost 1 less merit
+              p Negotiator: Merit purchases cost 1 less
             li
               label(for='daredevil') 
                 img(src='public/img/devil.png' alt='daredevil')

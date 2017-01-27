@@ -166,9 +166,9 @@ label {
   flex-direction: column;
   align-content: center; }
 
-.carousel-labels li {
+/*.carousel-labels li {
   font-size: 1rem;
-  line-height: 1.6; }
+  line-height: 1.6; }*/
 
 .carousel-labels li p {
   margin: 0;

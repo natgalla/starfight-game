@@ -1746,6 +1746,7 @@ function onConnection(socket) {
                   gameSession.meta.difficulty = gameSession.difficulty;
                   if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
                     Player1 = new Player('Player1', gameSession.users.user1.name);
+                    Player1[gameSession.users.user1.ability]();
                     game.friendlies.push(Player1);
                     gameSession.meta.hp.Player1 = Player1.currentArmor;
                   } else {
@@ -1754,6 +1755,7 @@ function onConnection(socket) {
                   }
                   if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
                     Player2 = new Player('Player2', gameSession.users.user2.name);
+                    Player2[gameSession.users.user2.ability]();
                     game.friendlies.push(Player2);
                     gameSession.meta.hp.Player2 = Player2.currentArmor;
                   } else {
@@ -1762,6 +1764,7 @@ function onConnection(socket) {
                   }
                   if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
                     Player3 = new Player('Player3', gameSession.users.user3.name);
+                    Player3[gameSession.users.user3.ability]();
                     game.friendlies.push(Player3);
                     gameSession.meta.hp.Player3 = Player3.currentArmor;
                   } else {
@@ -1770,6 +1773,7 @@ function onConnection(socket) {
                   }
                   if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
                     Player4 = new Player('Player4', gameSession.users.user4.name);
+                    Player4[gameSession.users.user4.ability]();
                     game.friendlies.push(Player4);
                     gameSession.meta.hp.Player4 = Player4.currentArmor;
                   } else {
@@ -1816,6 +1820,7 @@ function loadGame(gameSession, specs, callback) {
   let gameState = gameSession.state[0];
   let loadPlayer = function(player, friendly) {
     player.name = friendly.name;
+    player.maxArmor = friendly.maxArmor;
     player.currentArmor = friendly.currentArmor;
     player.lastCardUsed = friendly.lastCardUsed;
     player.hand = friendly.hand;

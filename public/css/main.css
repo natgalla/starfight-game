@@ -812,6 +812,10 @@ input[type="checkbox"] {
     font-size: 1.3em;
     text-align: left; }
 
+#pilotHeader {
+  margin-top: 2em;
+  margin-bottom: 0; }
+
 .tactical,
 .advTactical {
   width: 100px;
