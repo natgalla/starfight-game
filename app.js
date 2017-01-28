@@ -1333,7 +1333,7 @@ let port = process.env.PORT || 8080;
 // mongodb connection
 let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd';
 let localUri = 'mongodb://localhost:27017/starfire';
-mongoose.connect(localUri);
+mongoose.connect(mongoUri);
 let db = mongoose.connection;
 
 // mongo error
