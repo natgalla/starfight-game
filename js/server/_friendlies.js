@@ -181,10 +181,32 @@ Player.prototype.updateSummary = function() {
       }
     }
   }
-  if (this.effects.status === "Pursued" || this.effects.status === "KIA" || this.effects.status === "MIA") {
+  if (this.effects.status === "KIA" || this.effects.status === "MIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    this.summary += "<p class='free'>" + this.effects.status + "</p>";
+    let ability = "";
+    if (this.effects.medalOfHonor) {
+      ability = "Medal of Honor";
+    } else if (this.effects.medic) {
+      ability = "Medic";
+    } else if (this.effects.daredevil) {
+      ability = "Daredevil";
+    } else if (this.effects.deadeye) {
+      ability = "Deadeye";
+    } else if (this.effects.heavyArmor) {
+      ability = "Heavy Armor";
+    } else if (this.effects.negotiator) {
+      ability = "Negotiator";
+    } else if (this.effects.resourceful) {
+      ability = "Resourceful";
+    } else if (this.effects.strategist) {
+      ability = "Strategist";
+    } else if (this.effects.lightningReflexes) {
+      ability = "Lightning Reflexes";
+    } else if (this.effects.commsExpert) {
+      ability = "Comms expert";
+    }
+    this.summary += "<p class='free'>" + ability + "</p>";
   }
 }
 
