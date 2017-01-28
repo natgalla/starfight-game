@@ -18,6 +18,12 @@ fieldset.carousel {
     border-radius: 10px;
     background-color: #494949; }
 
+@media (max-width: 1000px), (max-height: 700px) {
+  fieldset.carousel {
+    padding-left: 0;
+  }
+}
+
 .carousel-labels li {
   box-sizing: border-box;
   display: flex;
@@ -124,31 +130,32 @@ fieldset.carousel {
       border-radius: 50%;
       z-index: 1; }
     .carousel-radios li :checked + span {
-      background-color: magenta; }
+      background-color: $primaryPink; }
     .carousel-radios li :focus + span {
-      outline: 1px dashed magenta; }
+      outline: 1px dashed $primaryPink; }
 
 .forward,
 .backward {
   background: none;
   border: none;
-  color: magenta;
+  color: $primaryPink;
   width: 20px;
   height: 20px;
-  border: 2px solid;
+  border: 3px solid;
   border-style: none none solid solid;
   transform: rotate(45deg);
   cursor: pointer;
-  box-sizing: border-box; }
+  box-sizing: border-box;
+  border-radius: 5px; }
 
 .forward:hover,
 .backward:hover,
 .forward:focus,
 .backward:focus {
-  color: limegreen;
+  color: $complementGreen;
   outline: none;
   box-shadow: none;
-  border-width: 3px; }
+  border-width: 3.5px; }
 
 .forward {
   border-style: solid solid none none; }
@@ -157,9 +164,6 @@ fieldset.carousel {
 legend {
   position: absolute;
   opacity: 0.01; }
-
-body {
-  font-family: verdana; }
 
 label {
   display: flex;
@@ -173,5 +177,3 @@ label {
 .carousel-labels li p {
   margin: 0;
   text-align: center; }
-
-/*# sourceMappingURL=carousel.css.map */

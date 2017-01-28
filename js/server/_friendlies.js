@@ -102,6 +102,7 @@ Friendly.prototype.insertPlaceholder = function(index) {
   //removes an enemy card from the fray and inserts a "destroyed" place holder
   this.pursuers.splice(index, 0, placeHolder);
   this.pursuers.join();
+  this.adjustPursuerDamage();
 }
 
 
@@ -373,7 +374,6 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
     game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
     game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
-    this.adjustPursuerDamage();
     game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
   } else {
     io.to(game.gameID).emit("msg", this.name + " can't shake 'em!")
@@ -476,7 +476,6 @@ Player.prototype.drawFire = function(game, friendly, index) {
   game.moveCard(index, friendly.pursuerDamage, this.pursuerDamage);
   friendly.insertPlaceholder(index);
   this.adjustPursuerDamage();
-  friendly.adjustPursuerDamage();
 }
 
 Player.prototype.feint = function(game, friendly, pursuerIndex) {
@@ -501,7 +500,6 @@ Player.prototype.barrelRoll = function(game, friendly, pursuerIndex) {
   game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
   game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
   this.insertPlaceholder(pursuerIndex);
-  this.adjustPursuerDamage();
   game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
 }
 

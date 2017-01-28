@@ -43,9 +43,6 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        gameSession.players = undefined;
-        gameSession.difficulty = undefined;
-        gameSession.state = undefined;
         if (game.win) {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
@@ -54,6 +51,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
@@ -94,6 +95,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {

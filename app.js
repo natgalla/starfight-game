@@ -103,12 +103,12 @@ EnemyBase.prototype.repair = function(game) {
 
 EnemyBase.prototype.fireHeavy = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires heavy weapons.");
-  FriendlyBase.takeDamage(5);
+  game.friendlies[game.findFriendlyBase()].takeDamage(5);
 }
 
 EnemyBase.prototype.fireLight = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires light weapons.");
-  FriendlyBase.takeDamage(3);
+  game.friendlies[game.findFriendlyBase()].takeDamage(3);
 }
 
 EnemyBase.prototype.deploy = function(game) {
@@ -262,6 +262,7 @@ Friendly.prototype.insertPlaceholder = function(index) {
   //removes an enemy card from the fray and inserts a "destroyed" place holder
   this.pursuers.splice(index, 0, placeHolder);
   this.pursuers.join();
+  this.adjustPursuerDamage();
 }
 
 
@@ -533,7 +534,6 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
     game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
     game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
-    this.adjustPursuerDamage();
     game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
   } else {
     io.to(game.gameID).emit("msg", this.name + " can't shake 'em!")
@@ -636,7 +636,6 @@ Player.prototype.drawFire = function(game, friendly, index) {
   game.moveCard(index, friendly.pursuerDamage, this.pursuerDamage);
   friendly.insertPlaceholder(index);
   this.adjustPursuerDamage();
-  friendly.adjustPursuerDamage();
 }
 
 Player.prototype.feint = function(game, friendly, pursuerIndex) {
@@ -661,7 +660,6 @@ Player.prototype.barrelRoll = function(game, friendly, pursuerIndex) {
   game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
   game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
   this.insertPlaceholder(pursuerIndex);
-  this.adjustPursuerDamage();
   game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
 }
 
@@ -1450,9 +1448,6 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        gameSession.players = undefined;
-        gameSession.difficulty = undefined;
-        gameSession.state = undefined;
         if (game.win) {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
@@ -1461,6 +1456,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
@@ -1501,6 +1500,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {

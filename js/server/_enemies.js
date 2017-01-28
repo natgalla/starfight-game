@@ -57,12 +57,12 @@ EnemyBase.prototype.repair = function(game) {
 
 EnemyBase.prototype.fireHeavy = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires heavy weapons.");
-  FriendlyBase.takeDamage(5);
+  game.friendlies[game.findFriendlyBase()].takeDamage(5);
 }
 
 EnemyBase.prototype.fireLight = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires light weapons.");
-  FriendlyBase.takeDamage(3);
+  game.friendlies[game.findFriendlyBase()].takeDamage(3);
 }
 
 EnemyBase.prototype.deploy = function(game) {
