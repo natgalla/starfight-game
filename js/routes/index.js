@@ -174,6 +174,7 @@ router.post('/menu', function(req, res, next) {
             user1: {
               name: user.callsign,
               socketId: "",
+              ability: req.body.pilot
             }
           }
         }
@@ -205,27 +206,28 @@ router.post('/menu', function(req, res, next) {
           }
           let query = { gameName: req.body.sessionName };
           let update = {};
-          function isEmpty(str) {
-            return (!str || 0 === str.length);
-          }
           if (game[0].users.user1.name === "") {
             update = {
               "users.user1.name": user.callsign,
+              "users.user1.ability": req.body.pilot,
               $inc: { players: 1 }
             };
           } else if (game[0].users.user2.name === "") {
             update = {
               "users.user2.name": user.callsign,
+              "users.user2.ability": req.body.pilot,
               $inc: { players: 1 }
             };
           } else if (game[0].users.user3 === "") {
             update = {
               "users.user3.name": user.callsign,
+              "users.user3.ability": req.body.pilot,
               $inc: { players: 1 }
             };
           } else if (game[0].users.user4 === "") {
             update = {
               "users.user4.name": user.callsign,
+              "users.user4.ability": req.body.pilot,
               $inc: { players: 1 },
             };
           };

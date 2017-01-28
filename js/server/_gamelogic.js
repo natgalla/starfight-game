@@ -43,9 +43,6 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        gameSession.players = undefined;
-        gameSession.difficulty = undefined;
-        gameSession.state = undefined;
         if (game.win) {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
@@ -54,6 +51,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
@@ -94,6 +95,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
@@ -129,126 +134,138 @@ function onConnection(socket) {
 
   function join(player) {
     socket.join(gameId);
-    getUser(userId, function(err, user) {
+    getGameSession(gameId, function(err, gameSession) {
       if (err) {
         console.error(err);
       } else {
-        player.name = user.callsign;
-        console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
-        socket.emit('assign', { player: player } );
-        socket.on('turn', turn);
-        socket.on('chat', function(data) {
-          io.to(data.room).emit('chatMessage', data.message);
-          if (data.message.toLowerCase().includes('what do you hear')) {
-            io.to(data.room).emit('msg', "Nothin' but the wind");
-          }
-          if (data.message.toLowerCase().includes('good hunting')) {
-            io.to(data.room).emit('msg', "So say we all!");
-          }
-        });
-        io.to(gameId).emit('msg', user.callsign + ' joined the game.');
-        socket.on('disconnect', function() {
-          console.log('User disconnected');
-          getGameSession(gameId, function(err, gameSession) {
-            if (err) {
-              console.error(err);
-            } else {
-              if (!gameSession.meta.lost && !gameSession.meta.won) {
-                io.to(gameId).emit('msg', user.callsign + ' left.');
-                let setNewLeader = false;
-                for (person in gameSession.users) {
-                  if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
-                    if (gameSession.users[person].leader) {
-                      setNewLeader = true;
-                      gameSession.users[person].leader = false;
-                    }
-                    gameSession.users[person].name = '';
-                    gameSession.users[person].socketId = '';
-                    gameSession.players -= 1;
-                  }
-                }
-                if (setNewLeader) {
-                  if (gameSession.users.user1.name.length > 0) {
-                    gameSession.users.user1.leader = true;
-                    io.to(gameSession.users.user1.socketId).emit('firstPlayer');
-                  } else if (gameSession.users.user2.name.length > 0) {
-                    gameSession.users.user2.leader = true;
-                    io.to(gameSession.users.user2.socketId).emit('firstPlayer');
-                  } else if (gameSession.users.user3.name.length > 0) {
-                    gameSession.users.user3.leader = true;
-                    io.to(gameSession.users.user3.socketId).emit('firstPlayer');
-                  } else if (gameSession.users.user4.name.length > 0) {
-                    gameSession.users.user4.leader = true;
-                    io.to(gameSession.users.user4.socketId).emit('firstPlayer');
-                  }
-                }
-                if (gameSession.players === 0) {
-                  gameSession.meta.aborted = true;
-                  gameSession.gameName = gameSession._id;
-                  console.log('Game ' + gameSession._id + ' aborted');
-                  if (gameSession.state.length > 0) {
-                    let endTime = new Date();
-                    let ms = endTime - gameSession.meta.startTime;
-                    let min = Math.round(ms/1000/60);
-                    gameSession.meta.endTime = endTime;
-                    gameSession.meta.elapsedTime = min;
-                  }
-                  gameSession.state = undefined;
-                  gameSession.players = undefined;
-                  gameSession.difficulty = undefined;
-                } else {
-                  if (gameSession.state.length === 0) {
-                    if (gameSession.meta.locked) {
-                      gameSession.meta.locked = false;
-                    } else if (gameSession.players === 1) {
-                      io.to(gameId).emit('closeGame');
-                      io.to(gameId).emit('msg', 'Waiting for second player...')
-                    }
-                  } else {
-                    // logic for leaving during active game
-                    // currently destroys leaving player's pilot
-                    // eventually replace this logic with re-entry option
-                    console.log(user.callsign + ' left during active game');
-                    loadGame(gameSession, undefined, function(game) {
-                      for (let i=0; i < game.friendlies.length; i++) {
-                        let friendly = game.friendlies[i];
-                        if (friendly.name === user.callsign) {
-                          friendly.destroyed(game, 'MIA');
-                          break;
-                        }
-                      }
-                      game.nextTurn();
-                      saveGame(game);
-                    });
-                  }
-                }
-                gameSession.save(function (err, updatedSession) {
-                  if (err) {
-                    console.error(err);
-                  } else {
-                    console.log('User removed from ' + updatedSession._id);
-                  }
-                });
-              }
-            }
-          });
-          socket.leave(gameId);
-        });
-        getGameSession(gameId, function(err, gameSession) {
+        getUser(userId, function(err, user) {
           if (err) {
             console.error(err);
           } else {
-            if (gameSession.players === 1) {
-              gameSession.users.user1.leader = true;
-            }
             for (person in gameSession.users) {
               if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
-                gameSession.users[person].socketId = socket.id;
+                let ability = gameSession.users[person].ability;
+                player[ability]();
               }
             }
-            gameSession.save();
+            player.name = user.callsign;
+            console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
+            socket.emit('assign', { player: player } );
+            socket.on('turn', turn);
+            socket.on('chat', function(data) {
+              io.to(data.room).emit('chatMessage', data.message);
+              if (data.message.toLowerCase().includes('what do you hear')) {
+                io.to(data.room).emit('msg', "Nothin' but the wind");
+              }
+              if (data.message.toLowerCase().includes('good hunting')) {
+                io.to(data.room).emit('msg', "So say we all!");
+              }
+            });
+            io.to(gameId).emit('msg', user.callsign + ' joined the game.');
+            socket.on('disconnect', function() {
+              console.log('User disconnected');
+              getGameSession(gameId, function(err, gameSession) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  if (!gameSession.meta.lost && !gameSession.meta.won) {
+                    io.to(gameId).emit('msg', user.callsign + ' left.');
+                    let setNewLeader = false;
+                    for (person in gameSession.users) {
+                      if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
+                        if (gameSession.users[person].leader) {
+                          setNewLeader = true;
+                          gameSession.users[person].leader = false;
+                        }
+                        gameSession.users[person].name = '';
+                        gameSession.users[person].socketId = '';
+                        gameSession.players -= 1;
+                      }
+                    }
+                    if (setNewLeader) {
+                      if (gameSession.users.user1.name.length > 0) {
+                        gameSession.users.user1.leader = true;
+                        io.to(gameSession.users.user1.socketId).emit('firstPlayer');
+                      } else if (gameSession.users.user2.name.length > 0) {
+                        gameSession.users.user2.leader = true;
+                        io.to(gameSession.users.user2.socketId).emit('firstPlayer');
+                      } else if (gameSession.users.user3.name.length > 0) {
+                        gameSession.users.user3.leader = true;
+                        io.to(gameSession.users.user3.socketId).emit('firstPlayer');
+                      } else if (gameSession.users.user4.name.length > 0) {
+                        gameSession.users.user4.leader = true;
+                        io.to(gameSession.users.user4.socketId).emit('firstPlayer');
+                      }
+                    }
+                    if (gameSession.players === 0) {
+                      gameSession.meta.aborted = true;
+                      gameSession.gameName = gameSession._id;
+                      console.log('Game ' + gameSession._id + ' aborted');
+                      if (gameSession.state.length > 0) {
+                        let endTime = new Date();
+                        let ms = endTime - gameSession.meta.startTime;
+                        let min = Math.round(ms/1000/60);
+                        gameSession.meta.endTime = endTime;
+                        gameSession.meta.elapsedTime = min;
+                      }
+                      gameSession.state = undefined;
+                      gameSession.players = undefined;
+                      gameSession.difficulty = undefined;
+                    } else {
+                      if (gameSession.state.length === 0) {
+                        if (gameSession.meta.locked) {
+                          gameSession.meta.locked = false;
+                        } else if (gameSession.players === 1) {
+                          io.to(gameId).emit('closeGame');
+                          io.to(gameId).emit('msg', 'Waiting for second player...')
+                        }
+                      } else {
+                        // logic for leaving during active game
+                        // currently destroys leaving player's pilot
+                        // eventually replace this logic with re-entry option
+                        console.log(user.callsign + ' left during active game');
+                        loadGame(gameSession, undefined, function(game) {
+                          for (let i=0; i < game.friendlies.length; i++) {
+                            let friendly = game.friendlies[i];
+                            if (friendly.name === user.callsign) {
+                              friendly.destroyed(game, 'MIA');
+                              break;
+                            }
+                          }
+                          game.nextTurn();
+                          saveGame(game);
+                        });
+                      }
+                    }
+                    gameSession.save(function (err, updatedSession) {
+                      if (err) {
+                        console.error(err);
+                      } else {
+                        console.log('User removed from ' + updatedSession._id);
+                      }
+                    });
+                  }
+                }
+              });
+              socket.leave(gameId);
+            });
+            getGameSession(gameId, function(err, gameSession) {
+              if (err) {
+                console.error(err);
+              } else {
+                if (gameSession.players === 1) {
+                  gameSession.users.user1.leader = true;
+                }
+                for (person in gameSession.users) {
+                  if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
+                    gameSession.users[person].socketId = socket.id;
+                  }
+                }
+                gameSession.save();
+              }
+            })
           }
-        })
+        });
       }
     });
   }
@@ -327,6 +344,7 @@ function onConnection(socket) {
                   gameSession.meta.difficulty = gameSession.difficulty;
                   if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
                     Player1 = new Player('Player1', gameSession.users.user1.name);
+                    Player1[gameSession.users.user1.ability]();
                     game.friendlies.push(Player1);
                     gameSession.meta.hp.Player1 = Player1.currentArmor;
                   } else {
@@ -335,6 +353,7 @@ function onConnection(socket) {
                   }
                   if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
                     Player2 = new Player('Player2', gameSession.users.user2.name);
+                    Player2[gameSession.users.user2.ability]();
                     game.friendlies.push(Player2);
                     gameSession.meta.hp.Player2 = Player2.currentArmor;
                   } else {
@@ -343,6 +362,7 @@ function onConnection(socket) {
                   }
                   if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
                     Player3 = new Player('Player3', gameSession.users.user3.name);
+                    Player3[gameSession.users.user3.ability]();
                     game.friendlies.push(Player3);
                     gameSession.meta.hp.Player3 = Player3.currentArmor;
                   } else {
@@ -351,6 +371,7 @@ function onConnection(socket) {
                   }
                   if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
                     Player4 = new Player('Player4', gameSession.users.user4.name);
+                    Player4[gameSession.users.user4.ability]();
                     game.friendlies.push(Player4);
                     gameSession.meta.hp.Player4 = Player4.currentArmor;
                   } else {
@@ -397,6 +418,7 @@ function loadGame(gameSession, specs, callback) {
   let gameState = gameSession.state[0];
   let loadPlayer = function(player, friendly) {
     player.name = friendly.name;
+    player.maxArmor = friendly.maxArmor;
     player.currentArmor = friendly.currentArmor;
     player.lastCardUsed = friendly.lastCardUsed;
     player.hand = friendly.hand;

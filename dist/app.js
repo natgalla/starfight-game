@@ -170,10 +170,6 @@ const Friendly = function(id, name, maxArmor) {
   this.pursuerDamage = [];
   this.effects = {
     dead: false,
-    medalOfHonor: false,
-    medic: false,
-    daredevil: false,
-    sharpShooter: false,
     emp: false,
     countermeasures: false,
     divertShields: 0,
@@ -294,7 +290,13 @@ const Player = function(id, name) {
     medalOfHonor: false,
     medic: false,
     daredevil: false,
-    sharpShooter: false,
+    deadeye: false,
+    heavyArmor: false,
+    negotiator: false,
+    resourseful: false,
+    strategist: false,
+    lightningReflexes: false,
+    commsExpert: false,
     emp: false,
     countermeasures: false,
     divertShields: 0,
@@ -356,12 +358,8 @@ Player.prototype.damageRoll = function(list) {
 }
 
 Player.prototype.increaseMerit = function(game, amount) {
-  let merit = amount;
-  if (this.effects.medalOfHonor === true) {
-    merit += 1;
-  }
-  this.merit += merit;
-  io.to(game.gameID).emit("msg", this.name + " receives " + merit + " merit.");
+  this.merit += amount;
+  io.to(game.gameID).emit("msg", this.name + " receives " + amount + " merit.");
 }
 
 // calculate damage // only returning 0
@@ -416,7 +414,6 @@ Player.prototype.destroyed = function(game, status) {
     game.moveCard(0, this.hand, game.tacticalDeck.discard);
   }
   let pursuers = this.pursuers;
-  game.distributeEnemies(pursuers);
   this.pursuers = [];
   let alldead = true;
   for (let i = 0; i < game.friendlies.length; i++) {
@@ -433,6 +430,8 @@ Player.prototype.destroyed = function(game, status) {
     io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
     game.lose = true;
     console.log('Loss condition met: All pilots destroyed');
+  } else {
+    game.distributeEnemies(pursuers);
   }
 }
 
@@ -441,7 +440,6 @@ Player.prototype.takeDamage = function(game, damage) {
     this.currentArmor -= damage;
     if (this.currentArmor <= 0) {
       this.currentArmor = 0;
-      this.destroyed(game, 'KIA');
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. " + this.name + " has been destroyed.");
     } else {
       io.to(game.gameID).emit("msg", this.name + " takes " + damage + " damage. Current armor: "
@@ -455,7 +453,11 @@ Player.prototype.checkKill = function(game, friendly, index) {
   if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
     io.to(game.gameID).emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
-    this.increaseMerit(game, friendly.pursuers[index].merit);
+    let merit = friendly.pursuers[index].merit;
+    if (this.effects.medalOfHonor === true) {
+      merit += 1;
+    }
+    this.increaseMerit(game, merit);
     game.moveCard(index, friendly.pursuers, game.enemyDeck.discard);
     friendly.insertPlaceholder(index);
   }
@@ -479,8 +481,8 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
       io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
-      || friendly.pursuers[index].cssClass === "destroyed") {
+    if (friendly.pursuers[index] && (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
+      || friendly.pursuers[index].cssClass === "destroyed")) {
       console.error("No enemy at index " + index);
     } else {
       if (damage > 0) {
@@ -510,7 +512,12 @@ PLAYER TACTICAL FUNCTIONS
 
 Player.prototype.fire = function(game, friendly, pursuerIndex) {
   // deal damage equal to 4 combat dice to target
-  let damage = this.calcDamage(4);
+  let damage = 0;
+  if (this.deadeye) {
+    damage = this.calcDamage(5);
+  } else {
+    damage = this.calcDamage(4);
+  }
   this.doDamage(game, friendly, pursuerIndex, damage);
 }
 
@@ -535,7 +542,12 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
 
 Player.prototype.missile = function(game, friendly, pursuerIndex) {
   // deal damage equal to 5 combat dice to target
-  let damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
+  let damage = 0;
+  if (this.deadeye) {
+    damage = this.calcDamage(5) + this.damageRoll(this.missileDie);
+  } else {
+    damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
+  }
   this.doDamage(game, friendly, pursuerIndex, damage);
 }
 
@@ -670,27 +682,6 @@ Player.prototype.immelman = function(game, friendly, index) {
 PLAYER ADVANCED TACTICAL FUNCTIONS
 **************************/
 
-Player.prototype.medalOfHonor = function(game) {
-  this.effects.medalOfHonor = true;
-  io.to(game.gameID).emit("msg", this.name + " will now receive +1 merit any time they are awarded merit.");
-}
-
-Player.prototype.daredevil = function(game) {
-  // allow player to attack enemy base if they have one or no pursuers
-  this.effects.daredevil = true;
-  io.to(game.gameID).emit("msg", this.name + " can now attack the enemy base with one pursuer.");
-}
-
-Player.prototype.medic = function(game) {
-  this.effects.medic = true;
-  io.to(game.gameID).emit("msg", this.name + " can now repair 1 damage on a chosen ally each round.");
-}
-
-Player.prototype.sharpShooter = function(game) {
-  this.effects.sharpShooter = true;
-  io.to(game.gameID).emit("msg", this.name + " is now better at hurting things.");
-}
-
 Player.prototype.healthPack = function(game, friendly, index) {
   if (index === undefined) {
     index = 0;
@@ -756,6 +747,32 @@ Player.prototype.incinerate = function(game) {
   this.effects.incinerator = true;
 }
 
+Player.prototype.medalOfHonor = function() {
+  this.effects.medalOfHonor = true;
+}
+
+Player.prototype.deadeye = function() {
+  this.effects.deadeye = true;
+}
+
+Player.prototype.negotiator = function() {
+  this.effects.negotiator = true;
+}
+
+Player.prototype.daredevil = function() {
+  this.effects.daredevil = true;
+}
+
+Player.prototype.heavyArmor = function() {
+  this.effects.heavyArmor = true;
+  this.maxArmor = 15;
+  this.currentArmor = 15;
+}
+
+Player.prototype.strategist = function() {
+  this.effects.strategist = true;
+  this.tacticalCardsPerTurn = 4;
+}
 
 /**************************
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
@@ -801,10 +818,15 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     this.lastCardUsed = choice;
     let advAction = choice.cssClass;
     game.advTacticsPurchased.push(advAction);
-    if (this.merit >= choice.cost) {
-      this.merit -= choice.cost;
+    let cost = choice.cost;
+    if (this.effects.negotiator) {
+      cost -= 1;
+    }
+    if (this.merit >= cost) {
+      this.merit -= cost;
       this[advAction](game, friendly, pursuerIndex);
       game.removeAdvTactic(advIndex);
+      io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
     } else {
       io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
     }
@@ -1064,6 +1086,17 @@ Game.prototype.update = function() {
   this.enemyBase.updateSummary(this);
 }
 
+Game.prototype.checkDeaths = function() {
+  for (let i = 0; i < this.friendlies.length; i++) {
+    let friendly = this.friendlies[i];
+    if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
+      continue;
+    } else if (friendly.currentArmor === 0){
+      friendly.destroyed(this, 'KIA');
+    }
+  }
+}
+
 Game.prototype.round = function() {
   this.roundNumber++;
   io.to(this.gameID).emit('msg', 'Round ' + this.roundNumber);
@@ -1125,6 +1158,7 @@ Game.prototype.postRound = function() {
     }
     friendly.takeDamage(this, friendly.checkDamageNegation(this, damage));
   }
+  this.checkDeaths();
   this.replaceEnemyBaseCard();
 }
 
@@ -1140,17 +1174,22 @@ Game.prototype.adjustTurn = function() {
 }
 
 Game.prototype.nextTurn = function() {
+  this.checkDeaths();
   this.update();
   if (!this.win && !this.lose) {
     let cardsLeft = 0;
+    let strategist = false;
     this.friendlies.forEach((friendly) => {
       if (friendly.id === 'FriendlyBase') {
         cardsLeft += 0;
       } else {
+        if (friendly.effects.strategist) {
+          strategist = true;
+        }
         cardsLeft += friendly.hand.length;
       }
     });
-    if (cardsLeft === 0) {
+    if (cardsLeft === 0 || (strategist && cardsLeft === 1)) {
       this.nextRound();
       this.currentTurn = 0;
     } else {
@@ -1169,7 +1208,9 @@ Game.prototype.nextTurn = function() {
 
 Game.prototype.nextRound = function() {
   this.postRound();
-  this.round();
+  if (!this.win && !this.lose) {
+    this.round();
+  }
   this.update();
 }
 
@@ -1208,9 +1249,9 @@ Game.prototype.buildDecks = function() {
 
   // build enemy deck
   this.addToDeck(this.enemyDeck, ace, 4);
-  this.addToDeck(this.enemyDeck, heavy, 9);
+  this.addToDeck(this.enemyDeck, heavy, 8);
   this.addToDeck(this.enemyDeck, medium, 12);
-  this.addToDeck(this.enemyDeck, light, 15);
+  this.addToDeck(this.enemyDeck, light, 16);
   this.addToDeck(this.enemyDeck, empty, this.setEmpties(8, 4, 0));
 
   this.enemyDeck.size = this.enemyDeck.cards.length;
@@ -1272,7 +1313,7 @@ let repair = new EnemyBaseCard("Repairs", "repair", "Repaired 5 armor.");
 let reinforce = new EnemyBaseCard("Reinforcements", "reinforce", "Increased launch rate by 1");
 
 // requirements
-let https = require('https');
+let http = require('http');
 let express = require('express');
 let bodyParser = require('body-parser');
 let mongoose = require('mongoose');
@@ -1283,7 +1324,7 @@ let GameSession = require('./js/models/game');
 let MongoStore = require('connect-mongo')(session);
 // build app
 let app = express();
-let server = https.createServer(app);
+let server = http.createServer(app);
 let io = socketio(server);
 // globals
 let gameTitle = "Contact!";
@@ -1292,8 +1333,9 @@ let port = process.env.PORT || 8080;
 
 
 // mongodb connection
-let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd' || 'mongodb://localhost:27017/starfire';
-mongoose.connect(mongoUri);
+let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd';
+let localUri = 'mongodb://localhost:27017/starfire';
+mongoose.connect(localUri);
 let db = mongoose.connection;
 
 // mongo error
@@ -1422,7 +1464,7 @@ function saveGame(game) {
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
-                  let query = { callsign: updatedSession.users[user] };
+                  let query = { callsign: updatedSession.users[user].name };
                   User.find(query, function(err, player) {
                     if (err) {
                       console.error(err);
@@ -1462,7 +1504,7 @@ function saveGame(game) {
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
-                  let query = { callsign: updatedSession.users[user] };
+                  let query = { callsign: updatedSession.users[user].name };
                   let update = { $inc: { 'meta.losses': 1 }};
                   User.update(query, update, function() {
                     console.log(updatedSession.users[user].name + " updated");
@@ -1494,126 +1536,138 @@ function onConnection(socket) {
 
   function join(player) {
     socket.join(gameId);
-    getUser(userId, function(err, user) {
+    getGameSession(gameId, function(err, gameSession) {
       if (err) {
         console.error(err);
       } else {
-        player.name = user.callsign;
-        console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
-        socket.emit('assign', { player: player } );
-        socket.on('turn', turn);
-        socket.on('chat', function(data) {
-          io.to(data.room).emit('chatMessage', data.message);
-          if (data.message.toLowerCase().includes('what do you hear')) {
-            io.to(data.room).emit('msg', "Nothin' but the wind");
-          }
-          if (data.message.toLowerCase().includes('good hunting')) {
-            io.to(data.room).emit('msg', "So say we all!");
-          }
-        });
-        io.to(gameId).emit('msg', user.callsign + ' joined the game.');
-        socket.on('disconnect', function() {
-          console.log('User disconnected');
-          getGameSession(gameId, function(err, gameSession) {
-            if (err) {
-              console.error(err);
-            } else {
-              if (!gameSession.meta.lost && !gameSession.meta.won) {
-                io.to(gameId).emit('msg', user.callsign + ' left.');
-                let setNewLeader = false;
-                for (person in gameSession.users) {
-                  if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
-                    if (gameSession.users[person].leader) {
-                      setNewLeader = true;
-                      gameSession.users[person].leader = false;
-                    }
-                    gameSession.users[person].name = '';
-                    gameSession.users[person].socketId = '';
-                    gameSession.players -= 1;
-                  }
-                }
-                if (setNewLeader) {
-                  if (gameSession.users.user1.name.length > 0) {
-                    gameSession.users.user1.leader = true;
-                    io.to(gameSession.users.user1.socketId).emit('firstPlayer');
-                  } else if (gameSession.users.user2.name.length > 0) {
-                    gameSession.users.user2.leader = true;
-                    io.to(gameSession.users.user2.socketId).emit('firstPlayer');
-                  } else if (gameSession.users.user3.name.length > 0) {
-                    gameSession.users.user3.leader = true;
-                    io.to(gameSession.users.user3.socketId).emit('firstPlayer');
-                  } else if (gameSession.users.user4.name.length > 0) {
-                    gameSession.users.user4.leader = true;
-                    io.to(gameSession.users.user4.socketId).emit('firstPlayer');
-                  }
-                }
-                if (gameSession.players === 0) {
-                  gameSession.meta.aborted = true;
-                  gameSession.gameName = gameSession._id;
-                  console.log('Game ' + gameSession._id + ' aborted');
-                  if (gameSession.state.length > 0) {
-                    let endTime = new Date();
-                    let ms = endTime - gameSession.meta.startTime;
-                    let min = Math.round(ms/1000/60);
-                    gameSession.meta.endTime = endTime;
-                    gameSession.meta.elapsedTime = min;
-                  }
-                  gameSession.state = undefined;
-                  gameSession.players = undefined;
-                  gameSession.difficulty = undefined;
-                } else {
-                  if (gameSession.state.length === 0) {
-                    if (gameSession.meta.locked) {
-                      gameSession.meta.locked = false;
-                    } else if (gameSession.players === 1) {
-                      io.to(gameId).emit('closeGame');
-                      io.to(gameId).emit('msg', 'Waiting for second player...')
-                    }
-                  } else {
-                    // logic for leaving during active game
-                    // currently destroys leaving player's pilot
-                    // eventually replace this logic with re-entry option
-                    console.log(user.callsign + ' left during active game');
-                    loadGame(gameSession, undefined, function(game) {
-                      for (let i=0; i < game.friendlies.length; i++) {
-                        let friendly = game.friendlies[i];
-                        if (friendly.name === user.callsign) {
-                          friendly.destroyed(game, 'MIA');
-                          break;
-                        }
-                      }
-                      game.nextTurn();
-                      saveGame(game);
-                    });
-                  }
-                }
-                gameSession.save(function (err, updatedSession) {
-                  if (err) {
-                    console.error(err);
-                  } else {
-                    console.log('User removed from ' + updatedSession._id);
-                  }
-                });
-              }
-            }
-          });
-          socket.leave(gameId);
-        });
-        getGameSession(gameId, function(err, gameSession) {
+        getUser(userId, function(err, user) {
           if (err) {
             console.error(err);
           } else {
-            if (gameSession.players === 1) {
-              gameSession.users.user1.leader = true;
-            }
             for (person in gameSession.users) {
               if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
-                gameSession.users[person].socketId = socket.id;
+                let ability = gameSession.users[person].ability;
+                player[ability]();
               }
             }
-            gameSession.save();
+            player.name = user.callsign;
+            console.log(user.callsign + ' joined ' + gameId + ' as ' + player.id);
+            socket.emit('assign', { player: player } );
+            socket.on('turn', turn);
+            socket.on('chat', function(data) {
+              io.to(data.room).emit('chatMessage', data.message);
+              if (data.message.toLowerCase().includes('what do you hear')) {
+                io.to(data.room).emit('msg', "Nothin' but the wind");
+              }
+              if (data.message.toLowerCase().includes('good hunting')) {
+                io.to(data.room).emit('msg', "So say we all!");
+              }
+            });
+            io.to(gameId).emit('msg', user.callsign + ' joined the game.');
+            socket.on('disconnect', function() {
+              console.log('User disconnected');
+              getGameSession(gameId, function(err, gameSession) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  if (!gameSession.meta.lost && !gameSession.meta.won) {
+                    io.to(gameId).emit('msg', user.callsign + ' left.');
+                    let setNewLeader = false;
+                    for (person in gameSession.users) {
+                      if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
+                        if (gameSession.users[person].leader) {
+                          setNewLeader = true;
+                          gameSession.users[person].leader = false;
+                        }
+                        gameSession.users[person].name = '';
+                        gameSession.users[person].socketId = '';
+                        gameSession.players -= 1;
+                      }
+                    }
+                    if (setNewLeader) {
+                      if (gameSession.users.user1.name.length > 0) {
+                        gameSession.users.user1.leader = true;
+                        io.to(gameSession.users.user1.socketId).emit('firstPlayer');
+                      } else if (gameSession.users.user2.name.length > 0) {
+                        gameSession.users.user2.leader = true;
+                        io.to(gameSession.users.user2.socketId).emit('firstPlayer');
+                      } else if (gameSession.users.user3.name.length > 0) {
+                        gameSession.users.user3.leader = true;
+                        io.to(gameSession.users.user3.socketId).emit('firstPlayer');
+                      } else if (gameSession.users.user4.name.length > 0) {
+                        gameSession.users.user4.leader = true;
+                        io.to(gameSession.users.user4.socketId).emit('firstPlayer');
+                      }
+                    }
+                    if (gameSession.players === 0) {
+                      gameSession.meta.aborted = true;
+                      gameSession.gameName = gameSession._id;
+                      console.log('Game ' + gameSession._id + ' aborted');
+                      if (gameSession.state.length > 0) {
+                        let endTime = new Date();
+                        let ms = endTime - gameSession.meta.startTime;
+                        let min = Math.round(ms/1000/60);
+                        gameSession.meta.endTime = endTime;
+                        gameSession.meta.elapsedTime = min;
+                      }
+                      gameSession.state = undefined;
+                      gameSession.players = undefined;
+                      gameSession.difficulty = undefined;
+                    } else {
+                      if (gameSession.state.length === 0) {
+                        if (gameSession.meta.locked) {
+                          gameSession.meta.locked = false;
+                        } else if (gameSession.players === 1) {
+                          io.to(gameId).emit('closeGame');
+                          io.to(gameId).emit('msg', 'Waiting for second player...')
+                        }
+                      } else {
+                        // logic for leaving during active game
+                        // currently destroys leaving player's pilot
+                        // eventually replace this logic with re-entry option
+                        console.log(user.callsign + ' left during active game');
+                        loadGame(gameSession, undefined, function(game) {
+                          for (let i=0; i < game.friendlies.length; i++) {
+                            let friendly = game.friendlies[i];
+                            if (friendly.name === user.callsign) {
+                              friendly.destroyed(game, 'MIA');
+                              break;
+                            }
+                          }
+                          game.nextTurn();
+                          saveGame(game);
+                        });
+                      }
+                    }
+                    gameSession.save(function (err, updatedSession) {
+                      if (err) {
+                        console.error(err);
+                      } else {
+                        console.log('User removed from ' + updatedSession._id);
+                      }
+                    });
+                  }
+                }
+              });
+              socket.leave(gameId);
+            });
+            getGameSession(gameId, function(err, gameSession) {
+              if (err) {
+                console.error(err);
+              } else {
+                if (gameSession.players === 1) {
+                  gameSession.users.user1.leader = true;
+                }
+                for (person in gameSession.users) {
+                  if (gameSession.users[person] && gameSession.users[person].name === user.callsign) {
+                    gameSession.users[person].socketId = socket.id;
+                  }
+                }
+                gameSession.save();
+              }
+            })
           }
-        })
+        });
       }
     });
   }
@@ -1769,6 +1823,7 @@ function loadGame(gameSession, specs, callback) {
     player.pursuerDamage = friendly.pursuerDamage;
     player.merit = friendly.merit;
     player.effects = friendly.effects;
+    player.tacticalCardsPerTurn = friendly.tacticalCardsPerTurn;
     game.friendlies.push(player);
   }
   for (let i = 0; i < gameState.friendlies.length; i++) {

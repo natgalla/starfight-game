@@ -22,6 +22,50 @@ block content
       .session
         label(for='sessionName') Base name: 
         input#sessionName(type='text' name='sessionName')
+      fieldset.carousel#pilots
+        legend Pilot ability choices
+        div.pilots
+          a.backward(data-move='backward' data-carousel='pilot' hidden aria-hidden='true')
+          ul.carousel-labels(left0)
+            li
+              label(for='medalOfHonor')
+                img(src='public/img/star.png' alt='medalOfHonor')
+            li
+              label(for='deadeye')
+                img(src='public/img/crosshair.png')
+            li
+              label(for='heavyArmor')
+                img(src='public/img/shield.png')
+          a.forward(data-move='forward' data-carousel='pilot' hidden aria-hidden='true')
+          ul.carousel-radios
+            li
+              input.valid(type='radio' data-value='0' name='pilot' id='medalOfHonor' value='medalOfHonor' checked)
+              span
+            li
+              input.valid(type='radio' data-value='1' name='pilot' id='deadeye' value='deadeye')
+              span
+            li
+              input.valid(type='radio' data-value='2' name='pilot' id='heavyArmor' value='heavyArmor')
+              span
+
+        //- .pilotChoice
+        //-   input.valid(type='radio' name='pilot' id='medalOfHonor' value='medalOfHonor' checked)
+        //-   label(for='medalOfHonor') Medal of Honor
+        //- .pilotChoice
+        //-   input.valid(type='radio' name='pilot' id='deadeye' value='deadeye')
+        //-   label(for='deadeye') Deadeye
+        //- .pilotChoice
+        //-   input.valid(type='radio' name='pilot' id='heavyArmor' value='heavyArmor')
+        //-   label(for='heavyArmor') Heavy Armor
+        //- .pilotChoice
+        //-   input.valid(type='radio' name='pilot' id='negotiator' value='negotiator')
+        //-   label(for='negotiator') Negotiator
+        //- .pilotChoice
+        //-   input.valid(type='radio' name='pilot' id='daredevil' value='daredevil')
+        //-   label(for='daredevil') Daredevil
+        //- .pilotChoice
+        //-   input.valid(type='radio' name='pilot' id='strategist' value='strategist')
+        //-   label(for='strategist') Strategist
       .submit
         button.disabled(type='submit' value='confirm') CONFIRM
       .link
