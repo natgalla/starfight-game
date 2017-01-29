@@ -1901,7 +1901,7 @@ function turn(data) {
   getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
-    } else if (gameSession === null) {
+    } else if (!gameSession || !gameSession.state) {
       console.error("Error: Turn attempted outside of active game session: " + gameId);
     } else {
       loadGame(gameSession, specs, turnAction);
@@ -1938,6 +1938,7 @@ function turnAction(game, specs) {
     saveGame(game);
   } else {
     io.to(game.gameID).emit('msg', 'Cheating attempt detected');
+    console.error("Turn attempted out of turn order: " + game.gameID);
   }
 }
 
