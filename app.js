@@ -1902,7 +1902,7 @@ function turn(data) {
     if (err) {
       console.error(err);
     } else if (gameSession === null) {
-      console.error("Error, turn attempted outside of active game: " + gameId);
+      console.error("Error: Turn attempted outside of active game session: " + gameId);
     } else {
       loadGame(gameSession, specs, turnAction);
     }

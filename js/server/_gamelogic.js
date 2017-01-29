@@ -26,6 +26,8 @@ function saveGame(game) {
   getGameSession(game.gameID, function(err, gameSession) {
     if (err) {
       console.error(err);
+    } else if (gameSession === null) {
+      console.error("Error fetching game session on save");
     } else {
       let endTime = new Date();
       let ms = endTime - gameSession.meta.startTime;
@@ -472,6 +474,8 @@ function turn(data) {
   getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
+    } else if (gameSession === null) {
+      console.error("Error: Turn attempted outside of active game session: " + gameId);
     } else {
       loadGame(gameSession, specs, turnAction);
     }
