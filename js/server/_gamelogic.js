@@ -340,51 +340,26 @@ function onConnection(socket) {
                   let Player2;
                   let Player3;
                   let Player4;
+                  function buildPlayer(user, player, id) {
+                    if (user && user.name !== "") {
+                      player = new Player(id, user.name);
+                      player[user.ability]();
+                      game.friendlies.push(player);
+                      gameSession.meta.users.push(user.name);
+                      gameSession.meta.hp[id] = player.currentArmor;
+                    } else {
+                      user = undefined;
+                      gameSession.meta.hp[id] = undefined;
+                    }
+                  }
                   game.friendlies = [FriendlyBase];
                   gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
                   gameSession.meta.players = gameSession.players;
-                  gameSession.meta.users = [gameSession.users.user1.name];
                   gameSession.meta.difficulty = gameSession.difficulty;
-                  if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
-                    Player1 = new Player('Player1', gameSession.users.user1.name);
-                    Player1[gameSession.users.user1.ability]();
-                    game.friendlies.push(Player1);
-                    gameSession.meta.users.push(gameSession.users.user1.name);
-                    gameSession.meta.hp.Player1 = Player1.currentArmor;
-                  } else {
-                    gameSession.users.user1 = undefined;
-                    gameSession.meta.hp.Player1 = undefined;
-                  }
-                  if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
-                    Player2 = new Player('Player2', gameSession.users.user2.name);
-                    Player2[gameSession.users.user2.ability]();
-                    game.friendlies.push(Player2);
-                    gameSession.meta.users.push(gameSession.users.user2.name);
-                    gameSession.meta.hp.Player2 = Player2.currentArmor;
-                  } else {
-                    gameSession.users.user2 = undefined;
-                    gameSession.meta.hp.Player2 = undefined;
-                  }
-                  if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
-                    Player3 = new Player('Player3', gameSession.users.user3.name);
-                    Player3[gameSession.users.user3.ability]();
-                    game.friendlies.push(Player3);
-                    gameSession.meta.users.push(gameSession.users.user3.name);
-                    gameSession.meta.hp.Player3 = Player3.currentArmor;
-                  } else {
-                    gameSession.users.user3 = undefined;
-                    gameSession.meta.hp.Player3 = undefined;
-                  }
-                  if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
-                    Player4 = new Player('Player4', gameSession.users.user4.name);
-                    Player4[gameSession.users.user4.ability]();
-                    game.friendlies.push(Player4);
-                    gameSession.meta.users.push(gameSession.users.user4.name);
-                    gameSession.meta.hp.Player4 = Player4.currentArmor;
-                  } else {
-                    gameSession.users.user4 = undefined;
-                    gameSession.meta.hp.Player4 = undefined;
-                  }
+                  buildPlayer(gameSession.users.user1, Player1, 'Player1');
+                  buildPlayer(gameSession.users.user2, Player2, 'Player2');
+                  buildPlayer(gameSession.users.user3, Player3, 'Player3');
+                  buildPlayer(gameSession.users.user4, Player4, 'Player4');
                   game.buildDecks();
                   game.round();
                   game.update();

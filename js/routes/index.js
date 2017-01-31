@@ -218,13 +218,13 @@ router.post('/menu', function(req, res, next) {
               "users.user2.ability": req.body.pilot,
               $inc: { players: 1 }
             };
-          } else if (game[0].users.user3 === "") {
+          } else if (game[0].users.user3.name === "") {
             update = {
               "users.user3.name": user.callsign,
               "users.user3.ability": req.body.pilot,
               $inc: { players: 1 }
             };
-          } else if (game[0].users.user4 === "") {
+          } else if (game[0].users.user4.name === "") {
             update = {
               "users.user4.name": user.callsign,
               "users.user4.ability": req.body.pilot,

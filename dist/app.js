@@ -103,12 +103,12 @@ EnemyBase.prototype.repair = function(game) {
 
 EnemyBase.prototype.fireHeavy = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires heavy weapons.");
-  FriendlyBase.takeDamage(5);
+  game.friendlies[game.findFriendlyBase()].takeDamage(5);
 }
 
 EnemyBase.prototype.fireLight = function(game) {
   io.to(game.gameID).emit("msg", this.name + " fires light weapons.");
-  FriendlyBase.takeDamage(3);
+  game.friendlies[game.findFriendlyBase()].takeDamage(3);
 }
 
 EnemyBase.prototype.deploy = function(game) {
@@ -262,6 +262,7 @@ Friendly.prototype.insertPlaceholder = function(index) {
   //removes an enemy card from the fray and inserts a "destroyed" place holder
   this.pursuers.splice(index, 0, placeHolder);
   this.pursuers.join();
+  this.adjustPursuerDamage();
 }
 
 
@@ -340,10 +341,32 @@ Player.prototype.updateSummary = function() {
       }
     }
   }
-  if (this.effects.status === "Pursued" || this.effects.status === "KIA" || this.effects.status === "MIA") {
+  if (this.effects.status === "KIA" || this.effects.status === "MIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    this.summary += "<p class='free'>" + this.effects.status + "</p>";
+    let ability = "";
+    if (this.effects.medalOfHonor) {
+      ability = "Medal of Honor";
+    } else if (this.effects.medic) {
+      ability = "Medic";
+    } else if (this.effects.daredevil) {
+      ability = "Daredevil";
+    } else if (this.effects.deadeye) {
+      ability = "Deadeye";
+    } else if (this.effects.heavyArmor) {
+      ability = "Heavy Armor";
+    } else if (this.effects.negotiator) {
+      ability = "Negotiator";
+    } else if (this.effects.resourceful) {
+      ability = "Resourceful";
+    } else if (this.effects.strategist) {
+      ability = "Strategist";
+    } else if (this.effects.lightningReflexes) {
+      ability = "Lightning Reflexes";
+    } else if (this.effects.commsExpert) {
+      ability = "Comms expert";
+    }
+    this.summary += "<p class='free'>" + ability + "</p>";
   }
 }
 
@@ -533,7 +556,6 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
     game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
     game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
     this.insertPlaceholder(pursuerIndex);
-    this.adjustPursuerDamage();
     game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
   } else {
     io.to(game.gameID).emit("msg", this.name + " can't shake 'em!")
@@ -636,7 +658,6 @@ Player.prototype.drawFire = function(game, friendly, index) {
   game.moveCard(index, friendly.pursuerDamage, this.pursuerDamage);
   friendly.insertPlaceholder(index);
   this.adjustPursuerDamage();
-  friendly.adjustPursuerDamage();
 }
 
 Player.prototype.feint = function(game, friendly, pursuerIndex) {
@@ -661,7 +682,6 @@ Player.prototype.barrelRoll = function(game, friendly, pursuerIndex) {
   game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
   game.moveCard(pursuerIndex, this.pursuerDamage, game.friendlies[game.findFriendlyBase()].pursuerDamage);
   this.insertPlaceholder(pursuerIndex);
-  this.adjustPursuerDamage();
   game.friendlies[game.findFriendlyBase()].adjustPursuerDamage();
 }
 
@@ -1433,6 +1453,8 @@ function saveGame(game) {
   getGameSession(game.gameID, function(err, gameSession) {
     if (err) {
       console.error(err);
+    } else if (gameSession === null) {
+      console.error("Error fetching game session on save");
     } else {
       let endTime = new Date();
       let ms = endTime - gameSession.meta.startTime;
@@ -1450,9 +1472,6 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        gameSession.players = undefined;
-        gameSession.difficulty = undefined;
-        gameSession.state = undefined;
         if (game.win) {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
@@ -1461,6 +1480,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
@@ -1501,6 +1524,10 @@ function saveGame(game) {
               console.error(err);
             } else {
               updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
               for (let i = 1; i < 5; i++) {
                 let user = 'user' + i;
                 if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
@@ -1744,38 +1771,62 @@ function onConnection(socket) {
                   gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
                   gameSession.meta.players = gameSession.players;
                   gameSession.meta.difficulty = gameSession.difficulty;
-                  if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
-                    Player1 = new Player('Player1', gameSession.users.user1.name);
-                    game.friendlies.push(Player1);
-                    gameSession.meta.hp.Player1 = Player1.currentArmor;
-                  } else {
-                    gameSession.users.user1 = undefined;
-                    gameSession.meta.hp.Player1 = undefined;
+                  function buildPlayers(user, player, id) {
+                    if (user && user.name !== "") {
+                      player = new Player(id, user.name);
+                      player[user.ability]();
+                      game.friendlies.push(player);
+                      gameSession.meta.users.push(user.name);
+                      gameSession.meta.hp[id] = player.currentArmor;
+                    } else {
+                      user = undefined;
+                      gameSession.meta.hp[id] = undefined;
+                    }
                   }
-                  if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
-                    Player2 = new Player('Player2', gameSession.users.user2.name);
-                    game.friendlies.push(Player2);
-                    gameSession.meta.hp.Player2 = Player2.currentArmor;
-                  } else {
-                    gameSession.users.user2 = undefined;
-                    gameSession.meta.hp.Player2 = undefined;
-                  }
-                  if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
-                    Player3 = new Player('Player3', gameSession.users.user3.name);
-                    game.friendlies.push(Player3);
-                    gameSession.meta.hp.Player3 = Player3.currentArmor;
-                  } else {
-                    gameSession.users.user3 = undefined;
-                    gameSession.meta.hp.Player3 = undefined;
-                  }
-                  if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
-                    Player4 = new Player('Player4', gameSession.users.user4.name);
-                    game.friendlies.push(Player4);
-                    gameSession.meta.hp.Player4 = Player4.currentArmor;
-                  } else {
-                    gameSession.users.user4 = undefined;
-                    gameSession.meta.hp.Player4 = undefined;
-                  }
+                  buildPlayers(gameSession.users.user1, Player1, 'Player1');
+                  buildPlayers(gameSession.users.user2, Player2, 'Player2');
+                  buildPlayers(gameSession.users.user3, Player3, 'Player3');
+                  buildPlayers(gameSession.users.user4, Player4, 'Player4');
+                  // if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
+                  //   Player1 = new Player('Player1', gameSession.users.user1.name);
+                  //   Player1[gameSession.users.user1.ability]();
+                  //   game.friendlies.push(Player1);
+                  //   gameSession.meta.users.push(gameSession.users.user1.name);
+                  //   gameSession.meta.hp.Player1 = Player1.currentArmor;
+                  // } else {
+                  //   gameSession.users.user1 = undefined;
+                  //   gameSession.meta.hp.Player1 = undefined;
+                  // }
+                  // if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
+                  //   Player2 = new Player('Player2', gameSession.users.user2.name);
+                  //   Player2[gameSession.users.user2.ability]();
+                  //   game.friendlies.push(Player2);
+                  //   gameSession.meta.users.push(gameSession.users.user2.name);
+                  //   gameSession.meta.hp.Player2 = Player2.currentArmor;
+                  // } else {
+                  //   gameSession.users.user2 = undefined;
+                  //   gameSession.meta.hp.Player2 = undefined;
+                  // }
+                  // if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
+                  //   Player3 = new Player('Player3', gameSession.users.user3.name);
+                  //   Player3[gameSession.users.user3.ability]();
+                  //   game.friendlies.push(Player3);
+                  //   gameSession.meta.users.push(gameSession.users.user3.name);
+                  //   gameSession.meta.hp.Player3 = Player3.currentArmor;
+                  // } else {
+                  //   gameSession.users.user3 = undefined;
+                  //   gameSession.meta.hp.Player3 = undefined;
+                  // }
+                  // if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
+                  //   Player4 = new Player('Player4', gameSession.users.user4.name);
+                  //   Player4[gameSession.users.user4.ability]();
+                  //   game.friendlies.push(Player4);
+                  //   gameSession.meta.users.push(gameSession.users.user4.name);
+                  //   gameSession.meta.hp.Player4 = Player4.currentArmor;
+                  // } else {
+                  //   gameSession.users.user4 = undefined;
+                  //   gameSession.meta.hp.Player4 = undefined;
+                  // }
                   game.buildDecks();
                   game.round();
                   game.update();
@@ -1816,6 +1867,7 @@ function loadGame(gameSession, specs, callback) {
   let gameState = gameSession.state[0];
   let loadPlayer = function(player, friendly) {
     player.name = friendly.name;
+    player.maxArmor = friendly.maxArmor;
     player.currentArmor = friendly.currentArmor;
     player.lastCardUsed = friendly.lastCardUsed;
     player.hand = friendly.hand;
@@ -1869,6 +1921,8 @@ function turn(data) {
   getGameSession(gameId, function(err, gameSession) {
     if (err) {
       console.error(err);
+    } else if (!gameSession || !gameSession.state) {
+      console.error("Error: Turn attempted outside of active game session: " + gameId);
     } else {
       loadGame(gameSession, specs, turnAction);
     }
@@ -1904,6 +1958,7 @@ function turnAction(game, specs) {
     saveGame(game);
   } else {
     io.to(game.gameID).emit('msg', 'Cheating attempt detected');
+    console.error("Turn attempted out of turn order: " + game.gameID);
   }
 }
 

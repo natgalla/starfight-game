@@ -22,6 +22,7 @@ block content
       .session
         label(for='sessionName') Base name: 
         input#sessionName(type='text' name='sessionName')
+      h3#pilotHeader Choose a pilot ability
       fieldset.carousel#pilots
         legend Pilot ability choices
         div.pilots
@@ -30,42 +31,47 @@ block content
             li
               label(for='medalOfHonor')
                 img(src='public/img/star.png' alt='medalOfHonor')
+              p Medal of Honor: Receive 1 extra merit for each enemy you destroy
             li
               label(for='deadeye')
-                img(src='public/img/crosshair.png')
+                img(src='public/img/crosshair.png' alt='deadeye')
+              p Deadeye: Roll an extra combat die for fire/missile
             li
-              label(for='heavyArmor')
-                img(src='public/img/shield.png')
+              label(for='heavyArmor') 
+                img(src='public/img/shield.png' alt='heavy armor')
+              p Heavy Armor: Increase max armor to 15
+            li
+              label(for='negotiator') 
+                img(src='public/img/negotiate.png' alt='negotiator')
+              p Negotiator: Merit purchases cost 1 less
+            li
+              label(for='daredevil') 
+                img(src='public/img/devil.png' alt='daredevil')
+              p Daredevil: You may attack the enemy base with one pursuer
+            li
+              label(for='strategist') 
+                img(src='public/img/chess.png' alt='strategist')
+              p Strategist: Draw 4 tactical cards each round (still use 3)
           a.forward(data-move='forward' data-carousel='pilot' hidden aria-hidden='true')
           ul.carousel-radios
             li
-              input.valid(type='radio' data-value='0' name='pilot' id='medalOfHonor' value='medalOfHonor' checked)
+              input.cradio.valid(type='radio' data-value='0' name='pilot' id='medalOfHonor' value='medalOfHonor' checked)
               span
             li
-              input.valid(type='radio' data-value='1' name='pilot' id='deadeye' value='deadeye')
+              input.cradio.valid(type='radio' data-value='1' name='pilot' id='deadeye' value='deadeye')
               span
             li
-              input.valid(type='radio' data-value='2' name='pilot' id='heavyArmor' value='heavyArmor')
+              input.cradio.valid(type='radio' data-value='2' name='pilot' id='heavyArmor' value='heavyArmor')
               span
-
-        //- .pilotChoice
-        //-   input.valid(type='radio' name='pilot' id='medalOfHonor' value='medalOfHonor' checked)
-        //-   label(for='medalOfHonor') Medal of Honor
-        //- .pilotChoice
-        //-   input.valid(type='radio' name='pilot' id='deadeye' value='deadeye')
-        //-   label(for='deadeye') Deadeye
-        //- .pilotChoice
-        //-   input.valid(type='radio' name='pilot' id='heavyArmor' value='heavyArmor')
-        //-   label(for='heavyArmor') Heavy Armor
-        //- .pilotChoice
-        //-   input.valid(type='radio' name='pilot' id='negotiator' value='negotiator')
-        //-   label(for='negotiator') Negotiator
-        //- .pilotChoice
-        //-   input.valid(type='radio' name='pilot' id='daredevil' value='daredevil')
-        //-   label(for='daredevil') Daredevil
-        //- .pilotChoice
-        //-   input.valid(type='radio' name='pilot' id='strategist' value='strategist')
-        //-   label(for='strategist') Strategist
+            li
+              input.cradio.valid(type='radio' data-value='3' name='pilot' id='negotiator' value='negotiator')
+              span
+            li
+              input.cradio.valid(type='radio' data-value='4' name='pilot' id='daredevil' value='daredevil')
+              span
+            li
+              input.cradio.valid(type='radio' data-value='5' name='pilot' id='strategist' value='strategist')
+              span
       .submit
         button.disabled(type='submit' value='confirm') CONFIRM
       .link
