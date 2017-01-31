@@ -47,6 +47,8 @@ input[type="password"] {
 
 input[type="checkbox"] {
   background-color: $darkGrey;
+  float: left;
+  margin: 0 1em;
   &:focus {
     outline: 2px solid $complementGreen;
   }

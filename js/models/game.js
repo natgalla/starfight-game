@@ -41,6 +41,7 @@ let GameSchema = new mongoose.Schema({
     locked: { type: Boolean, default: false },
     rounds: { type: Number, default: 0 },
     players: { type: Number, default: 0 },
+    users: { type: Array, default: [] },
     difficulty: { type: Number, default: 3 },
     shuffles: {
       tactical: { type: Number, default: 0 },

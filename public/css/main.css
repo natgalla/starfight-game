@@ -861,7 +861,9 @@ input[type="password"] {
     outline: 2px solid limegreen; }
 
 input[type="checkbox"] {
-  background-color: #252525; }
+  background-color: #252525;
+  float: left;
+  margin: 0 1em; }
   input[type="checkbox"]:focus {
     outline: 2px solid limegreen; }
 

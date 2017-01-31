@@ -1770,11 +1770,13 @@ function onConnection(socket) {
                   game.friendlies = [FriendlyBase];
                   gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
                   gameSession.meta.players = gameSession.players;
+                  gameSession.meta.users = [gameSession.users.user1.name];
                   gameSession.meta.difficulty = gameSession.difficulty;
                   if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
                     Player1 = new Player('Player1', gameSession.users.user1.name);
                     Player1[gameSession.users.user1.ability]();
                     game.friendlies.push(Player1);
+                    gameSession.meta.users.push(gameSession.users.user1.name);
                     gameSession.meta.hp.Player1 = Player1.currentArmor;
                   } else {
                     gameSession.users.user1 = undefined;
@@ -1784,6 +1786,7 @@ function onConnection(socket) {
                     Player2 = new Player('Player2', gameSession.users.user2.name);
                     Player2[gameSession.users.user2.ability]();
                     game.friendlies.push(Player2);
+                    gameSession.meta.users.push(gameSession.users.user2.name);
                     gameSession.meta.hp.Player2 = Player2.currentArmor;
                   } else {
                     gameSession.users.user2 = undefined;
@@ -1793,6 +1796,7 @@ function onConnection(socket) {
                     Player3 = new Player('Player3', gameSession.users.user3.name);
                     Player3[gameSession.users.user3.ability]();
                     game.friendlies.push(Player3);
+                    gameSession.meta.users.push(gameSession.users.user3.name);
                     gameSession.meta.hp.Player3 = Player3.currentArmor;
                   } else {
                     gameSession.users.user3 = undefined;
@@ -1802,6 +1806,7 @@ function onConnection(socket) {
                     Player4 = new Player('Player4', gameSession.users.user4.name);
                     Player4[gameSession.users.user4.ability]();
                     game.friendlies.push(Player4);
+                    gameSession.meta.users.push(gameSession.users.user4.name);
                     gameSession.meta.hp.Player4 = Player4.currentArmor;
                   } else {
                     gameSession.users.user4 = undefined;
