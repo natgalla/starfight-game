@@ -786,6 +786,11 @@ Player.prototype.medic = function() {
   this.effects.medicActive = true;
 }
 
+Player.prototype.commsExpert = function() {
+  this.effects.ability = "Comms Expert";
+  this.effects.commsExpert = true;
+}
+
 /**************************
 GENERIC FUNCTIONS TO USE TACTICAL CARDS
 **************************/
@@ -815,7 +820,7 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   return game;
 }
 
-Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIndex, advIndex) {
+Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIndex, advIndex, commsExpert) {
   if (friendly === undefined) {
     friendly = this;
   }
@@ -830,17 +835,24 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     this.lastCardUsed = choice;
     let advAction = choice.cssClass;
     game.advTacticsPurchased.push(advAction);
-    let cost = choice.cost;
-    if (this.effects.negotiator) {
-      cost -= 1;
-    }
-    if (this.merit >= cost) {
-      this.merit -= cost;
+    if (commsExpert) {
       this[advAction](game, friendly, pursuerIndex);
       game.removeAdvTactic(advIndex);
       io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
+      this.effects.commsExpert = false;
     } else {
-      io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+      let cost = choice.cost;
+      if (this.effects.negotiator) {
+        cost -= 1;
+      }
+      if (this.merit >= cost) {
+        this.merit -= cost;
+        this[advAction](game, friendly, pursuerIndex);
+        game.removeAdvTactic(advIndex);
+        io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
+      } else {
+        io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+      }
     }
   } else {
     this[action](game, friendly, pursuerIndex);
@@ -1908,6 +1920,11 @@ function turnAction(game, specs) {
     } else if (specs.button === 'medic') {
       game = player.repairDrone(game, friendly, undefined, 1, 0, true);
       game.update();
+    } else if (specs.button === 'commsExpert') {
+      game = player.discard(game, specs.cardIndex, 'useAdvTactic', friendly,
+                                                                specs.pursuerIndex,
+                                                                specs.purchaseIndex,
+                                                                true);
     } else {
       game = player.discard(game, specs.cardIndex, specs.button, friendly,
                                                                 specs.pursuerIndex,

@@ -56,6 +56,10 @@ block content
               label(for='medic') 
                 img(src='public/img/medic.png' alt='medic')
               p Medic: Once per round you may repair 1 armor to a friendly as a free action
+            li
+              label(for='medic') 
+                img(src='public/img/comms.png' alt='medic')
+              p Comms Expert: Once per game you may take an advanced tactical card from the CIC without spending merit
           a.forward(data-move='forward' data-carousel='pilot' hidden aria-hidden='true')
           ul.carousel-radios
             li
@@ -78,6 +82,9 @@ block content
               span
             li
               input.cradio.valid(type='radio' data-value='6' name='pilot' id='medic' value='medic')
+              span
+            li
+              input.cradio.valid(type='radio' data-value='7' name='pilot' id='commsExpert' value='commsExpert')
               span
       .submit
         button.disabled(type='submit' value='confirm') CONFIRM
