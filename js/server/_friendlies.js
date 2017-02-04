@@ -125,7 +125,6 @@ const Player = function(id, name) {
   this.combatDie = [0,0,0,1,1,2];
   this.improvedDie = [0,0,1,1,1,2];
   this.missileDie = [0,0,1,1,2,2];
-  this.amtImproved = 0;
   this.effects = {
     ability: "",
     dead: false,
@@ -183,11 +182,6 @@ Player.prototype.updateSummary = function() {
   }
 }
 
-Player.prototype.setAmtImproved = function() {
-  // set interval for the amount of improved dice
-  this.amtImproved = Math.floor(this.merit/5);
-}
-
 Player.prototype.damageRoll = function(list) {
   // return a random value from a list
   return list[Math.floor(Math.random() * list.length)];
@@ -198,7 +192,6 @@ Player.prototype.increaseMerit = function(game, amount) {
   io.to(game.gameID).emit("msg", this.name + " receives " + amount + " merit.");
 }
 
-// calculate damage // only returning 0
 Player.prototype.calcDamage = function(dice) {
   // roll a combat die x times and add the rolls together
   let totalRolls = dice;
@@ -285,7 +278,6 @@ Player.prototype.takeDamage = function(game, damage) {
 }
 
 Player.prototype.checkKill = function(game, friendly, index) {
-  // if kill: award merit, insert placeholder
   if (friendly.pursuerDamage[index] >= friendly.pursuers[index].armor) {
     io.to(game.gameID).emit("msg", friendly.pursuers[index].name + " pursuing " + friendly.name
                 + " destroyed.")
@@ -317,7 +309,7 @@ Player.prototype.doDamage = function(game, friendly, index, damage) {
       io.to(game.gameID).emit("msg", "No damage to enemy base");
     }
   } else {
-    if (friendly.pursuers[index] && (friendly.pursuers[index].cssClass === "emptySpace" // throwing error when attacking fb pursuers: Cannot read property '0' of undefined
+    if (friendly.pursuers[index] && (friendly.pursuers[index].cssClass === "emptySpace"
       || friendly.pursuers[index].cssClass === "destroyed")) {
       console.error("No enemy at index " + index);
     } else {
@@ -347,7 +339,6 @@ PLAYER TACTICAL FUNCTIONS
 **************************/
 
 Player.prototype.fire = function(game, friendly, pursuerIndex) {
-  // deal damage equal to 4 combat dice to target
   let damage = 0;
   if (this.deadeye) {
     damage = this.calcDamage(5);
@@ -376,7 +367,6 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
 }
 
 Player.prototype.missile = function(game, friendly, pursuerIndex) {
-  // deal damage equal to 5 combat dice to target
   let damage = 0;
   if (this.deadeye) {
     damage = this.calcDamage(5) + this.damageRoll(this.missileDie);
@@ -387,7 +377,6 @@ Player.prototype.missile = function(game, friendly, pursuerIndex) {
 }
 
 Player.prototype.heatSeeker = function(game, friendly, pursuerIndex) {
-  // deal 5 damage to target
   this.doDamage(game, friendly, pursuerIndex, 5);
 }
 
@@ -436,7 +425,6 @@ Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collatera
 }
 
 Player.prototype.repairDrone = function(game, friendly, index, repairPoints, meritReward, medic) {
-  // repair a selected ally, can choose self, award merit if not self
   if (index === undefined) {
     index = 0;
   }
@@ -470,7 +458,6 @@ Player.prototype.repairDrone = function(game, friendly, index, repairPoints, mer
 }
 
 Player.prototype.drawFire = function(game, friendly, index) {
-  // choose an ally's pursuer and bring it to you
   io.to(game.gameID).emit("msg", friendly.pursuers[index].name + " moves from " + friendly.name
               + " to " + this.name + ".");
   this.increaseMerit(game, friendly.pursuers[index].merit);
@@ -481,7 +468,6 @@ Player.prototype.drawFire = function(game, friendly, index) {
 }
 
 Player.prototype.feint = function(game, friendly, pursuerIndex) {
-  // choose a tCard previously used this round and play it again
   if (this.lastCardUsed) {
     let card = this.lastCardUsed;
     let action = this.lastCardUsed.cssClass;
@@ -496,7 +482,6 @@ Player.prototype.barrelRoll = function(game, friendly, pursuerIndex) {
   if (friendly === undefined) {
     friendly = this;
   }
-  // move pursuer at pursuerIndex to friendly base
   io.to(game.gameID).emit("msg", this.name + " does a barrel roll! " + this.pursuers[pursuerIndex].name + " now pursues "
               + game.friendlies[game.findFriendlyBase()].name + ".");
   game.moveCard(pursuerIndex, this.pursuers, game.friendlies[game.findFriendlyBase()].pursuers);
@@ -506,13 +491,10 @@ Player.prototype.barrelRoll = function(game, friendly, pursuerIndex) {
 }
 
 Player.prototype.scatterShot = function(game, friendly, pursuerIndex) {
-  // deal a small amount of damage to 3 adjacent targets
   this.bomb(game, friendly, pursuerIndex, 2, 1)
 }
 
 Player.prototype.immelman = function(game, friendly, index) {
-  // bind click events to the player's pursuers
-  // have them choose a pursuer
   this.missile(game, this, index);
 }
 
@@ -556,9 +538,8 @@ Player.prototype.divertShields = function(game) {
 }
 
 Player.prototype.jump = function(game) {
-  // shake all pursuers
   io.to(game.gameID).emit("msg", this.name + " shakes " + this.pursuers.length
-              + " pursuers to the friendly base.");
+              + " pursuers.");
   for (let i = 0; i = this.pursuers.length; i++) {
     game.enemyDeck.discard.push(this.pursuers.pop());
   }
@@ -624,6 +605,12 @@ Player.prototype.medic = function() {
   this.effects.ability = "Medic";
   this.effects.medic = true;
   this.effects.medicActive = true;
+}
+
+Player.prototype.resourceful = function() {
+  this.effects.ability = "Resourceful";
+  this.effects.resourceful = true;
+  this.effects.resourcefulActive = true;
 }
 
 Player.prototype.commsExpert = function() {
