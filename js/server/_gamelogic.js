@@ -486,6 +486,11 @@ function turnAction(game, specs) {
     } else if (specs.button === 'medic') {
       game = player.repairDrone(game, friendly, undefined, 1, 0, true);
       game.update();
+    } else if (specs.button === 'commsExpert') {
+      game = player.discard(game, specs.cardIndex, 'useAdvTactic', friendly,
+                                                                specs.pursuerIndex,
+                                                                specs.purchaseIndex,
+                                                                true);
     } else {
       game = player.discard(game, specs.cardIndex, specs.button, friendly,
                                                                 specs.pursuerIndex,

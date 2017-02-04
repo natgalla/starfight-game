@@ -287,6 +287,7 @@ const Player = function(id, name) {
   this.missileDie = [0,0,1,1,2,2];
   this.amtImproved = 0;
   this.effects = {
+    ability: "",
     dead: false,
     medalOfHonor: false,
     medic: false,
@@ -334,39 +335,11 @@ Player.prototype.updateSummary = function() {
     this.summary += "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
                   + "<p>Merit: " + this.merit + "</p>";
-    for (let i=0; i<this.pursuers.length; i++) {
-      let enemy = this.pursuers[i];
-      if (enemy.merit > 0) {
-        this.effects.status = "Pursued";
-      }
-    }
   }
   if (this.effects.status === "KIA" || this.effects.status === "MIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    let ability = "";
-    if (this.effects.medalOfHonor) {
-      ability = "Medal of Honor";
-    } else if (this.effects.medic) {
-      ability = "Medic";
-    } else if (this.effects.daredevil) {
-      ability = "Daredevil";
-    } else if (this.effects.deadeye) {
-      ability = "Deadeye";
-    } else if (this.effects.heavyArmor) {
-      ability = "Heavy Armor";
-    } else if (this.effects.negotiator) {
-      ability = "Negotiator";
-    } else if (this.effects.resourceful) {
-      ability = "Resourceful";
-    } else if (this.effects.strategist) {
-      ability = "Strategist";
-    } else if (this.effects.lightningReflexes) {
-      ability = "Lightning Reflexes";
-    } else if (this.effects.commsExpert) {
-      ability = "Comms expert";
-    }
-    this.summary += "<p class='free'>" + ability + "</p>";
+    this.summary += "<p class='free'>" + this.effects.ability + "</p>";
   }
 }
 
@@ -622,7 +595,7 @@ Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collatera
   }
 }
 
-Player.prototype.repairDrone = function(game, friendly, index, repairPoints, meritReward) {
+Player.prototype.repairDrone = function(game, friendly, index, repairPoints, meritReward, medic) {
   // repair a selected ally, can choose self, award merit if not self
   if (index === undefined) {
     index = 0;
@@ -632,6 +605,9 @@ Player.prototype.repairDrone = function(game, friendly, index, repairPoints, mer
   }
   if (meritReward === undefined) {
     meritReward = 2;
+  }
+  if (medic === undefined) {
+    medic = false;
   }
   if (friendly.currentArmor < friendly.maxArmor) {
     friendly.currentArmor += repairPoints;
@@ -643,7 +619,11 @@ Player.prototype.repairDrone = function(game, friendly, index, repairPoints, mer
     }
     io.to(game.gameID).emit("msg", this.name + " repairs " + repairPoints + " damage on "
                 + friendly.name + ". Current armor: "
-                + friendly.currentArmor + "/" + friendly.maxArmor)
+                + friendly.currentArmor + "/" + friendly.maxArmor);
+    if (medic) {
+      this.effects.medicActive = false;
+      return game;
+    }
   } else {
     io.to(game.gameID).emit("msg", friendly.name + " is already at maximum armor.");
   }
@@ -768,30 +748,47 @@ Player.prototype.incinerate = function(game) {
 }
 
 Player.prototype.medalOfHonor = function() {
+  this.effects.ability = "Medal of Honor";
   this.effects.medalOfHonor = true;
 }
 
 Player.prototype.deadeye = function() {
+  this.effects.ability = "Deadeye";
   this.effects.deadeye = true;
 }
 
 Player.prototype.negotiator = function() {
+  this.effects.ability = "Negotiator";
   this.effects.negotiator = true;
 }
 
 Player.prototype.daredevil = function() {
+  this.effects.ability = "Daredevil";
   this.effects.daredevil = true;
 }
 
 Player.prototype.heavyArmor = function() {
+  this.effects.ability = "Heavy Armor";
   this.effects.heavyArmor = true;
   this.maxArmor = 15;
   this.currentArmor = 15;
 }
 
 Player.prototype.strategist = function() {
+  this.effects.ability = "Strategist";
   this.effects.strategist = true;
   this.tacticalCardsPerTurn = 4;
+}
+
+Player.prototype.medic = function() {
+  this.effects.ability = "Medic";
+  this.effects.medic = true;
+  this.effects.medicActive = true;
+}
+
+Player.prototype.commsExpert = function() {
+  this.effects.ability = "Comms Expert";
+  this.effects.commsExpert = true;
 }
 
 /**************************
@@ -823,7 +820,7 @@ Player.prototype.useTactic = function(game, cardIndex, friendly, pursuerIndex) {
   return game;
 }
 
-Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIndex, advIndex) {
+Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIndex, advIndex, commsExpert) {
   if (friendly === undefined) {
     friendly = this;
   }
@@ -838,17 +835,24 @@ Player.prototype.discard = function(game, cardIndex, action, friendly, pursuerIn
     this.lastCardUsed = choice;
     let advAction = choice.cssClass;
     game.advTacticsPurchased.push(advAction);
-    let cost = choice.cost;
-    if (this.effects.negotiator) {
-      cost -= 1;
-    }
-    if (this.merit >= cost) {
-      this.merit -= cost;
+    if (commsExpert) {
       this[advAction](game, friendly, pursuerIndex);
       game.removeAdvTactic(advIndex);
       io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
+      this.effects.commsExpert = false;
     } else {
-      io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+      let cost = choice.cost;
+      if (this.effects.negotiator) {
+        cost -= 1;
+      }
+      if (this.merit >= cost) {
+        this.merit -= cost;
+        this[advAction](game, friendly, pursuerIndex);
+        game.removeAdvTactic(advIndex);
+        io.to(game.gameID).emit("msg", this.name + " uses " + choice.name);
+      } else {
+        io.to(game.gameID).emit("msg", this.name + " does not have enough merit.");
+      }
     }
   } else {
     this[action](game, friendly, pursuerIndex);
@@ -1152,6 +1156,9 @@ Game.prototype.round = function() {
     if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
       continue;
     } else {
+      if (friendly.effects.medic) {
+        friendly.effects.medicActive = true;
+      }
       friendly.resetCardsUsed();
       this.replaceCards(friendly.tacticalCardsPerTurn,
                         this.tacticalDeck, friendly.hand);
@@ -1347,7 +1354,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketio(server);
 // globals
-let gameTitle = "Contact!";
+let gameTitle = "Starfight";
 let root = __dirname;
 let port = process.env.PORT || 8080;
 
@@ -1355,7 +1362,7 @@ let port = process.env.PORT || 8080;
 // mongodb connection
 let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd';
 let localUri = 'mongodb://localhost:27017/starfire';
-mongoose.connect(localUri);
+mongoose.connect(mongoUri);
 let db = mongoose.connection;
 
 // mongo error
@@ -1767,11 +1774,7 @@ function onConnection(socket) {
                   let Player2;
                   let Player3;
                   let Player4;
-                  game.friendlies = [FriendlyBase];
-                  gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
-                  gameSession.meta.players = gameSession.players;
-                  gameSession.meta.difficulty = gameSession.difficulty;
-                  function buildPlayers(user, player, id) {
+                  function buildPlayer(user, player, id) {
                     if (user && user.name !== "") {
                       player = new Player(id, user.name);
                       player[user.ability]();
@@ -1783,50 +1786,14 @@ function onConnection(socket) {
                       gameSession.meta.hp[id] = undefined;
                     }
                   }
-                  buildPlayers(gameSession.users.user1, Player1, 'Player1');
-                  buildPlayers(gameSession.users.user2, Player2, 'Player2');
-                  buildPlayers(gameSession.users.user3, Player3, 'Player3');
-                  buildPlayers(gameSession.users.user4, Player4, 'Player4');
-                  // if (gameSession.users.user1 && gameSession.users.user1.name !== "") {
-                  //   Player1 = new Player('Player1', gameSession.users.user1.name);
-                  //   Player1[gameSession.users.user1.ability]();
-                  //   game.friendlies.push(Player1);
-                  //   gameSession.meta.users.push(gameSession.users.user1.name);
-                  //   gameSession.meta.hp.Player1 = Player1.currentArmor;
-                  // } else {
-                  //   gameSession.users.user1 = undefined;
-                  //   gameSession.meta.hp.Player1 = undefined;
-                  // }
-                  // if (gameSession.users.user2 && gameSession.users.user2.name !== "") {
-                  //   Player2 = new Player('Player2', gameSession.users.user2.name);
-                  //   Player2[gameSession.users.user2.ability]();
-                  //   game.friendlies.push(Player2);
-                  //   gameSession.meta.users.push(gameSession.users.user2.name);
-                  //   gameSession.meta.hp.Player2 = Player2.currentArmor;
-                  // } else {
-                  //   gameSession.users.user2 = undefined;
-                  //   gameSession.meta.hp.Player2 = undefined;
-                  // }
-                  // if (gameSession.users.user3 && gameSession.users.user3.name !== "") {
-                  //   Player3 = new Player('Player3', gameSession.users.user3.name);
-                  //   Player3[gameSession.users.user3.ability]();
-                  //   game.friendlies.push(Player3);
-                  //   gameSession.meta.users.push(gameSession.users.user3.name);
-                  //   gameSession.meta.hp.Player3 = Player3.currentArmor;
-                  // } else {
-                  //   gameSession.users.user3 = undefined;
-                  //   gameSession.meta.hp.Player3 = undefined;
-                  // }
-                  // if (gameSession.users.user4 && gameSession.users.user4.name !== "") {
-                  //   Player4 = new Player('Player4', gameSession.users.user4.name);
-                  //   Player4[gameSession.users.user4.ability]();
-                  //   game.friendlies.push(Player4);
-                  //   gameSession.meta.users.push(gameSession.users.user4.name);
-                  //   gameSession.meta.hp.Player4 = Player4.currentArmor;
-                  // } else {
-                  //   gameSession.users.user4 = undefined;
-                  //   gameSession.meta.hp.Player4 = undefined;
-                  // }
+                  game.friendlies = [FriendlyBase];
+                  gameSession.meta.hp.FriendlyBase = FriendlyBase.currentArmor;
+                  gameSession.meta.players = gameSession.players;
+                  gameSession.meta.difficulty = gameSession.difficulty;
+                  buildPlayer(gameSession.users.user1, Player1, 'Player1');
+                  buildPlayer(gameSession.users.user2, Player2, 'Player2');
+                  buildPlayer(gameSession.users.user3, Player3, 'Player3');
+                  buildPlayer(gameSession.users.user4, Player4, 'Player4');
                   game.buildDecks();
                   game.round();
                   game.update();
@@ -1950,6 +1917,14 @@ function turnAction(game, specs) {
   if (game.currentTurn === game.friendlies.indexOf(player)) {
     if (specs.button === 'use') {
       game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
+    } else if (specs.button === 'medic') {
+      game = player.repairDrone(game, friendly, undefined, 1, 0, true);
+      game.update();
+    } else if (specs.button === 'commsExpert') {
+      game = player.discard(game, specs.cardIndex, 'useAdvTactic', friendly,
+                                                                specs.pursuerIndex,
+                                                                specs.purchaseIndex,
+                                                                true);
     } else {
       game = player.discard(game, specs.cardIndex, specs.button, friendly,
                                                                 specs.pursuerIndex,

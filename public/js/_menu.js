@@ -30,7 +30,6 @@ var carouselCarousel = {
 
   // Activate arrows if there is more than one item and arrows are included
   activateForwardAndBack: function () {
-    console.log(arguments.length);
     var arrowButtons = document.querySelectorAll('#' + carouselCarousel.carouselID +' [data-move]'),
         l = arrowButtons.length;
     for (var i = 0; i < l; i++) {

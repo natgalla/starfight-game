@@ -206,7 +206,6 @@ var carouselCarousel = {
 
   // Activate arrows if there is more than one item and arrows are included
   activateForwardAndBack: function () {
-    console.log(arguments.length);
     var arrowButtons = document.querySelectorAll('#' + carouselCarousel.carouselID +' [data-move]'),
         l = arrowButtons.length;
     for (var i = 0; i < l; i++) {
@@ -481,6 +480,16 @@ $overlay.hide();
 
 //establish buttons for card use
 let $buttons = $("#buttons");
+let $commsExpertButton = $("<button>", {
+  id: "commsExpert",
+  title: "Use the comms expert ability",
+  text: "COM"
+});
+let $medicButton = $("<button>", {
+  id: "medic",
+  title: "Use the medic ability",
+  text: "MDC"
+});
 let $useButton = $("<button>", {
   id: "use",
   title: "Use the selected card",
@@ -517,11 +526,13 @@ let $confirmButton = $("<button>", {
   text: "CFM"
 });
 
+$buttons.append($medicButton);
 $buttons.append($useButton);
 $buttons.append($discardButton);
 $buttons.append($fireButton);
 $buttons.append($evadeButton);
 $buttons.append($cicButton);
+$buttons.append($commsExpertButton);
 $buttons.append($confirmButton);
 $buttons.append($cancelButton);
 
@@ -750,8 +761,12 @@ CARD BINDING
 
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
+  if (getUser().effects.medicActive) {
+    $medicButton.show();
+  }
   $("#playerHand .tactical").on("click", function() {
     deselect();
+    $medicButton.hide();
     $(this).addClass("selected");
     let $selected = $(".selected");
     if ($selected.hasClass("feint")) {
@@ -791,7 +806,16 @@ const selectAlly = function(scope) {
   });
 }
 
-const getPlayer = function() { // for local playable version only
+const getUser = function() {
+  for (let i=0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly.id === user.id) {
+      return friendly;
+    }
+  }
+}
+
+const getPlayer = function() {
   let $summary = $(".selected").parent().next();
   if ($summary.hasClass("Player1")) {
     return Player1;
@@ -878,6 +902,52 @@ const showTargets = function(action) {
 BUTTON FUNCTIONS
 ********************/
 
+$medicButton.on("click", function() {
+  clearButtons();
+  buttonPressed = "medic";
+  action = "medic";
+  $cancelButton.show();
+  selectAlly("all");
+});
+
+$commsExpertButton.on("click", function() {
+  buttonPressed = "commsExpert";
+  action = "useAdvTactic";
+  let bump = 190 - ($('#playerHand').children().length-1)*50;
+  $("#userSummary").css({"margin-left": bump});
+  clearButtons();
+  $cancelButton.show();
+  $overlay.empty();
+  let $marketList = $("<ul>");
+  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append($marketList);
+  game.market.forEach( function(card) {
+    let advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
+            + "<h3>" + card.name + "</h3>"
+            + "<p>" + card.description + "</p>"
+            + "<p class='cost'> Merit cost: Free</p>"
+            + "</li>";
+    $marketList.append(advCard);
+  });
+  $overlay.slideDown(600);
+  $marketList.hide().fadeIn(1000);
+  $(".purchasable").on("click", function() {
+    clearButtons();
+    $cancelButton.show();
+    detarget();
+    $(this).siblings().removeClass("purchasing");
+    $(this).addClass("purchasing");
+    action = $(this)[0].classList[1]; // $(this).attr("class").split(" ")[1]
+    if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone", "healthPack"].includes(action)) {
+      $confirmButton.hide();
+      showTargets(action);
+    } else {
+      detarget();
+      $confirmButton.show();
+    }
+  });
+})
+
 $useButton.on("click", function() {
   clearButtons();
   buttonPressed = "use";
@@ -894,6 +964,9 @@ $discardButton.on("click", function() {
   $evadeButton.show();
   $cicButton.show();
   $cancelButton.show();
+  if (getUser().effects.commsExpert) {
+    $commsExpertButton.show();
+  }
   disableSelect();
 });
 
@@ -985,13 +1058,14 @@ $cicButton.on("click", function() {
 
 $confirmButton.on("click", function() {
   let turnInfo = {
-    player: getPlayer(),
+    player: getUser(),
     button: buttonPressed,
     cardIndex: $(".selected").index(),
     friendly: getFriendly(".targeted"),
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
+  console.log(turnInfo);
   sock.emit("turn", { room: room, turnInfo: turnInfo });
   clearOverlay();
   detarget();

@@ -206,7 +206,6 @@ var carouselCarousel = {
 
   // Activate arrows if there is more than one item and arrows are included
   activateForwardAndBack: function () {
-    console.log(arguments.length);
     var arrowButtons = document.querySelectorAll('#' + carouselCarousel.carouselID +' [data-move]'),
         l = arrowButtons.length;
     for (var i = 0; i < l; i++) {
@@ -481,6 +480,11 @@ $overlay.hide();
 
 //establish buttons for card use
 let $buttons = $("#buttons");
+let $commsExpertButton = $("<button>", {
+  id: "commsExpert",
+  title: "Use the comms expert ability",
+  text: "COM"
+});
 let $medicButton = $("<button>", {
   id: "medic",
   title: "Use the medic ability",
@@ -528,6 +532,7 @@ $buttons.append($discardButton);
 $buttons.append($fireButton);
 $buttons.append($evadeButton);
 $buttons.append($cicButton);
+$buttons.append($commsExpertButton);
 $buttons.append($confirmButton);
 $buttons.append($cancelButton);
 
@@ -905,6 +910,44 @@ $medicButton.on("click", function() {
   selectAlly("all");
 });
 
+$commsExpertButton.on("click", function() {
+  buttonPressed = "commsExpert";
+  action = "useAdvTactic";
+  let bump = 190 - ($('#playerHand').children().length-1)*50;
+  $("#userSummary").css({"margin-left": bump});
+  clearButtons();
+  $cancelButton.show();
+  $overlay.empty();
+  let $marketList = $("<ul>");
+  $overlay.append(typeWord($overlay, "Incoming transmition from " + game.name + " command...", "p", undefined, 30));
+  $overlay.append($marketList);
+  game.market.forEach( function(card) {
+    let advCard = "<li class='advTactical " + card.cssClass + " purchasable'>"
+            + "<h3>" + card.name + "</h3>"
+            + "<p>" + card.description + "</p>"
+            + "<p class='cost'> Merit cost: Free</p>"
+            + "</li>";
+    $marketList.append(advCard);
+  });
+  $overlay.slideDown(600);
+  $marketList.hide().fadeIn(1000);
+  $(".purchasable").on("click", function() {
+    clearButtons();
+    $cancelButton.show();
+    detarget();
+    $(this).siblings().removeClass("purchasing");
+    $(this).addClass("purchasing");
+    action = $(this)[0].classList[1]; // $(this).attr("class").split(" ")[1]
+    if(["heatSeeker", "bomb", "scatterShot", "snapshot", "emp", "repairDrone", "healthPack"].includes(action)) {
+      $confirmButton.hide();
+      showTargets(action);
+    } else {
+      detarget();
+      $confirmButton.show();
+    }
+  });
+})
+
 $useButton.on("click", function() {
   clearButtons();
   buttonPressed = "use";
@@ -921,6 +964,9 @@ $discardButton.on("click", function() {
   $evadeButton.show();
   $cicButton.show();
   $cancelButton.show();
+  if (getUser().effects.commsExpert) {
+    $commsExpertButton.show();
+  }
   disableSelect();
 });
 
@@ -1019,6 +1065,7 @@ $confirmButton.on("click", function() {
     pursuerIndex: $(".targeted").index(),
     purchaseIndex: $(".purchasing").index(),
   }
+  console.log(turnInfo);
   sock.emit("turn", { room: room, turnInfo: turnInfo });
   clearOverlay();
   detarget();
