@@ -30,7 +30,7 @@ EnemyBase.prototype.takeDamage = function(game, damage) {
     this.currentArmor = 0;
   }
   if (this.currentArmor === 0) {
-    io.to(game.gameID).emit("msg", this.name + " destroyed! Players win.");
+    io.to(game.gameID).emit("msg", this.name + " destroyed!");
     game.win = true;
   }
   this.updateSummary(game);

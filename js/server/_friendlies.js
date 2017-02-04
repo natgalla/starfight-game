@@ -87,7 +87,7 @@ Friendly.prototype.takeDamage = function(game, damage) {
     this.currentArmor -= damage;
     if (this.currentArmor <= 0) {
       this.currentArmor = 0;
-      io.to(game.gameID).emit("msg", this.name + " has been destroyed. Players lose.");
+      io.to(game.gameID).emit("msg", this.name + " has been destroyed.");
       this.effects.dead = true;
       game.lose = true;
       console.log('Loss condition met: Friendly Base destroyed');
@@ -255,9 +255,8 @@ Player.prototype.destroyed = function(game, status) {
     }
   }
   if (alldead) {
-    io.to(game.gameID).emit("msg", "All pilots destroyed. Players lose.");
+    io.to(game.gameID).emit("msg", "All pilots destroyed.");
     game.lose = true;
-    console.log('Loss condition met: All pilots destroyed');
   } else {
     game.distributeEnemies(pursuers);
   }

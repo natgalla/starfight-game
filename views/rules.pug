@@ -45,7 +45,7 @@ html
           p <strong>Enemy deck</strong>: Consists of <strong>enemy fighters</strong> and <strong>empty space</strong> cards. Enemy fighters have four stats: 
             | Power [PWR] (the amount of damage they deal at the end of a round), Armor [ARM] (the amount of damage you must deal to destroy it), Targeting [TGT] (how difficult it is to evade), and Merit reward (MRT) (how much merit is awarded to the pilot that destroys it). Enemy cards are drawn to friendlies each round, becoming their <strong>pursuers</strong>. 
             | It is possible to move them to another friendly using certain tactics, but they stay in play until destroyed.
-            | <br><br>The amount of empty space cards in the deck depends on how many pilots are in the game. 2 pilots: 8 empty space cards. 3 pilots: 4 empty space cards. 4 pilots: no empty space cards.
+          p.disclaimer.center Note: The amount of empty space cards in the deck depends on how many pilots are in the game. 2 pilots: 8 empty space cards. 3 pilots: 4 empty space cards. 4 pilots: no empty space cards.
           p <strong>Enemy base deck</strong>: These cards determine a random action the Enemy Base takes each round.
           p <strong>Damage</strong>: Damage is applied to friendlies and enemies. When damage is equal a friendly or enemy's maximum <strong>armor</strong>, that friendly or enemy is destroyed.
           p <strong>Combat Dice</strong>: Three types of six-sided die are used in the game: A typical six-sided die, used for evade attempts, a <strong>basic combat die</strong> (3 miss, 2 single damage, 1 double damage), and a <strong>missile die</strong> (2 miss, 2 single damage, 2 double damage).
@@ -60,35 +60,60 @@ html
           h4#setup The set up phase
           p During this phase, three tactical cards are dealt to each player, the CIC is replenished, and enemy fighters are <strong>launched</strong> (drawn) from the enemy deck
           p In the first round, draw 4 Advanced Tactical Cards to the CIC. After the first round, leave whatever cards are left in the CIC and draw new cards from the Advanced Tactical Deck until there are 4 again.
-          p In the first round, the Enemy Base launches a number of fighters equal to twice the number of friendlies (friendly base plus pilots). So, for a 2 player game, the Enemy Base launches 6 fighters in the first round. For a 3 player game, it launches 8. For a 4 player game, it launches 10.
-          p After the first round, the Enemy Base launches a number of fighters equal to the number of friendlies (eg. 3 players = 4 enemies launched each round). This number can be increased throughout the game by Enemy Base cards. This number never goes down, even if a pilot is destroyed.
-          p When enemy fighters are launched they are distributed to friendlies starting with the pilot who has the most <strong>merit</strong>. If there is a tie for the most merit, the first enemy fighter is drawn to the Friendly Base (this is always the case in the first round). The next enemy fighter is drawn to the next friendly to the left and so on until there are no new enemies.
+          p In the first round, the Enemy Base launches a number of fighters equal to twice the number of friendlies (friendly base plus pilots):
+          ul
+            li 2 Players: 6 starting enemies.
+            li 3 Players: 8 starting enemies.
+            li 4 Players: 10 starting enemies.
+          p After the first round, the Enemy Base launches a number of fighters equal to the starting amount of friendlies (eg. 3 players = 4 enemies launched each round). This number can be increased throughout the game by Enemy Base cards. This number never goes down, even if a pilot is destroyed.
+          p When enemy fighters are launched they are distributed to friendlies starting with the pilot who has the most <strong>merit</strong>. If there is a tie for the most merit, the first enemy fighter is drawn to the Friendly Base (this is always the case in the first round). The next enemy fighter is drawn to the next friendly to the left and so on until there are no new enemies. Arrange your pursuers in front of you in the order you received them, from left to right.
           h4#playerTurns The player turns phase
-          p Each pilot gets 3 turns each round. Once each player has taken 3 turns, the round continues to the enemy action phase. The pilot with the most merit goes first. If there is a tie for the most merit, the player to the left of the friendly base (Player1) goes first (always the case in the first round). Note: Turn <em>order</em> never changes, but who goes first can change throughout the game.
+          p Each pilot gets 3 turns each round. Once each player has taken 3 turns, the round continues to the enemy action phase. The pilot with the most merit goes first. If there is a tie for the most merit, the player to the left of the friendly base (Player1) goes first (always the case in the first round). 
+          p.disclaimer.center Note: Turn <em>order</em> never changes, but who goes first can change throughout the game.
           p Your goal is to work with your fellow pilots to destroy the Enemy Base. However, pilots may only attack the Enemy Base when they are free of pursuers (unless a tactical card or ability says otherwise).
           p Each Turn you will use 1 of your Tactical Cards. You must either <strong>use [USE]</strong> that card or <strong>discard [DSC]</strong> that card. Tactical cards cannot be used on your own pursuers, unless stated otherwise by the card.
           p To use a tactical card, simply resolve the instructions on the card and then discard it to the tactical deck discard pile.
           p Alternately, you may immediately discard a tactical card to:
           ul
-            li <strong>Attack [ATK]</strong>: Choose a target and roll 4 basic combat dice. Deal damage equal to amount indicated.
-            li <strong>Evade [EVD]</strong>: Choose one of your pursuers to attempt evade and roll a D6. If the result is equal to or greater than that pursuer's targeting (TGT) stat, you successfully shake this enemy and it moves to Friendly Base  – be careful not to let it get overwhelmed.
+            li <strong>Attack [ATK]</strong>: Choose a target and roll 4 basic combat dice (referred to as a 'standard combat roll'). Deal damage equal to amount indicated.
+            li <strong>Evade [EVD]</strong>: Choose one of your pursuers to attempt to evade and roll a D6. If the result is equal to or greater than that pursuer's targeting (TGT) stat, you successfully shake this enemy and it moves to Friendly Base  – be careful not to let it get overwhelmed.
             li <strong>Contact CIC [CIC]</strong>: If you have enough merit to receive an Advanced Tactical Card in the CIC, you may return that amount of merit to the pool and use the selected Advanced Tactical card immediately. It is discarded to the regular Tactical Deck's discard pile. This means it may return to your (or another pilot's) hand in a future round. If so, you do not have to spend its merit cost again.
           p If you destroy an enemy during your turn, immediately remove it from the fray and place it in the enemy deck discard pile. Collect merit equal to the enemy's Merit reward (MRT) stat. Any successful attack (damage greater than 0) on the enemy base is awarded 1 merit.
-          p After you use one of your Tactical cards, your turn is over and the next pilot to the left will go. Turns are pretty quick and carelessness can lead to your destruction. While other pilots maneuver, you should be thinking ahead to your next turn. Other pilots' tactics will not be visible to you, but you may communicate with each other about the cards in your hands to best coordinate your actions.
+          p After you use one of your Tactical cards, your turn is over and the next pilot to the left will go. 
+          p.disclaimer.center Note: Turns are pretty quick and carelessness can lead to your destruction. While other pilots maneuver, you should be thinking ahead to your next turn. Other pilots' tactics will not be visible to you, but you may communicate with each other about the cards in your hands to best coordinate your actions.
 
           h4#enemyAction The enemy action phase
-          p After each player takes all 3 of their turns, the round passes to the enemy action phase, during which enemy fighters deal damage to the friendlies they are pursuing and a new Enemy Base card is drawn.
-          p For each enemy fighter that is left in the fray, deal damage to whichever friendly it is pursuing equal to its Power (PWR) stat. If a pilot is destroyed, remove them from the game and redistribute their pursuers to the remaining friendlies, starting with the pilot who has the most merit. If all pilots are destroyed, the game ends immediately and the players lose.
+          p After each player takes 3 turns, the round passes to the enemy action phase, during which enemy fighters deal damage to friendlies and a new Enemy Base card is drawn.
+          p Discard any Empty Space cards in the fray, otherwise maintaining pursuer order. For each enemy fighter that is left in the fray, deal damage equal to its Power (PWR) stat to whichever friendly it is pursuing. After all damage is dealt, if a pilot is destroyed, remove them from the game and redistribute their pursuers to the remaining friendlies, starting with the pilot who has the most merit.
           p Draw a new Enemy Base card and resolve its action.
+          p If a loss condition hasn't been met, proceed to the next round.
         #endGame
           h2 Ending the game
-          p If the Enemy Base is destroyed, the game ends immediately and players win.
-          p If the Friendly Base is destroyed, the game ends immediately and players lose.
-          p If all pilots are destroyed, the game ends immediately and players lose.
+          p There are 3 conditions that cause the game to end immediately:
+          ul
+            li The Enemy Base is destroyed: players win.
+            li The Friendly Base is destroyed: players lose.
+            li All pilots are destroyed: players lose.
         #questions
-          h2 Questions?
-          p Have we not explained something very well? Questions about the rules? Not sure how something works? Be sure to <a href="mailto:natgalla@gmail.com" target="blank">contact us</a>. We'll be building an FAQ as these things come up.
-
+          h2 FAQ
+          .qa
+            p Q: Some cards (scattershot, bomb) say to do damage to an adjacent enemy. What if there's no adjacent enemy?
+            p A: Friendly fire is possible! The 'Scattershot' and 'Bomb' Tactics deal a concentrated amount of damage to a chosen target, but also deal collateral damage to adjacent targets. If there is no adjacent target, the collateral damage goes to the friendly who is pursued by your target.
+          .qa
+            p Q: The adjacent card to my target is an empty space card, how do I handle this?
+            p A: Empty Space cards between enemy fighters effectively separate them so they are not considered adjacent. So if your base or wingman has pursuers arranged like this: (Light, Empty, Heavy) and you target the Heavy, all collateral damage passes to the friendly! Be careful!
+          .qa
+            p Q: Can I change the order of my pursuers?
+            p A: No, this order matters and it's part of the challenge!
+          .qa
+            p Q: What happens if a pilot is destroyed during the turn phase by friendly fire or 'Roll the Hard Six'?
+            p A: Immediately remove that pilot from the game, discard any of their remaining tactical cards, and redistribute their enemies as you would in the enemy action phase.
+          .qa
+            p Q: I was the last pilot left, and I destroyed the Enemy Base with the 'Roll the Hard Six' card, but I was destroyed in the process. Did we win or lose?
+            p A: Since there are still enemy fighters in the fray, you lose. There is no one left to defend the Friendly Base.
+          .qa
+            p Q: I have a question about the rules that's not explained here. I think the game is too easy/hard. I have a suggestion or think you could do something better. I encountered a problem with the app.
+            p A: Let us know! <a href="mailto:natgalla@gmail.com" target="blank">Contact us</a> and we'll do our best to clear it up.
     footer
       p &copy; 2016 Nathan Gallagher &amp; Rudi Vanzin. Design by Nathan Gallagher
     script(src='http://code.jquery.com/jquery-3.1.1.min.js' type='text/javascript' charset='utf-8')

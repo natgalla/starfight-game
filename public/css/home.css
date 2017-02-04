@@ -96,6 +96,18 @@ header#rulesHeader {
   border-bottom: 2px dashed black;
 }
 
+#rules .qa {
+  border-bottom: 2px dashed steelblue;
+}
+
+#rules div:last-child {
+  border-bottom: none;
+}
+
+#questions h2 {
+  margin-bottom: 0;
+}
+
 h2 {
   font-family: 'Orbitron', sans-serif;
   text-align: center;

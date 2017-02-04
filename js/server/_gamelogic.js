@@ -45,7 +45,33 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        if (game.win) {
+        if (game.lose && game.win || game.lose){
+          io.to(game.gameID).emit('end', 'Defeat!');
+          gameSession.meta.lost = true;
+          gameSession.save(function(err, updatedSession) {
+            if (err) {
+              console.error(err);
+            } else {
+              updateObjects(game.gameID, updatedSession);
+              updatedSession.players = undefined;
+              updatedSession.difficulty = undefined;
+              updatedSession.state = undefined;
+              updatedSession.save();
+              for (let i = 1; i < 5; i++) {
+                let user = 'user' + i;
+                if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
+                  let query = { callsign: updatedSession.users[user].name };
+                  let update = { $inc: { 'meta.losses': 1 }};
+                  User.update(query, update, function() {
+                    console.log(updatedSession.users[user].name + " updated");
+                  });
+                } else {
+                  continue;
+                }
+              }
+            }
+          });
+        } else {
           io.to(game.gameID).emit('end', 'Victory!');
           gameSession.meta.won = true;
           gameSession.save(function(err, updatedSession) {
@@ -82,32 +108,6 @@ function saveGame(game) {
                         console.log(updatedSession.users[user].name + " updated");
                       });
                     }
-                  });
-                } else {
-                  continue;
-                }
-              }
-            }
-          });
-        } else {
-          io.to(game.gameID).emit('end', 'Defeat!');
-          gameSession.meta.lost = true;
-          gameSession.save(function(err, updatedSession) {
-            if (err) {
-              console.error(err);
-            } else {
-              updateObjects(game.gameID, updatedSession);
-              updatedSession.players = undefined;
-              updatedSession.difficulty = undefined;
-              updatedSession.state = undefined;
-              updatedSession.save();
-              for (let i = 1; i < 5; i++) {
-                let user = 'user' + i;
-                if (updatedSession.users[user] && updatedSession.users[user].name !== '') {
-                  let query = { callsign: updatedSession.users[user].name };
-                  let update = { $inc: { 'meta.losses': 1 }};
-                  User.update(query, update, function() {
-                    console.log(updatedSession.users[user].name + " updated");
                   });
                 } else {
                   continue;
