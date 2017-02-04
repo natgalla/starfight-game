@@ -123,7 +123,6 @@ const Player = function(id, name) {
   this.pursuerDamage = [];
   this.merit = 0;
   this.combatDie = [0,0,0,1,1,2];
-  this.improvedDie = [0,0,1,1,1,2];
   this.missileDie = [0,0,1,1,2,2];
   this.effects = {
     ability: "",

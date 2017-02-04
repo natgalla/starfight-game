@@ -22,6 +22,10 @@ router.get('/', function(req, res) {
   return res.render('index', { gameTitle: gameTitle });
 });
 
+router.get('/rules', function(req, res) {
+  return res.render('rules', { gameTitle: gameTitle });
+});
+
 router.get('/login', mid.loggedOut, function(req, res) {
   return res.render('login', { title: '| Log In', gameTitle: gameTitle });
 });

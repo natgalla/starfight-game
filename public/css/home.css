@@ -74,6 +74,28 @@ h3 {
   background-color: #fff;
 }
 
+#rules {
+  max-width: 750px;
+  margin: 0 auto;
+  padding: 3em 1em;
+}
+
+header#rulesHeader {
+  background-image: linear-gradient(#000 5%, transparent),
+                    url(../img/space.jpg);
+  height: 300px;
+  min-height: 300px;
+}
+
+#rulesHeader h1 {
+  padding-top: 3%;
+}
+
+#rules div {
+  padding: 1em 0.5em;
+  border-bottom: 2px dashed black;
+}
+
 h2 {
   font-family: 'Orbitron', sans-serif;
   text-align: center;

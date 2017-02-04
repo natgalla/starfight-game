@@ -140,6 +140,10 @@ footer {
   }
 }
 
+#rules {
+  max-width: 1000px;
+}
+
 
 @media (min-width: 640px) {
   .clearfix::after {
