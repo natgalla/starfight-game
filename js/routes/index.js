@@ -4,7 +4,7 @@ var User = require('../models/user');
 var Game = require('../models/game');
 var mid = require('../middleware');
 
-let gameTitle = 'Contact!';
+let gameTitle = 'Starfight';
 
 function validateNormalCharacters(string) {
   let valid = true;

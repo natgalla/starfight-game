@@ -11,6 +11,11 @@ $overlay.hide();
 
 //establish buttons for card use
 let $buttons = $("#buttons");
+let $medicButton = $("<button>", {
+  id: "medic",
+  title: "Use the medic ability",
+  text: "MDC"
+});
 let $useButton = $("<button>", {
   id: "use",
   title: "Use the selected card",
@@ -47,6 +52,7 @@ let $confirmButton = $("<button>", {
   text: "CFM"
 });
 
+$buttons.append($medicButton);
 $buttons.append($useButton);
 $buttons.append($discardButton);
 $buttons.append($fireButton);
@@ -280,8 +286,12 @@ CARD BINDING
 
 const enableSelect = function() {
   $(".disabled").removeClass("disabled");
+  if (getUser().effects.medicActive) {
+    $medicButton.show();
+  }
   $("#playerHand .tactical").on("click", function() {
     deselect();
+    $medicButton.hide();
     $(this).addClass("selected");
     let $selected = $(".selected");
     if ($selected.hasClass("feint")) {
@@ -321,7 +331,16 @@ const selectAlly = function(scope) {
   });
 }
 
-const getPlayer = function() { // for local playable version only
+const getUser = function() {
+  for (let i=0; i < game.friendlies.length; i++) {
+    let friendly = game.friendlies[i];
+    if (friendly.id === user.id) {
+      return friendly;
+    }
+  }
+}
+
+const getPlayer = function() {
   let $summary = $(".selected").parent().next();
   if ($summary.hasClass("Player1")) {
     return Player1;
@@ -407,6 +426,14 @@ const showTargets = function(action) {
 /********************
 BUTTON FUNCTIONS
 ********************/
+
+$medicButton.on("click", function() {
+  clearButtons();
+  buttonPressed = "medic";
+  action = "medic";
+  $cancelButton.show();
+  selectAlly("all");
+});
 
 $useButton.on("click", function() {
   clearButtons();
@@ -515,7 +542,7 @@ $cicButton.on("click", function() {
 
 $confirmButton.on("click", function() {
   let turnInfo = {
-    player: getPlayer(),
+    player: getUser(),
     button: buttonPressed,
     cardIndex: $(".selected").index(),
     friendly: getFriendly(".targeted"),

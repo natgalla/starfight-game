@@ -584,7 +584,8 @@ fieldset.carousel::-webkit-scrollbar-thumb:vertical {
   transform: rotate(45deg);
   cursor: pointer;
   box-sizing: border-box;
-  border-radius: 5px; }
+  border-radius: 5px;
+  transition: 0.5s; }
 
 .forward:hover,
 .backward:hover,
@@ -631,7 +632,7 @@ body {
     color: magenta;
     font-family: 'Orbitron', sans-serif;
     margin: 50px auto 1%;
-    font-size: 5.5em;
+    font-size: 5.3em;
     text-align: center;
     text-shadow: 2px 2px 5px #8db3d3, -2px -2px 4px #294d6b; }
   @media (max-width: 1000px), (max-height: 700px) {

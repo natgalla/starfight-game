@@ -287,6 +287,7 @@ const Player = function(id, name) {
   this.missileDie = [0,0,1,1,2,2];
   this.amtImproved = 0;
   this.effects = {
+    ability: "",
     dead: false,
     medalOfHonor: false,
     medic: false,
@@ -334,39 +335,11 @@ Player.prototype.updateSummary = function() {
     this.summary += "<p>Armor: " + this.currentArmor
                   + "/" + this.maxArmor + "</p>"
                   + "<p>Merit: " + this.merit + "</p>";
-    for (let i=0; i<this.pursuers.length; i++) {
-      let enemy = this.pursuers[i];
-      if (enemy.merit > 0) {
-        this.effects.status = "Pursued";
-      }
-    }
   }
   if (this.effects.status === "KIA" || this.effects.status === "MIA") {
     this.summary += "<p class='pursued'>" + this.effects.status + "</p>";
   } else {
-    let ability = "";
-    if (this.effects.medalOfHonor) {
-      ability = "Medal of Honor";
-    } else if (this.effects.medic) {
-      ability = "Medic";
-    } else if (this.effects.daredevil) {
-      ability = "Daredevil";
-    } else if (this.effects.deadeye) {
-      ability = "Deadeye";
-    } else if (this.effects.heavyArmor) {
-      ability = "Heavy Armor";
-    } else if (this.effects.negotiator) {
-      ability = "Negotiator";
-    } else if (this.effects.resourceful) {
-      ability = "Resourceful";
-    } else if (this.effects.strategist) {
-      ability = "Strategist";
-    } else if (this.effects.lightningReflexes) {
-      ability = "Lightning Reflexes";
-    } else if (this.effects.commsExpert) {
-      ability = "Comms expert";
-    }
-    this.summary += "<p class='free'>" + ability + "</p>";
+    this.summary += "<p class='free'>" + this.effects.ability + "</p>";
   }
 }
 
@@ -622,7 +595,7 @@ Player.prototype.bomb = function(game, friendly, pursuerIndex, damage, collatera
   }
 }
 
-Player.prototype.repairDrone = function(game, friendly, index, repairPoints, meritReward) {
+Player.prototype.repairDrone = function(game, friendly, index, repairPoints, meritReward, medic) {
   // repair a selected ally, can choose self, award merit if not self
   if (index === undefined) {
     index = 0;
@@ -632,6 +605,9 @@ Player.prototype.repairDrone = function(game, friendly, index, repairPoints, mer
   }
   if (meritReward === undefined) {
     meritReward = 2;
+  }
+  if (medic === undefined) {
+    medic = false;
   }
   if (friendly.currentArmor < friendly.maxArmor) {
     friendly.currentArmor += repairPoints;
@@ -643,7 +619,11 @@ Player.prototype.repairDrone = function(game, friendly, index, repairPoints, mer
     }
     io.to(game.gameID).emit("msg", this.name + " repairs " + repairPoints + " damage on "
                 + friendly.name + ". Current armor: "
-                + friendly.currentArmor + "/" + friendly.maxArmor)
+                + friendly.currentArmor + "/" + friendly.maxArmor);
+    if (medic) {
+      this.effects.medicActive = false;
+      return game;
+    }
   } else {
     io.to(game.gameID).emit("msg", friendly.name + " is already at maximum armor.");
   }
@@ -768,30 +748,42 @@ Player.prototype.incinerate = function(game) {
 }
 
 Player.prototype.medalOfHonor = function() {
+  this.effects.ability = "Medal of Honor";
   this.effects.medalOfHonor = true;
 }
 
 Player.prototype.deadeye = function() {
+  this.effects.ability = "Deadeye";
   this.effects.deadeye = true;
 }
 
 Player.prototype.negotiator = function() {
+  this.effects.ability = "Negotiator";
   this.effects.negotiator = true;
 }
 
 Player.prototype.daredevil = function() {
+  this.effects.ability = "Daredevil";
   this.effects.daredevil = true;
 }
 
 Player.prototype.heavyArmor = function() {
+  this.effects.ability = "Heavy Armor";
   this.effects.heavyArmor = true;
   this.maxArmor = 15;
   this.currentArmor = 15;
 }
 
 Player.prototype.strategist = function() {
+  this.effects.ability = "Strategist";
   this.effects.strategist = true;
   this.tacticalCardsPerTurn = 4;
+}
+
+Player.prototype.medic = function() {
+  this.effects.ability = "Medic";
+  this.effects.medic = true;
+  this.effects.medicActive = true;
 }
 
 /**************************
@@ -1152,6 +1144,9 @@ Game.prototype.round = function() {
     if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
       continue;
     } else {
+      if (friendly.effects.medic) {
+        friendly.effects.medicActive = true;
+      }
       friendly.resetCardsUsed();
       this.replaceCards(friendly.tacticalCardsPerTurn,
                         this.tacticalDeck, friendly.hand);
@@ -1347,7 +1342,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketio(server);
 // globals
-let gameTitle = "Contact!";
+let gameTitle = "Starfight";
 let root = __dirname;
 let port = process.env.PORT || 8080;
 
@@ -1355,7 +1350,7 @@ let port = process.env.PORT || 8080;
 // mongodb connection
 let mongoUri = 'mongodb://heroku_rmsqzvkd:oavs0o32a02l6vc163tbennr9s@ds119608.mlab.com:19608/heroku_rmsqzvkd';
 let localUri = 'mongodb://localhost:27017/starfire';
-mongoose.connect(mongoUri);
+mongoose.connect(localUri);
 let db = mongoose.connection;
 
 // mongo error
@@ -1910,6 +1905,9 @@ function turnAction(game, specs) {
   if (game.currentTurn === game.friendlies.indexOf(player)) {
     if (specs.button === 'use') {
       game = player.useTactic(game, specs.cardIndex, friendly, specs.pursuerIndex);
+    } else if (specs.button === 'medic') {
+      game = player.repairDrone(game, friendly, undefined, 1, 0, true);
+      game.update();
     } else {
       game = player.discard(game, specs.cardIndex, specs.button, friendly,
                                                                 specs.pursuerIndex,

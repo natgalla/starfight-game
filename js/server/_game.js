@@ -292,6 +292,9 @@ Game.prototype.round = function() {
     if (friendly.id === 'FriendlyBase' || friendly.effects.dead) {
       continue;
     } else {
+      if (friendly.effects.medic) {
+        friendly.effects.medicActive = true;
+      }
       friendly.resetCardsUsed();
       this.replaceCards(friendly.tacticalCardsPerTurn,
                         this.tacticalDeck, friendly.hand);
