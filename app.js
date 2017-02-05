@@ -882,8 +882,9 @@ Game.prototype.removeAdvTactic = function(index) {
 Game.prototype.addAdvTactic = function() {
   let addToMarket = this.marketSize - this.market.length;
   for (let i = 0; i < addToMarket; i++) {
-    this.checkDeck(this.advTactics);
-    this.market.push(this.advTactics.cards.pop());
+    if (this.advTactics.cards.length > 0) {
+      this.market.push(this.advTactics.cards.pop());
+    }
   }
 }
 
@@ -1464,7 +1465,7 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        if (game.lose && game.win || game.lose){
+        if (game.lose) {
           io.to(game.gameID).emit('end', 'Defeat!');
           gameSession.meta.lost = true;
           gameSession.save(function(err, updatedSession) {

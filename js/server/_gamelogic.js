@@ -45,7 +45,7 @@ function saveGame(game) {
       }
       if (game.win || game.lose) {
         gameSession.gameName = gameSession._id;
-        if (game.lose && game.win || game.lose){
+        if (game.lose) {
           io.to(game.gameID).emit('end', 'Defeat!');
           gameSession.meta.lost = true;
           gameSession.save(function(err, updatedSession) {

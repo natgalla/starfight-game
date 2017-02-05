@@ -33,8 +33,9 @@ Game.prototype.removeAdvTactic = function(index) {
 Game.prototype.addAdvTactic = function() {
   let addToMarket = this.marketSize - this.market.length;
   for (let i = 0; i < addToMarket; i++) {
-    this.checkDeck(this.advTactics);
-    this.market.push(this.advTactics.cards.pop());
+    if (this.advTactics.cards.length > 0) {
+      this.market.push(this.advTactics.cards.pop());
+    }
   }
 }
 
