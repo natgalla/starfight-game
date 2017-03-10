@@ -1577,7 +1577,7 @@ function onConnection(socket) {
             socket.on('chat', function(data) {
               io.to(data.room).emit('chatMessage', data.message);
               if (data.message.toLowerCase().includes('what do you hear')) {
-                io.to(data.room).emit('msg', "Nothin' but the wind");
+                io.to(data.room).emit('msg', "Nothin' but the rain");
               }
               if (data.message.toLowerCase().includes('good hunting')) {
                 io.to(data.room).emit('msg', "So say we all!");
