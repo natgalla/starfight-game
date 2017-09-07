@@ -498,7 +498,7 @@ PLAYER TACTICAL FUNCTIONS
 
 Player.prototype.fire = function(game, friendly, pursuerIndex) {
   let damage = 0;
-  if (this.deadeye) {
+  if (this.effects.deadeye) {
     damage = this.calcDamage(5);
   } else {
     damage = this.calcDamage(4);
@@ -526,7 +526,7 @@ Player.prototype.evade = function(game, friendly, pursuerIndex) {
 
 Player.prototype.missile = function(game, friendly, pursuerIndex) {
   let damage = 0;
-  if (this.deadeye) {
+  if (this.effects.deadeye) {
     damage = this.calcDamage(5) + this.damageRoll(this.missileDie);
   } else {
     damage = this.calcDamage(4) + this.damageRoll(this.missileDie);
