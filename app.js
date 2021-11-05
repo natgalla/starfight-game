@@ -1347,6 +1347,7 @@ let port = process.env.PORT || 8080;
 
 // mongodb connection
 let mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/starfire';
+console.log(mongoUri)
 mongoose.connect(mongoUri);
 let db = mongoose.connection;
 
