@@ -28,7 +28,8 @@ let UserSchema = new mongoose.Schema({
     losses: {type: Number, default: 0},
     rank: {type: String, default: "Ensign"}
   }
-});
+},
+{ usePushEach: true });
 
 UserSchema.statics.authenticate = function(callsign, password, callback) {
   User.findOne({ callsign: callsign })

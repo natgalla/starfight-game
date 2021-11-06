@@ -60,7 +60,9 @@ let GameSchema = new mongoose.Schema({
     aborted: {type: Boolean, default: false},
     advTacticsPurchased: {type: Array, default: []},
   }
-});
+},
+{ usePushEach: true }
+);
 
 GameSchema.pre('save', function(next) {
   let game = this;
